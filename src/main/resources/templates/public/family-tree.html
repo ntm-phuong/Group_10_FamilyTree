@@ -1,10 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cay Gia Pha - Dong ho</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
 
+<div class="tree-page-wrap">
+  <div class="breadcrumb">
+    <a href="/"><i class="fas fa-home"></i></a>
+    <span class="breadcrumb-sep">></span>
+    <span>Gia pha</span>
+  </div>
+
+  <h1 style="font-size:1.4rem;font-weight:700;margin-bottom:.3rem;">Cay gia pha dong ho</h1>
+  <p style="font-size:.85rem;color:var(--text-500);margin-bottom:1.25rem;">
+    Kham pha moi quan he giua cac thanh vien qua nhieu the he. Click vao moi thanh vien de xem chi tiet.
+  </p>
+
+  <div class="tree-toolbar">
+    <div class="search-input" style="min-width:200px;max-width:260px;">
+      <i class="fas fa-search"></i>
+      <input id="treeSearch" type="text" class="form-control" placeholder="Tim kiem thanh vien...."/>
+    </div>
+    <select id="genFilter" class="form-control form-select" style="width:140px;">
+      <option value="">Tat ca the he</option>
+    </select>
+
+    <div style="display:flex;align-items:center;gap:.4rem;margin-left:.5rem;">
+      <span class="tree-zoom-display" id="zoomLabel">100%</span>
+      <button id="zoomOut" class="btn btn-white btn-icon" title="Thu nho"><i class="fas fa-search-minus"></i></button>
+      <button id="zoomIn"  class="btn btn-white btn-icon" title="Phong to"><i class="fas fa-search-plus"></i></button>
+      <button id="zoomReset" class="btn btn-white btn-icon" title="Dat lai"><i class="fas fa-redo"></i></button>
+    </div>
+
+    <div style="margin-left:auto;display:flex;gap:.5rem;">
+      <button id="expandAll" class="btn btn-white btn-sm"><i class="fas fa-expand-alt"></i> Mo rong</button>
+      <button id="collapseAll" class="btn btn-white btn-sm"><i class="fas fa-compress-alt"></i> Thu gon</button>
+      <button class="btn btn-white btn-sm"><i class="fas fa-file-pdf"></i> Xuat file PDF</button>
+    </div>
+  </div>
+
+  <div class="tree-container" id="treeCanvas">
+    <div id="treeContent"></div>
+    <div id="treeEmptyState" class="empty-state" style="display:none;">
+      <i class="fas fa-sitemap"></i>
+      <h3>Chua co du lieu gia pha</h3>
+    </div>
+  </div>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
 </body>
 </html>

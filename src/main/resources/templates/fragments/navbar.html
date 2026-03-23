@@ -1,10 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org">
 <body>
-
+<nav th:fragment="navbar" class="pub-nav">
+  <a th:href="@{/}" class="pub-nav-logo">
+    <i class="fas fa-leaf"></i>
+    <span>Gia Pha</span>
+  </a>
+  <div id="navLinks" class="pub-nav-links">
+    <a th:href="@{/}" th:classappend="${activeMenu=='home'}?' active':''">Trang chu</a>
+    <a th:href="@{/family-tree}" th:classappend="${activeMenu=='family-tree'}?' active':''">Gia pha</a>
+    <a th:href="@{/news}" th:classappend="${activeMenu=='news'}?' active':''">Tin tuc</a>
+  </div>
+  <button id="navToggle" class="pub-nav-toggle"><i class="fas fa-bars"></i></button>
+</nav>
 </body>
 </html>
