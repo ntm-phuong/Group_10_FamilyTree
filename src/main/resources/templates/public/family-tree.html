@@ -1,10 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cay gia pha</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
+<th:block th:replace="~{fragments/navbar :: navbar}"/>
 
+<div class="tree-page-wrap">
+  <div class="breadcrumb">
+    <a th:href="@{/}"><i class="fas fa-home"></i></a>
+    <span class="breadcrumb-sep">></span>
+    <span>Gia pha</span>
+  </div>
+
+  <h1 style="font-size:1.4rem;font-weight:700;margin-bottom:.3rem;">Cay gia pha dong ho</h1>
+  <p style="font-size:.85rem;color:var(--text-500);margin-bottom:1.25rem;">
+    Kham pha moi quan he thanh vien theo tung the he.
+  </p>
+
+  <div class="tree-toolbar">
+    <div class="search-input" style="min-width:220px;">
+      <i class="fas fa-search"></i>
+      <input id="treeSearch" type="text" class="form-control" placeholder="Tim ten thanh vien..."/>
+    </div>
+    <span class="tree-zoom-display">Tong thanh vien: <strong th:text="${stats.totalMembers}">0</strong></span>
+    <span class="tree-zoom-display">So the he: <strong th:text="${stats.totalGenerations}">0</strong></span>
+  </div>
+
+  <div class="tree-container">
+    <div th:if="${members == null or members.isEmpty()}" class="empty-state">
+      <i class="fas fa-sitemap"></i>
+      <h3>Chua co du lieu gia pha</h3>
+    </div>
+
+    <div th:if="${members != null and !members.isEmpty()}">
+      <div th:each="gen : ${#numbers.sequence(1, stats.totalGenerations)}" class="tree-level">
+        <div class="tree-generation-title" th:text="${'The he ' + gen}">The he</div>
+        <div class="tree-generation-row">
+          <div th:each="member : ${members}" th:if="${member.generation == gen}"
+               class="pcard" th:classappend="${member.gender.name() == 'FEMALE'} ? ' female' : ''">
+            <div class="pcard-avatar">
+              <span th:text="${member.name.substring(0,1)}">N</span>
+            </div>
+            <div class="pcard-name" th:text="${member.name}">Ten</div>
+            <div class="pcard-years">
+              <i class="fas fa-birthday-cake" style="font-size:.6rem;"></i>
+              <span th:text="${member.birthYear + ' - ' + (member.deathYear != null ? member.deathYear : 'nay')}">1990 - nay</span>
+            </div>
+            <div class="pcard-job" th:if="${member.occupation != null}" th:text="${member.occupation}">Nghe nghiep</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<th:block th:replace="~{fragments/footer :: footer}"/>
+<script th:src="@{/js/main.js}"></script>
 </body>
 </html>

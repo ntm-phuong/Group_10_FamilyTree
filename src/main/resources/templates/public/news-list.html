@@ -1,10 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tin tuc - Gia pha</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
+<th:block th:replace="~{fragments/navbar :: navbar}"/>
 
+<div class="news-page-wrap">
+  <div class="breadcrumb">
+    <a th:href="@{/}"><i class="fas fa-home"></i></a>
+    <span class="breadcrumb-sep">></span>
+    <span>Tin tuc</span>
+  </div>
+
+  <h1 style="font-size:1.4rem;font-weight:700;margin-bottom:.3rem;">Tin tuc dong ho</h1>
+  <p style="font-size:.85rem;color:var(--text-500);margin-bottom:1.25rem;">Cap nhat cac su kien va thong tin moi nhat.</p>
+
+  <div class="news-cat-tabs">
+    <a th:href="@{/news}" class="news-cat-tab" th:classappend="${selectedCategory == null}?' active':''">Tat ca</a>
+    <a th:each="cat : ${categories}"
+       th:href="@{/news(category=${cat.name()})}"
+       class="news-cat-tab"
+       th:classappend="${selectedCategory == cat.name()}?' active':''"
+       th:text="${cat.label}">Danh muc</a>
+  </div>
+
+  <div th:if="${featuredArticles != null and !featuredArticles.isEmpty() and selectedCategory == null}"
+       style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+    <div th:each="a, s : ${featuredArticles}" th:if="${s.index < 2}" class="news-card">
+      <div class="news-card-body">
+        <div class="news-card-meta">
+          <span class="badge badge-gray" th:text="${a.category.label}">Danh muc</span>
+          <span class="text-xs text-muted" th:text="${a.authorName}">Tac gia</span>
+        </div>
+        <div class="news-card-title">
+          <a th:href="@{/news/{slug}(slug=${a.slug})}" th:text="${a.title}">Tieu de</a>
+        </div>
+        <p class="news-card-excerpt" th:text="${a.summary}"></p>
+      </div>
+    </div>
+  </div>
+
+  <p style="font-size:.82rem;color:var(--text-500);margin-bottom:1rem;">
+    Tim thay <strong th:text="${articles.size()}">0</strong> bai viet
+  </p>
+
+  <div th:if="${articles.isEmpty()}" class="empty-state">
+    <i class="fas fa-newspaper"></i>
+    <h3>Chua co bai viet</h3>
+  </div>
+
+  <div th:if="${!articles.isEmpty()}" class="news-grid">
+    <div th:each="article : ${articles}" class="news-card">
+      <div class="news-card-body">
+        <div class="news-card-meta">
+          <span class="badge badge-gray" th:text="${article.category.label}">Danh muc</span>
+          <span class="text-xs text-muted" th:text="${article.authorName}">Tac gia</span>
+        </div>
+        <div class="news-card-title">
+          <a th:href="@{/news/{slug}(slug=${article.slug})}" th:text="${article.title}">Tieu de</a>
+        </div>
+        <p class="news-card-excerpt" th:text="${article.summary}"></p>
+        <div class="news-card-footer">
+          <span></span>
+          <a th:href="@{/news/{slug}(slug=${article.slug})}">Doc them <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<th:block th:replace="~{fragments/footer :: footer}"/>
+<script th:src="@{/js/main.js}"></script>
 </body>
 </html>
