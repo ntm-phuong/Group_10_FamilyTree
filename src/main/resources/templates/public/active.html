@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Kích hoạt tài khoản</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body style="background: #F4F1EA; display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+
+<div class="login-card" style="max-width: 450px; width: 100%; background: #fff; padding: 2.5rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+    <div class="text-center" style="margin-bottom: 2rem;">
+        <div style="color: #2D6A4F; font-size: 3rem; margin-bottom: 1rem;">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h2 style="color: #1B4332; font-weight: 700;">Kích hoạt tài khoản</h2>
+        <p style="color: #6B7280; font-size: 0.9rem; margin-top: 0.5rem;">Lần đầu đăng nhập, vui lòng cập nhật thông tin và đổi mật khẩu để bảo mật.</p>
+    </div>
+
+    <form th:action="@{/activate-account}" method="post">
+        <div class="form-group mb-4">
+            <label class="form-label">Họ Và Tên</label>
+            <input type="text" name="name" class="form-control" placeholder="Nhập họ tên đầy đủ" required>
+        </div>
+
+        <div class="form-group mb-4">
+            <label class="form-label">Mật Khẩu Mới</label>
+            <div class="input-icon-wrap">
+                <input type="password" name="password" id="pass" class="form-control" required>
+                <i class="fas fa-eye-slash" onclick="togglePass('pass')"></i>
+            </div>
+        </div>
+
+        <div class="form-group mb-4">
+            <label class="form-label">Xác Nhận Mật Khẩu</label>
+            <div class="input-icon-wrap">
+                <input type="password" name="confirmPassword" id="confirm" class="form-control" required>
+                <i class="fas fa-eye-slash" onclick="togglePass('confirm')"></i>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full" style="background: #2D6A4F; padding: 0.8rem; font-weight: 600;">
+            Kích Hoạt & Vào Gia Phả
+        </button>
+    </form>
+</div>
+
+<script>
+    function togglePass(id) {
+        const input = document.getElementById(id);
+        input.type = input.type === 'password' ? 'text' : 'password';
+    }
+</script>
+</body>
+</html>
