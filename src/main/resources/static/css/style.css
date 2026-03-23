@@ -1,3 +1,92 @@
+
+/* Điều chỉnh kích thước icon FontAwesome cho thanh thoát */
+.pub-nav-links a i {
+  font-size: 0.9rem !important; /* Giảm size xuống một chút vì icon này vốn đã đậm */
+  margin-right: 4px;
+}
+
+.pub-nav-logo i {
+  font-size: 1.3rem !important;
+  color: var(--green-figma-logo);
+}
+
+.btn-login-figma i {
+  font-size: 0.85rem;
+}
+
+/* Đảm bảo căn giữa icon và chữ */
+.pub-nav-links a, .btn-login-figma, .pub-nav-user {
+  display: flex;
+  align-items: center;
+}
+/* --- Navbar chung --- */
+.pub-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Đẩy Logo sang trái, User sang phải */
+  height: var(--nav-h);
+  padding: 0 4rem;
+  background: var(--bg-white);
+  position: relative; /* Quan trọng để căn giữa menu tuyệt đối nếu muốn */
+}
+
+/* --- Đưa thanh menu vào giữa --- */
+.pub-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  /* Cách 1: Dùng margin auto để tự căn giữa trong khoảng trống còn lại */
+  margin: 0 auto;
+
+  /* Cách 2 (Nếu muốn giữa tuyệt đối màn hình):
+     uncomment 3 dòng dưới nếu Logo và cụm User có độ dài khác nhau
+  */
+  /* position: absolute; left: 50%; transform: translateX(-50%); */
+}
+
+/* Đảm bảo Logo không bị co lại khi menu chiếm chỗ */
+.pub-nav-logo {
+  flex-shrink: 0;
+  min-width: 150px; /* Độ rộng ước tính của logo */
+}
+
+/* Đảm bảo cụm bên phải không bị co lại */
+.pub-nav-right {
+  flex-shrink: 0;
+  min-width: 150px;
+  display: flex;
+  justify-content: flex-end; /* Đẩy nội dung bên trong sang sát phải */
+}
+/* --- Cấu hình background cho trang kích hoạt --- */
+body.activation-page-bg {
+    /* Đường dẫn đến ảnh nền (tính từ file CSS) */
+    background-image: url('../images/bg-activation.jpg');
+
+    /* Đảm bảo ảnh nền phủ kín toàn bộ màn hình */
+    background-size: cover;
+
+    /* Căn giữa ảnh nền */
+    background-position: center;
+
+    /* Không lặp lại ảnh */
+    background-repeat: no-repeat;
+
+    /* Giữ ảnh nền cố định khi cuộn trang (tùy chọn) */
+    background-attachment: fixed;
+
+    /* Đảm bảo nội dung luôn hiển thị */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+/* Thêm hiệu ứng mờ nhẹ cho khung card để dễ đọc chữ (tùy chọn) */
+.activation-page-bg .login-card {
+    background: rgba(255, 255, 255, 0.95) !important; /* Trắng mờ */
+    backdrop-filter: blur(5px); /* Làm mờ nhẹ nền phía sau card */
+}
 /* =============================================
    Gia Pha System - Design System
    ============================================= */

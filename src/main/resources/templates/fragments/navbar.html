@@ -1,17 +1,64 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 <nav th:fragment="navbar" class="pub-nav">
-  <a th:href="@{/}" class="pub-nav-logo">
-    <i class="fas fa-leaf"></i>
-    <span>Gia Pha</span>
-  </a>
-  <div id="navLinks" class="pub-nav-links">
-    <a th:href="@{/}" th:classappend="${activeMenu=='home'}?' active':''">Trang chu</a>
-    <a th:href="@{/family-tree}" th:classappend="${activeMenu=='family-tree'}?' active':''">Gia pha</a>
-    <a th:href="@{/news}" th:classappend="${activeMenu=='news'}?' active':''">Tin tuc</a>
-  </div>
-  <button id="navToggle" class="pub-nav-toggle"><i class="fas fa-bars"></i></button>
+    <a th:href="@{/}" class="pub-nav-logo">
+        <i class="fas fa-tree"></i> <span>Gia Phả</span>
+    </a>
+
+    <div id="navLinks" class="pub-nav-links">
+        <a th:href="@{/}" th:classappend="${activeMenu=='home'}?' active':''">
+            <i class="fas fa-home"></i> Trang Chủ
+        </a>
+        <a th:href="@{/family-tree}" th:classappend="${activeMenu=='family-tree'}?' active':''">
+            <i class="fas fa-sitemap"></i> Gia Phả
+        </a>
+        <a th:href="@{/news}" th:classappend="${activeMenu=='news'}?' active':''">
+            <i class="fas fa-newspaper"></i> Tin Tức
+        </a>
+        <sec:authorize access="hasRole('ADMIN')">
+            <a th:href="@{/admin}" th:classappend="${activeMenu=='admin'}?' active':''">
+                <i class="fas fa-th-large"></i> Quản Trị
+            </a>
+        </sec:authorize>
+    </div>
+
+    <div class="pub-nav-right">
+        <div class="dropdown" id="userMenuDropdown" sec:authorize="isAuthenticated()">
+            <div class="pub-nav-user" id="userMenuBtn">
+                <div class="avatar avatar-xs avatar-male">
+                    <span th:text="${#strings.substring(#authentication.name, 0, 1).toUpperCase()}">M</span>
+                </div>
+                <span class="user-name-text" th:text="${#strings.substringBefore(#authentication.name,'@')}">minh.nguyen</span>
+                <i class="fas fa-chevron-down" style="font-size: .7rem;"></i>
+            </div>
+
+            <div class="dropdown-menu">
+                <a th:href="@{/profile}" class="dropdown-item"><i class="fas fa-user"></i> Hồ sơ cá nhân</a>
+                <a th:href="@{/admin}" class="dropdown-item" sec:authorize="hasRole('ADMIN')"><i class="fas fa-cog"></i> Trang quản trị</a>
+                <div class="dropdown-sep"></div>
+                <a th:href="@{/logout}" class="dropdown-item danger"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+            </div>
+        </div>
+
+        <div class="dropdown" id="guestMenuDropdown" sec:authorize="isAnonymous()">
+            <div class="pub-nav-user" id="guestMenuBtn">
+                <div class="avatar avatar-xs" style="background: #E5E7EB; color: #6B7280;">
+                    <span>G</span> </div>
+                <span class="user-name-text">Guest</span>
+                <i class="fas fa-chevron-down" style="font-size: .7rem;"></i>
+            </div>
+
+            <div class="dropdown-menu">
+                <a th:href="@{/login}" class="dropdown-item">
+                    <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                </a>
+            </div>
+        </div>
+
+        <button id="navToggle" class="pub-nav-toggle"><i class="fas fa-bars"></i></button>
+    </div>
 </nav>
 </body>
 </html>
