@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title th:text="${member.name + ' – Gia Phả'}">Thành viên</title>
@@ -34,11 +33,6 @@
       <div class="profile-job" th:if="${member.occupation != null}" th:text="${member.occupation}">Giám đốc công ty CNTT</div>
     </div>
     <div style="margin-left:auto;">
-      <sec:authorize access="hasRole('ADMIN')">
-        <a th:href="@{/admin/members/{id}/edit(id=${member.id})}" class="btn btn-primary">
-          <i class="fas fa-pencil-alt"></i> Chỉnh sửa
-        </a>
-      </sec:authorize>
       <a th:href="@{/family-tree}" class="btn btn-outline ml-2">
         <i class="fas fa-sitemap"></i> Xem trong cây
       </a>
@@ -55,11 +49,9 @@
           <div class="card-header-left">
             <h3>Thông tin cá nhân</h3>
           </div>
-          <sec:authorize access="hasRole('ADMIN')">
-            <a th:href="@{/admin/members/{id}/edit(id=${member.id})}" class="btn btn-ghost btn-sm text-muted">
-              <i class="fas fa-pencil-alt"></i> Chỉnh sửa
-            </a>
-          </sec:authorize>
+          <a th:href="@{/family-tree}" class="btn btn-ghost btn-sm text-muted">
+            <i class="fas fa-sitemap"></i> Quay lai cay
+          </a>
         </div>
         <div class="card-body">
           <div class="profile-detail-grid">
@@ -112,9 +104,7 @@
       <div class="card mb-4">
         <div class="card-header">
           <h3><i class="fas fa-users" style="color:var(--text-300);"></i> Cha mẹ</h3>
-          <sec:authorize access="hasRole('ADMIN')">
-            <span class="text-xs text-muted"><i class="fas fa-lock"></i> Chỉ quản trị</span>
-          </sec:authorize>
+          <span class="text-xs text-muted"><i class="fas fa-user"></i> Du lieu mock</span>
         </div>
         <div class="card-body" style="padding:.75rem 1rem;">
           <div th:if="${member.father == null and member.mother == null}" class="text-sm text-muted" style="padding:.5rem 0;">Không có thông tin</div>
@@ -145,9 +135,7 @@
       <div class="card mb-4">
         <div class="card-header">
           <h3><i class="fas fa-heart" style="color:var(--text-300);"></i> Vợ chồng</h3>
-          <sec:authorize access="hasRole('ADMIN')">
-            <span class="text-xs text-muted"><i class="fas fa-lock"></i> Chỉ quản trị</span>
-          </sec:authorize>
+          <span class="text-xs text-muted"><i class="fas fa-user"></i> Du lieu mock</span>
         </div>
         <div class="card-body" style="padding:.75rem 1rem;">
           <div th:if="${member.spouse == null}" class="text-sm text-muted" style="padding:.5rem 0;">Không có thông tin</div>
@@ -173,9 +161,7 @@
           <h3><i class="fas fa-child" style="color:var(--text-300);"></i>
             Con cái (<span th:text="${children.size()}">0</span>)
           </h3>
-          <sec:authorize access="hasRole('ADMIN')">
-            <span class="text-xs text-muted"><i class="fas fa-lock"></i> Chỉ quản trị</span>
-          </sec:authorize>
+          <span class="text-xs text-muted"><i class="fas fa-user"></i> Du lieu mock</span>
         </div>
         <div class="card-body" style="padding:.75rem 1rem;">
           <div th:if="${children.isEmpty()}" class="text-sm text-muted" style="padding:.5rem 0;">Không có thông tin</div>
@@ -201,9 +187,7 @@
           <h3><i class="fas fa-people-arrows" style="color:var(--text-300);"></i>
             Anh Chị Em (<span th:text="${siblings.size()}">0</span>)
           </h3>
-          <sec:authorize access="hasRole('ADMIN')">
-            <span class="text-xs text-muted"><i class="fas fa-lock"></i> Chỉ quản trị</span>
-          </sec:authorize>
+          <span class="text-xs text-muted"><i class="fas fa-user"></i> Du lieu mock</span>
         </div>
         <div class="card-body" style="padding:.75rem 1rem;">
           <a th:each="s : ${siblings}" th:href="@{/member/{id}(id=${s.id})}" class="relation-item">
