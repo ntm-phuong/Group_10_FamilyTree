@@ -68,5 +68,4 @@ public class User {
         }
     }
 
-    // Toàn bộ Getter/Setter thủ công đã được xóa sạch!
 }
