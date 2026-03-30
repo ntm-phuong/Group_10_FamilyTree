@@ -31,7 +31,6 @@ public class AuthService {
             authData.put("userId", user.getUserId());
             authData.put("fullName", user.getFullName());
 
-            // Lấy tên Role (Giả định Role của Phú có trường roleName)
             if (user.getRole() != null) {
                 authData.put("role", user.getRole().getRoleName());
             }
