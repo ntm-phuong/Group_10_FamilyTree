@@ -15,7 +15,7 @@ public class Category {
 
     @Id
     @Column(name = "category_id", length = 36)
-    private String categoryId;
+    private String categoryId; // Đây là Primary Key
 
     @Column(nullable = false, length = 100)
     private String name;
