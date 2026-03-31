@@ -33,7 +33,6 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
                     config.setAllowedOrigins(List.of("*"));
@@ -42,31 +41,29 @@ public class SecurityConfig {
                     return config;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // Mở cửa hoàn toàn cho login/register
+                        // 1. Tài nguyên tĩnh và Giao diện Public (Ưu tiên hàng đầu)
+                        .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/login", "/about", "/family-tree", "/news/**").permitAll()
 
+                        // 2. API xác thực (Login/Register)
+                        .requestMatchers("/api/auth/**").permitAll()
+
+                        // 3. API Tin tức (Public xem, Admin/Head mới được sửa)
                         .requestMatchers(HttpMethod.GET, "/api/news/**").permitAll()
-
                         .requestMatchers(HttpMethod.POST, "/api/news/**").hasRole("FAMILY_HEAD")
                         .requestMatchers(HttpMethod.PUT, "/api/news/**").hasRole("FAMILY_HEAD")
                         .requestMatchers(HttpMethod.DELETE, "/api/news/**").hasRole("FAMILY_HEAD")
 
+                        // 4. Các API quản lý gia đình
                         .requestMatchers("/api/family-head/**").hasRole("FAMILY_HEAD")
+
+                        // 5. CHỐT CHẶN CUỐI CÙNG: Tất cả các request còn lại phải được xác thực
                         .anyRequest().authenticated()
-                        // Cho phép các tài nguyên tĩnh
-                        .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
-
-                        // Cho phép các route của PageController (Các trang giao diện public)
-                        .requestMatchers("/login", "/about", "/family-tree", "/news/**").permitAll()
-
-                        // Cho phép API login/register
-                        .requestMatchers("/api/auth/**").permitAll()
-
-                        // Tất cả các request khác (thường là API nghiệp vụ) mới cần login
-                        .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
+
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
