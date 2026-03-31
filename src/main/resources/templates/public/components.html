@@ -1,10 +1,215 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>UI Components – Gia Phả Nguyễn</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
+<th:block th:replace="~{fragments/navbar :: navbar}"/>
+<div class="page-hero" style="padding:2.5rem 0 2rem">
+    <div class="container">
+        <h1 style="font-size:1.75rem"><i class="fa fa-palette"></i> UI Components</h1>
+        <p>Thư viện các thành phần giao diện của hệ thống Gia Phả</p>
+    </div>
+</div>
+<div class="container page-content" style="padding-top:2rem">
 
+    <!-- BUTTONS -->
+    <div class="components-section">
+        <h2>Buttons</h2>
+        <div class="component-preview">
+            <button class="btn btn-primary"><i class="fa fa-plus"></i> Primary</button>
+            <button class="btn btn-secondary"><i class="fa fa-cog"></i> Secondary</button>
+            <button class="btn btn-success"><i class="fa fa-check"></i> Success</button>
+            <button class="btn btn-danger"><i class="fa fa-trash"></i> Danger</button>
+            <button class="btn btn-warning"><i class="fa fa-exclamation-triangle"></i> Warning</button>
+            <button class="btn btn-outline-primary"><i class="fa fa-eye"></i> Outline</button>
+            <button class="btn btn-primary btn-sm">Small</button>
+            <button class="btn btn-primary btn-lg">Large</button>
+            <button class="btn btn-primary btn-icon"><i class="fa fa-plus"></i></button>
+            <button class="btn btn-primary" disabled>Disabled</button>
+        </div>
+    </div>
+
+    <!-- BADGES -->
+    <div class="components-section">
+        <h2>Badges</h2>
+        <div class="component-preview">
+            <span class="badge badge-primary">Primary</span>
+            <span class="badge badge-success"><i class="fa fa-check"></i> Success</span>
+            <span class="badge badge-danger">Danger</span>
+            <span class="badge badge-warning"><i class="fa fa-star"></i> Warning</span>
+            <span class="badge badge-secondary">Secondary</span>
+            <span class="badge badge-info">Info</span>
+            <span class="badge badge-male"><i class="fa fa-mars"></i> Nam</span>
+            <span class="badge badge-female"><i class="fa fa-venus"></i> Nữ</span>
+        </div>
+    </div>
+
+    <!-- ALERTS -->
+    <div class="components-section">
+        <h2>Alerts / Flash Messages</h2>
+        <div class="component-preview" style="flex-direction:column;align-items:stretch">
+            <div class="alert alert-success"><i class="fa fa-check-circle"></i> <span>Thao tác thành công! Dữ liệu đã được lưu.</span><button class="alert-close"><i class="fa fa-times"></i></button></div>
+            <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> <span>Đã xảy ra lỗi. Vui lòng thử lại.</span><button class="alert-close"><i class="fa fa-times"></i></button></div>
+            <div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> <span>Cảnh báo: Dữ liệu có thể không chính xác.</span><button class="alert-close"><i class="fa fa-times"></i></button></div>
+            <div class="alert alert-info"><i class="fa fa-info-circle"></i> <span>Thông tin: Hệ thống sẽ bảo trì vào lúc 22:00.</span><button class="alert-close"><i class="fa fa-times"></i></button></div>
+        </div>
+    </div>
+
+    <!-- AVATARS -->
+    <div class="components-section">
+        <h2>Avatars</h2>
+        <div class="component-preview" style="align-items:center">
+            <div class="avatar avatar-xs avatar-initials">N</div>
+            <div class="avatar avatar-sm avatar-initials">NV</div>
+            <div class="avatar avatar-md avatar-initials">M</div>
+            <div class="avatar avatar-lg avatar-initials">TH</div>
+            <div class="avatar avatar-xl avatar-initials" style="font-size:1.5rem">NVT</div>
+        </div>
+    </div>
+
+    <!-- CARDS -->
+    <div class="components-section">
+        <h2>Cards</h2>
+        <div class="component-preview" style="align-items:stretch">
+            <div class="card" style="min-width:260px">
+                <div class="card-header">
+                    <div><div class="card-title">Tiêu đề card</div><div class="card-desc">Mô tả ngắn</div></div>
+                    <button class="btn btn-secondary btn-sm">Hành động</button>
+                </div>
+                <div class="card-body">Nội dung chính của card. Đây là vùng hiển thị thông tin chi tiết.</div>
+                <div class="card-footer"><a href="#" class="btn btn-primary btn-sm">Xem thêm</a></div>
+            </div>
+            <div class="card" style="min-width:200px">
+                <div class="card-body text-center" style="padding:1.5rem">
+                    <div class="stat-icon" style="background:#dbeafe;color:#1d4ed8;width:3rem;height:3rem;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto .75rem"><i class="fa fa-users"></i></div>
+                    <div style="font-size:2rem;font-weight:800">42</div>
+                    <div class="text-muted text-sm">Thành viên</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORMS -->
+    <div class="components-section">
+        <h2>Form Controls</h2>
+        <div class="component-preview" style="flex-direction:column;align-items:stretch;max-width:500px">
+            <div class="form-group">
+                <label class="form-label">Họ và tên <span class="required">*</span></label>
+                <input type="text" class="form-control" placeholder="Nguyễn Văn A"/>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" placeholder="email@example.com"/>
+                <div class="form-hint">Nhập email hợp lệ</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Giới tính</label>
+                <select class="form-control">
+                    <option>-- Chọn --</option>
+                    <option>Nam</option>
+                    <option>Nữ</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tiểu sử</label>
+                <textarea class="form-control" rows="3" placeholder="Viết tiểu sử..."></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Trường lỗi</label>
+                <input type="text" class="form-control is-invalid" value="Giá trị sai"/>
+                <div class="form-error">Trường này không hợp lệ.</div>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" id="demo-check"/>
+                <label for="demo-check" class="form-label" style="margin-bottom:0;cursor:pointer">Đăng bài ngay</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="components-section">
+        <h2>Table</h2>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                <tr><th>Tên</th><th>Giới tính</th><th>Năm sinh</th><th>Trạng thái</th><th>Thao tác</th></tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><div class="flex gap-2 items-center"><div class="avatar avatar-sm avatar-initials">N</div><span class="font-medium">Nguyễn Văn Tổ</span></div></td>
+                    <td><span class="badge badge-male"><i class="fa fa-mars"></i> Nam</span></td>
+                    <td>1920</td>
+                    <td><span class="badge badge-secondary">Đã mất</span></td>
+                    <td><div class="flex gap-1"><button class="btn btn-secondary btn-sm btn-icon"><i class="fa fa-eye"></i></button><button class="btn btn-secondary btn-sm btn-icon"><i class="fa fa-pencil-alt"></i></button><button class="btn btn-danger btn-sm btn-icon"><i class="fa fa-trash"></i></button></div></td>
+                </tr>
+                <tr>
+                    <td><div class="flex gap-2 items-center"><div class="avatar avatar-sm avatar-initials">T</div><span class="font-medium">Trần Thị Cúc</span></div></td>
+                    <td><span class="badge badge-female"><i class="fa fa-venus"></i> Nữ</span></td>
+                    <td>1925</td>
+                    <td><span class="badge badge-secondary">Đã mất</span></td>
+                    <td><div class="flex gap-1"><button class="btn btn-secondary btn-sm btn-icon"><i class="fa fa-eye"></i></button><button class="btn btn-secondary btn-sm btn-icon"><i class="fa fa-pencil-alt"></i></button><button class="btn btn-danger btn-sm btn-icon"><i class="fa fa-trash"></i></button></div></td>
+                </tr>
+                <tr>
+                    <td><div class="flex gap-2 items-center"><div class="avatar avatar-sm avatar-initials">M</div><span class="font-medium">Nguyễn Văn Minh</span></div></td>
+                    <td><span class="badge badge-male"><i class="fa fa-mars"></i> Nam</span></td>
+                    <td>1970</td>
+                    <td><span class="badge badge-success"><i class="fa fa-circle" style="font-size:.5rem"></i> Còn sống</span></td>
+                    <td><div class="flex gap-1"><button class="btn btn-secondary btn-sm btn-icon"><i class="fa fa-eye"></i></button><button class="btn btn-secondary btn-sm btn-icon"><i class="fa fa-pencil-alt"></i></button><button class="btn btn-danger btn-sm btn-icon"><i class="fa fa-trash"></i></button></div></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="components-section">
+        <h2>Pagination</h2>
+        <div class="component-preview">
+            <div class="pagination">
+                <a href="#" class="page-link disabled"><i class="fa fa-chevron-left"></i></a>
+                <a href="#" class="page-link active">1</a>
+                <a href="#" class="page-link">2</a>
+                <a href="#" class="page-link">3</a>
+                <span class="page-link" style="border:none">...</span>
+                <a href="#" class="page-link">10</a>
+                <a href="#" class="page-link"><i class="fa fa-chevron-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEWS CARD -->
+    <div class="components-section">
+        <h2>News Card</h2>
+        <div class="news-grid" style="max-width:700px">
+            <div class="news-card">
+                <div class="news-card-placeholder"><i class="fa fa-newspaper"></i></div>
+                <div class="news-card-body">
+                    <span class="badge badge-primary" style="margin-bottom:.5rem">Sự kiện</span>
+                    <div class="news-card-title">Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2025</div>
+                    <div class="news-card-summary">Thông báo về Lễ Giỗ Tổ hàng năm của dòng họ Nguyễn, dự kiến ngày 15 tháng Chạp.</div>
+                    <div class="news-card-meta"><span><i class="fa fa-eye"></i> 156</span><span><i class="fa fa-user"></i> Nguyễn Văn Minh</span></div>
+                    <a href="#" class="btn btn-outline-primary btn-sm" style="margin-top:.75rem;width:100%;justify-content:center">Đọc tiếp <i class="fa fa-arrow-right"></i></a>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-card-placeholder" style="background:#fce7f3;color:#be185d"><i class="fa fa-trophy"></i></div>
+                <div class="news-card-body">
+                    <span class="badge badge-warning" style="margin-bottom:.5rem"><i class="fa fa-star"></i> Nổi bật</span>
+                    <div class="news-card-title">Chúc mừng cháu Nguyễn Minh Anh đỗ Đại học Y</div>
+                    <div class="news-card-summary">Cháu Nguyễn Minh Anh xuất sắc đỗ vào Đại học Y Hà Nội với 28.5/30 điểm.</div>
+                    <div class="news-card-meta"><span><i class="fa fa-eye"></i> 89</span></div>
+                    <a href="#" class="btn btn-outline-primary btn-sm" style="margin-top:.75rem;width:100%;justify-content:center">Đọc tiếp <i class="fa fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<th:block th:replace="~{fragments/footer :: footer}"/>
+<script th:src="@{/js/main.js}"></script>
 </body>
 </html>

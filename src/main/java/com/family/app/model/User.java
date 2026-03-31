@@ -42,14 +42,20 @@ public class User {
 
     private Integer status; // 0: Pending, 1: Active
 
+    @Column(name = "generation")
+    private Integer generation;
+
     @Column(name = "order_in_family")
     private Integer orderInFamily;
+
+    @Column(name = "parent_id")
+    private String parentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "family_id")
     private Family family;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Role role;
 

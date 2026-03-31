@@ -35,8 +35,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String userId = tokenProvider.getUserIdFromJWT(jwt);
 
                 userRepository.findById(userId).ifPresent(user -> {
+                    // SỬA TẠI ĐÂY: Lấy Role từ User Entity và thêm tiền tố ROLE_
+                    String roleName = "ROLE_" + user.getRole().getRoleName();
+                    var authority = new org.springframework.security.core.authority.SimpleGrantedAuthority(roleName);
+
                     UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(user, null, java.util.Collections.emptyList());
+                            new UsernamePasswordAuthenticationToken(user, null, java.util.Collections.singletonList(authority));
+
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);

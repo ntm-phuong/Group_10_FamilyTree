@@ -40,8 +40,8 @@ public class SecurityConfig {
                 }))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll() // Mở cửa hoàn toàn cho login/register
+                        .requestMatchers("/api/family-head/**").hasRole("FAMILY_HEAD")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

@@ -14,4 +14,10 @@ public interface UserRepository extends JpaRepository<User, String> {
     List<User> findByFamily_FamilyIdOrderByOrderInFamilyAsc(String familyId);
 
     List<User> findByFullNameContainingIgnoreCase(String fullName);
+
+    boolean existsByParentId(String parentId);
+
+    List<User> findByParentId(String parentId);
+
+    List<User> findByFamily_FamilyIdAndGenerationOrderByOrderInFamilyAsc(String familyId, Integer generation);
 }
