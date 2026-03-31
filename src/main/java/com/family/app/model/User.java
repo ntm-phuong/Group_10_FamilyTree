@@ -34,6 +34,8 @@ public class User {
     private String currentAddress; // Địa chỉ hiện tại
     private String occupation; // Nghề nghiệp
     private String phoneNumber;
+    private Integer generation; // <--- THÊM MỚI: Đời thứ mấy
+    private String branch;      // <--- THÊM MỚI: Chi nhánh nào
 
     @Column(columnDefinition = "TEXT")
     private String bio;

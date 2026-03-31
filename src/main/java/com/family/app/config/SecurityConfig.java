@@ -40,9 +40,17 @@ public class SecurityConfig {
                 }))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**").permitAll()
+                        // Cho phép các tài nguyên tĩnh
+                        .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
+
+                        // Cho phép các route của PageController (Các trang giao diện public)
+                        .requestMatchers("/login", "/about", "/family-tree", "/news/**").permitAll()
+
+                        // Cho phép API login/register
                         .requestMatchers("/api/auth/**").permitAll()
-                        .anyRequest().authenticated()
+
+                        // Tất cả các request khác (thường là API nghiệp vụ) mới cần login
+                        .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

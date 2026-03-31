@@ -8,19 +8,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class PageController {
 
-    @GetMapping("/")
+    @GetMapping("/home")
     public String home() {
-        return "pages/home";
+        return "public/home";
     }
 
     @GetMapping("/about")
     public String about() {
-        return "pages/about";
+        return "public/about";
     }
 
     @GetMapping("/login")
     public String login() {
-        return "pages/login";
+        return "public/login";
     }
 
     @GetMapping("/family-tree")
