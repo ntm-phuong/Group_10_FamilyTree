@@ -3,6 +3,8 @@ package com.family.app.repository;
 import com.family.app.model.NewsEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -26,4 +28,11 @@ public interface NewsEventRepository extends JpaRepository<NewsEvent, String> {
 
     // 5. Lấy 5 tin mới nhất
     List<NewsEvent> findTop5ByFamily_FamilyIdOrderByCreatedAtDesc(String familyId);
+    List<NewsEvent> findTop4ByFamily_FamilyIdAndCategory_CategoryIdAndStartAtAfterOrderByStartAtAsc(
+            String familyId,
+            String categoryId,
+            LocalDateTime now
+    );
+    // Lấy 4 tin mới nhất (cho khối "Tin tức mới nhất" trên UI)
+    List<NewsEvent> findTop4ByFamily_FamilyIdOrderByCreatedAtDesc(String familyId);
 }

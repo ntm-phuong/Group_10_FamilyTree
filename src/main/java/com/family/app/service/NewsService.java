@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +25,6 @@ public class NewsService {
         boolean hasCategory = categoryId != null && !categoryId.trim().isEmpty();
 
         if (hasSearch && hasCategory) {
-            // Lọc theo cả dòng họ, cả danh mục VÀ cả từ khóa
             newsList = newsRepository.findByFamily_FamilyIdAndCategory_CategoryIdAndTitleContainingIgnoreCaseOrderByCreatedAtDesc(familyId, categoryId, search);
         } else if (hasSearch) {
             newsList = newsRepository.findByFamily_FamilyIdAndTitleContainingIgnoreCaseOrderByCreatedAtDesc(familyId, search);
@@ -50,7 +50,24 @@ public class NewsService {
                 .orElse(null);
     }
 
-    // Hàm chuyển đổi Model -> DTO (Khớp hoàn toàn với NewsResponse của bạn)
+    @Transactional(readOnly = true)
+    public List<NewsResponse> getUpcomingEvents(String familyId, String categoryId) {
+        return newsRepository.findTop4ByFamily_FamilyIdAndCategory_CategoryIdAndStartAtAfterOrderByStartAtAsc(
+                        familyId,
+                        categoryId,
+                        LocalDateTime.now()
+                )
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<NewsResponse> getLatestNewsForHome(String familyId) {
+        return newsRepository.findTop4ByFamily_FamilyIdOrderByCreatedAtDesc(familyId)
+                .stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
     private NewsResponse convertToDTO(NewsEvent news) {
         NewsResponse dto = new NewsResponse();
         dto.setId(news.getId());
@@ -59,16 +76,17 @@ public class NewsService {
         dto.setContent(news.getContent());
         dto.setCreatedAt(news.getCreatedAt());
 
-        // Lấy thông tin Category (Tên danh mục)
+        // --- BỔ SUNG 2 DÒNG NÀY ĐỂ HIỆN TRANG HOME ---
+        dto.setStartAt(news.getStartAt());      // Lấy ngày để hiện khối "Sự kiện sắp tới"
+
         if (news.getCategory() != null) {
             dto.setCategoryId(news.getCategory().getCategoryId());
             dto.setCategoryName(news.getCategory().getName());
         }
 
-        // Lấy thông tin User (Tên người đăng)
         if (news.getUser() != null) {
             dto.setUserId(news.getUser().getUserId());
-            dto.setUserName(news.getUser().getFullName()); // Dùng fullName từ User model
+            dto.setUserName(news.getUser().getFullName());
         }
 
         return dto;
