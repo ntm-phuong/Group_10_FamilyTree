@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
+<th:block th:replace="~{fragments/navbar :: navbar}"/>
 
 <div class="tree-page-wrap">
   <div class="breadcrumb">
@@ -21,6 +22,9 @@
   </p>
 
   <div class="tree-toolbar">
+    <select id="familyFilter" class="form-control form-select" style="width:220px;">
+      <option value="">Chon dong ho</option>
+    </select>
     <div class="search-input" style="min-width:200px;max-width:260px;">
       <i class="fas fa-search"></i>
       <input id="treeSearch" type="text" class="form-control" placeholder="Tim kiem thanh vien...."/>
@@ -43,15 +47,42 @@
     </div>
   </div>
 
-  <div class="tree-container" id="treeCanvas">
-    <div id="treeContent"></div>
-    <div id="treeEmptyState" class="empty-state" style="display:none;">
-      <i class="fas fa-sitemap"></i>
-      <h3>Chua co du lieu gia pha</h3>
+  <div class="tree-layout detail-open" id="treeLayout">
+    <div class="tree-container" id="treeCanvas">
+      <div id="treeContent"></div>
+      <div id="treeEmptyState" class="empty-state" style="display:none;">
+        <i class="fas fa-sitemap"></i>
+        <h3>Chua co du lieu gia pha</h3>
+      </div>
     </div>
+    <aside class="tree-detail-panel" id="treeDetailPanel">
+      <div class="tree-detail-header">
+        <h3>Thong tin chi tiet</h3>
+        <button id="treeDetailClose" class="btn btn-ghost btn-icon" type="button"><i class="fas fa-times-circle"></i></button>
+      </div>
+      <div class="tree-detail-avatar" id="detailInitial">--</div>
+      <div class="tree-detail-name" id="detailName">Chua chon thanh vien</div>
+      <div class="tree-detail-meta">
+        <div id="detailYears">-</div>
+        <div id="detailGeneration">-</div>
+      </div>
+      <div class="tree-detail-item"><i class="fas fa-map-marker-alt"></i><span id="detailHometown">-</span></div>
+      <div class="tree-detail-item"><i class="fas fa-briefcase"></i><span id="detailJob">-</span></div>
+      <div class="divider"></div>
+      <h4>Tieu su</h4>
+      <p id="detailBio" class="tree-detail-bio">Chon thanh vien ben trai de xem thong tin.</p>
+      <div class="divider"></div>
+      <h4>Quan he gia dinh</h4>
+      <div class="tree-detail-rel">
+        <div><strong>Vo/chong:</strong> <span id="detailSpouse">-</span></div>
+        <div><strong>Con:</strong> <span id="detailChildren">-</span></div>
+      </div>
+      <a id="detailProfileLink" class="btn btn-primary btn-sm mt-4" href="#">Xem ho so day du</a>
+    </aside>
   </div>
 </div>
 
+<th:block th:replace="~{fragments/footer :: footer}"/>
 <script th:src="@{/js/main.js}"></script>
 </body>
 </html>

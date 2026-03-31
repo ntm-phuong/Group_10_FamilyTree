@@ -7,6 +7,7 @@ import com.family.app.repository.FamilyRepository;
 import com.family.app.repository.RelationshipRepository;
 import com.family.app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +20,18 @@ public class MemberService {
     private final UserRepository userRepository;
     private final RelationshipRepository relationshipRepository;
     private final FamilyRepository familyRepository;
+
+    public FamilyTreeResponse getFamilyTreeDataForPublic(String familyId) {
+        String resolvedFamilyId = familyId;
+        if (resolvedFamilyId == null || resolvedFamilyId.isBlank()) {
+            resolvedFamilyId = familyRepository.findAll(PageRequest.of(0, 1))
+                    .stream()
+                    .findFirst()
+                    .map(family -> family.getFamilyId())
+                    .orElseThrow(() -> new IllegalStateException("No family data found"));
+        }
+        return getFamilyTreeData(resolvedFamilyId);
+    }
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public FamilyTreeResponse getFamilyTreeData(String familyId) {

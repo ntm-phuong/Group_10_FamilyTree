@@ -29,14 +29,12 @@ function cardMemberHtml(member) {
   const initials = (member.name || "U").slice(0, 2).toUpperCase();
   const years = `${member.birthYear || ""} - ${member.deathYear || "nay"}`;
   return `
-    <a href="/member/${member.id}">
-      <div class="pcard${femaleCls}" data-member-id="${member.id}" data-gen="${member.generation}">
-        <div class="pcard-avatar"><span>${initials}</span></div>
-        <div class="pcard-name">${member.name}</div>
-        <div class="pcard-years"><i class="fas fa-birthday-cake" style="font-size:.6rem;"></i><span>${years}</span></div>
-        ${member.occupation ? `<div class="pcard-job">${member.occupation}</div>` : ""}
-      </div>
-    </a>
+    <div class="pcard${femaleCls}" data-member-id="${member.id}" data-gen="${member.generation}">
+      <div class="pcard-avatar"><span>${initials}</span></div>
+      <div class="pcard-name">${member.name}</div>
+      <div class="pcard-years"><i class="fas fa-birthday-cake" style="font-size:.6rem;"></i><span>${years}</span></div>
+      ${member.occupation ? `<div class="pcard-job">${member.occupation}</div>` : ""}
+    </div>
   `;
 }
 
@@ -71,13 +69,65 @@ async function loadFamilyTree() {
   const treeContent = document.getElementById("treeContent");
   if (!treeContent) return;
 
-  const res = await fetch("/data/family-tree.json");
+  const query = new URLSearchParams(window.location.search);
+  const familyFilter = document.getElementById("familyFilter");
+  const queryFamilyId = query.get("familyId");
+  const savedFamilyId = localStorage.getItem("selectedFamilyId");
+  let familyId = queryFamilyId || savedFamilyId || "";
+
+  if (familyFilter) {
+    try {
+      const familyRes = await fetch("/api/public/families");
+      if (familyRes.ok) {
+        const families = await familyRes.json();
+        familyFilter.innerHTML = '<option value="">Chon dong ho</option>' +
+          families.map((f) => `<option value="${f.id}">${f.name}</option>`).join("");
+
+        if (!familyId && families.length) {
+          familyId = families[0].id;
+        }
+        if (familyId) {
+          familyFilter.value = familyId;
+        }
+      }
+    } catch (e) {
+      // ignore and continue with current familyId fallback
+    }
+
+    familyFilter.addEventListener("change", function onFamilyChange() {
+      const selected = this.value || "";
+      if (selected) {
+        localStorage.setItem("selectedFamilyId", selected);
+      } else {
+        localStorage.removeItem("selectedFamilyId");
+      }
+      const nextUrl = selected ? `/family-tree?familyId=${encodeURIComponent(selected)}` : "/family-tree";
+      window.location.href = nextUrl;
+    });
+  }
+
+  const apiUrl = familyId
+    ? `/api/public/family-tree?familyId=${encodeURIComponent(familyId)}`
+    : "/api/public/family-tree";
+
+  const res = await fetch(apiUrl);
+  if (!res.ok) {
+    document.getElementById("treeEmptyState")?.style.setProperty("display", "block");
+    treeContent.innerHTML = "";
+    return;
+  }
+
   const data = await res.json();
-  const members = data.members || [];
+  const rawMembers = data.members || [];
+  const members = rawMembers.map((m) => ({
+    ...m,
+    id: m.id || m.user_id
+  }));
   const maxGen = data.totalGenerations || 1;
 
   const genFilter = document.getElementById("genFilter");
   if (genFilter) {
+    genFilter.innerHTML = '<option value="">Tat ca the he</option>';
     for (let g = 1; g <= maxGen; g += 1) {
       const opt = document.createElement("option");
       opt.value = String(g);
@@ -92,10 +142,11 @@ async function loadFamilyTree() {
     return;
   }
 
+  const byId = new Map(members.map((m) => [m.id, m]));
+
   let html = "";
   for (let gen = 1; gen <= maxGen; gen += 1) {
     const group = members.filter((m) => m.generation === gen);
-    const byId = new Map(members.map((m) => [m.id, m]));
     const rendered = new Set();
     html += `<div class="tree-level" id="gen-${gen}">`;
     group.forEach((m) => {
@@ -137,6 +188,67 @@ async function loadFamilyTree() {
     }
   }
   treeContent.innerHTML = html;
+
+  let selectedMemberId = members[0]?.id || null;
+  const detailName = document.getElementById("detailName");
+  const detailInitial = document.getElementById("detailInitial");
+  const detailYears = document.getElementById("detailYears");
+  const detailGeneration = document.getElementById("detailGeneration");
+  const detailHometown = document.getElementById("detailHometown");
+  const detailJob = document.getElementById("detailJob");
+  const detailBio = document.getElementById("detailBio");
+  const detailSpouse = document.getElementById("detailSpouse");
+  const detailChildren = document.getElementById("detailChildren");
+  const detailProfileLink = document.getElementById("detailProfileLink");
+  const detailPanel = document.getElementById("treeDetailPanel");
+  const detailClose = document.getElementById("treeDetailClose");
+  const treeLayout = document.getElementById("treeLayout");
+
+  const setDetailPanelVisible = (visible) => {
+    if (!treeLayout) return;
+    treeLayout.classList.toggle("detail-open", visible);
+    treeLayout.classList.toggle("detail-closed", !visible);
+  };
+
+  const renderDetail = (memberId) => {
+    const member = byId.get(memberId);
+    if (!member) return;
+    selectedMemberId = member.id;
+    setDetailPanelVisible(true);
+
+    const spouse = member.spouseId ? byId.get(member.spouseId) : null;
+    const children = members.filter((m) => m.fatherId === member.id || m.motherId === member.id);
+
+    detailInitial.textContent = (member.name || "--").slice(0, 2).toUpperCase();
+    detailName.textContent = member.name || "Khong ro";
+    detailYears.textContent = `${member.birthYear || "?"} - ${member.deathYear || "nay"}`;
+    detailGeneration.textContent = `The he ${member.generation || "-"}`;
+    detailHometown.textContent = member.branch || "Chua cap nhat";
+    detailJob.textContent = member.occupation || "Chua cap nhat";
+    detailBio.textContent = `Thanh vien ${member.name || ""} thuoc ${member.branch || "dong ho"}, du lieu dang duoc quan tri vien cap nhat.`;
+    detailSpouse.textContent = spouse ? spouse.name : "Khong co";
+    detailChildren.textContent = children.length ? children.map((c) => c.name).join(", ") : "Khong co";
+    detailProfileLink.href = `/member/${member.id}`;
+
+    document.querySelectorAll(".pcard").forEach((card) => {
+      card.classList.toggle("selected", card.dataset.memberId === selectedMemberId);
+    });
+  };
+
+  treeContent.querySelectorAll(".pcard").forEach((card) => {
+    card.addEventListener("click", () => {
+      renderDetail(card.dataset.memberId);
+    });
+  });
+
+  if (detailClose && detailPanel) {
+    detailClose.addEventListener("click", () => {
+      setDetailPanelVisible(false);
+    });
+  }
+
+  setDetailPanelVisible(true);
+  renderDetail(selectedMemberId);
 
   let scale = 1;
   const zoomLabel = document.getElementById("zoomLabel");

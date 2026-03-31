@@ -2,7 +2,7 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title th:text="${member.name + ' – Gia Phả'}">Thành viên</title>
+  <title th:text="${member.fullName + ' – Gia Phả'}">Thành viên</title>
   <link rel="stylesheet" th:href="@{/css/style.css}"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
@@ -16,19 +16,19 @@
     <span class="breadcrumb-sep">›</span>
     <a th:href="@{/family-tree}">Gia Phả</a>
     <span class="breadcrumb-sep">›</span>
-    <span th:text="${member.name}">Thành viên</span>
+    <span th:text="${member.fullName}">Thành viên</span>
   </div>
 
   <!-- Profile header card -->
   <div class="profile-header-card">
-    <div class="avatar avatar-xl" th:classappend="${member.gender.name()=='MALE'}?' avatar-male':' avatar-female'">
-      <span th:text="${member.name.length() >= 2 ? member.name.substring(member.name.lastIndexOf(' ') > 0 ? member.name.lastIndexOf(' ')+1 : 0, member.name.length() >= member.name.lastIndexOf(' ')+3 ? member.name.lastIndexOf(' ')+3 : member.name.length()) : member.name.substring(0,1)}">HS</span>
+    <div class="avatar avatar-xl" th:classappend="${member.gender == 'MALE'}?' avatar-male':' avatar-female'">
+      <span th:text="${member.fullName.length() >= 2 ? member.fullName.substring(member.fullName.lastIndexOf(' ') > 0 ? member.fullName.lastIndexOf(' ')+1 : 0, member.fullName.length() >= member.fullName.lastIndexOf(' ')+3 ? member.fullName.lastIndexOf(' ')+3 : member.fullName.length()) : member.fullName.substring(0,1)}">HS</span>
     </div>
     <div class="profile-info">
-      <h2 th:text="${member.name}">Nguyễn Hồng Sơn</h2>
+      <h2 th:text="${member.fullName}">Nguyễn Hồng Sơn</h2>
       <div class="profile-meta">
         Đời thứ <span th:text="${member.generation}">3</span>
-        | <span th:text="${member.age}">56</span> tuổi
+        | <span th:text="${memberAge != null ? memberAge : '–'}">56</span> tuổi
       </div>
       <div class="profile-job" th:if="${member.occupation != null}" th:text="${member.occupation}">Giám đốc công ty CNTT</div>
     </div>
@@ -57,15 +57,15 @@
           <div class="profile-detail-grid">
             <div class="profile-detail-item">
               <label><i class="fas fa-birthday-cake"></i> Năm sinh</label>
-              <span th:text="${member.birthYear}">1970</span>
+              <span th:text="${member.dob != null ? #temporals.format(member.dob, 'yyyy') : '–'}">1970</span>
             </div>
             <div class="profile-detail-item">
               <label><i class="fas fa-map-marker-alt"></i> Quê quán</label>
-              <span th:text="${member.birthPlace != null ? member.birthPlace : '–'}">Hà Tây</span>
+              <span th:text="${member.hometown != null ? member.hometown : '–'}">Hà Tây</span>
             </div>
             <div class="profile-detail-item">
               <label><i class="fas fa-home"></i> Địa chỉ hiện tại</label>
-              <span th:text="${member.address != null ? member.address : '–'}">–</span>
+              <span th:text="${member.currentAddress != null ? member.currentAddress : '–'}">–</span>
             </div>
             <div class="profile-detail-item">
               <label><i class="fas fa-briefcase"></i> Nghề nghiệp</label>
@@ -73,7 +73,7 @@
             </div>
             <div class="profile-detail-item">
               <label><i class="fas fa-phone"></i> Điện thoại</label>
-              <span th:text="${member.phone != null ? member.phone : '–'}">–</span>
+              <span th:text="${member.phoneNumber != null ? member.phoneNumber : '–'}">–</span>
             </div>
             <div class="profile-detail-item">
               <label><i class="fas fa-envelope"></i> Email</label>
@@ -107,22 +107,22 @@
           <span class="text-xs text-muted"><i class="fas fa-user"></i> Du lieu mock</span>
         </div>
         <div class="card-body" style="padding:.75rem 1rem;">
-          <div th:if="${member.father == null and member.mother == null}" class="text-sm text-muted" style="padding:.5rem 0;">Không có thông tin</div>
-          <a th:if="${member.father != null}" th:href="@{/member/{id}(id=${member.father.id})}" class="relation-item">
+          <div th:if="${father == null and mother == null}" class="text-sm text-muted" style="padding:.5rem 0;">Không có thông tin</div>
+          <a th:if="${father != null}" th:href="@{/member/{id}(id=${father.userId})}" class="relation-item">
             <div class="relation-item-left">
-              <div class="avatar avatar-sm avatar-male"><span th:text="${member.father.name.substring(0,1)}">N</span></div>
+              <div class="avatar avatar-sm avatar-male"><span th:text="${father.fullName.substring(0,1)}">N</span></div>
               <div>
-                <div class="relation-item-name" th:text="${member.father.name}">Tên cha</div>
+                <div class="relation-item-name" th:text="${father.fullName}">Tên cha</div>
                 <div class="relation-item-sub">Thành viên dòng họ</div>
               </div>
             </div>
             <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
           </a>
-          <a th:if="${member.mother != null}" th:href="@{/member/{id}(id=${member.mother.id})}" class="relation-item">
+          <a th:if="${mother != null}" th:href="@{/member/{id}(id=${mother.userId})}" class="relation-item">
             <div class="relation-item-left">
-              <div class="avatar avatar-sm avatar-female"><span th:text="${member.mother.name.substring(0,1)}">N</span></div>
+              <div class="avatar avatar-sm avatar-female"><span th:text="${mother.fullName.substring(0,1)}">N</span></div>
               <div>
-                <div class="relation-item-name" th:text="${member.mother.name}">Tên mẹ</div>
+                <div class="relation-item-name" th:text="${mother.fullName}">Tên mẹ</div>
                 <div class="relation-item-sub">Thành viên dòng họ</div>
               </div>
             </div>
@@ -138,15 +138,15 @@
           <span class="text-xs text-muted"><i class="fas fa-user"></i> Du lieu mock</span>
         </div>
         <div class="card-body" style="padding:.75rem 1rem;">
-          <div th:if="${member.spouse == null}" class="text-sm text-muted" style="padding:.5rem 0;">Không có thông tin</div>
-          <a th:if="${member.spouse != null}" th:href="@{/member/{id}(id=${member.spouse.id})}" class="relation-item">
+          <div th:if="${spouse == null}" class="text-sm text-muted" style="padding:.5rem 0;">Không có thông tin</div>
+          <a th:if="${spouse != null}" th:href="@{/member/{id}(id=${spouse.userId})}" class="relation-item">
             <div class="relation-item-left">
               <div class="avatar avatar-sm"
-                   th:classappend="${member.spouse.gender.name()=='MALE'}?' avatar-male':' avatar-female'">
-                <span th:text="${member.spouse.name.substring(0,1)}">N</span>
+                   th:classappend="${spouse.gender == 'MALE'}?' avatar-male':' avatar-female'">
+                <span th:text="${spouse.fullName.substring(0,1)}">N</span>
               </div>
               <div>
-                <div class="relation-item-name" th:text="${member.spouse.name}">Tên</div>
+                <div class="relation-item-name" th:text="${spouse.fullName}">Tên</div>
                 <div class="relation-item-sub">Thành viên dòng họ</div>
               </div>
             </div>
@@ -165,14 +165,14 @@
         </div>
         <div class="card-body" style="padding:.75rem 1rem;">
           <div th:if="${children.isEmpty()}" class="text-sm text-muted" style="padding:.5rem 0;">Không có thông tin</div>
-          <a th:each="child : ${children}" th:href="@{/member/{id}(id=${child.id})}" class="relation-item">
+          <a th:each="child : ${children}" th:href="@{/member/{id}(id=${child.userId})}" class="relation-item">
             <div class="relation-item-left">
               <div class="avatar avatar-sm"
-                   th:classappend="${child.gender.name()=='MALE'}?' avatar-male':' avatar-female'">
-                <span th:text="${child.name.substring(0,1)}">N</span>
+                   th:classappend="${child.gender == 'MALE'}?' avatar-male':' avatar-female'">
+                <span th:text="${child.fullName.substring(0,1)}">N</span>
               </div>
               <div>
-                <div class="relation-item-name" th:text="${child.name}">Tên</div>
+                <div class="relation-item-name" th:text="${child.fullName}">Tên</div>
                 <div class="relation-item-sub">Thành viên dòng họ</div>
               </div>
             </div>
@@ -190,14 +190,14 @@
           <span class="text-xs text-muted"><i class="fas fa-user"></i> Du lieu mock</span>
         </div>
         <div class="card-body" style="padding:.75rem 1rem;">
-          <a th:each="s : ${siblings}" th:href="@{/member/{id}(id=${s.id})}" class="relation-item">
+          <a th:each="s : ${siblings}" th:href="@{/member/{id}(id=${s.userId})}" class="relation-item">
             <div class="relation-item-left">
               <div class="avatar avatar-sm"
-                   th:classappend="${s.gender.name()=='MALE'}?' avatar-male':' avatar-female'">
-                <span th:text="${s.name.substring(0,1)}">N</span>
+                   th:classappend="${s.gender == 'MALE'}?' avatar-male':' avatar-female'">
+                <span th:text="${s.fullName.substring(0,1)}">N</span>
               </div>
               <div>
-                <div class="relation-item-name" th:text="${s.name}">Tên</div>
+                <div class="relation-item-name" th:text="${s.fullName}">Tên</div>
                 <div class="relation-item-sub">Thành viên dòng họ</div>
               </div>
             </div>
