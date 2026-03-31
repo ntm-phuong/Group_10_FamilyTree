@@ -52,6 +52,17 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/family-head/**").hasRole("FAMILY_HEAD")
                         .anyRequest().authenticated()
+                        // Cho phép các tài nguyên tĩnh
+                        .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
+
+                        // Cho phép các route của PageController (Các trang giao diện public)
+                        .requestMatchers("/login", "/about", "/family-tree", "/news/**").permitAll()
+
+                        // Cho phép API login/register
+                        .requestMatchers("/api/auth/**").permitAll()
+
+                        // Tất cả các request khác (thường là API nghiệp vụ) mới cần login
+                        .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

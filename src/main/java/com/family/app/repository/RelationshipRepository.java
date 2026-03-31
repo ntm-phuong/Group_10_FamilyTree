@@ -18,6 +18,11 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Stri
             "AND r.relType = 'SPOUSE'")
     List<Relationship> findSpouses(@Param("userId") String userId);
 
-    @Query("SELECT r FROM Relationship r WHERE r.person1.family.familyId = :familyId OR r.person2.family.familyId = :familyId")
+    @Query("SELECT r FROM Relationship r " +
+            "JOIN FETCH r.person1 " + // FETCH dữ liệu User 1
+            "JOIN FETCH r.person2 " + // FETCH dữ liệu User 2
+            "WHERE r.person1.family.familyId = :familyId")
     List<Relationship> findAllByFamilyId(@Param("familyId") String familyId);
+
+
 }
