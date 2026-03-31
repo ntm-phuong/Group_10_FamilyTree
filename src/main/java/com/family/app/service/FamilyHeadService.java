@@ -75,26 +75,20 @@ public class FamilyHeadService {
         return mapToResponse(updatedUser);
     }
 
-    // 4. Trưởng họ xóa thành viên (Check ràng buộc con cái)
+    // 4. Trưởng họ xóa thành viên
     @Transactional
     public void deleteMember(String id) {
-        if (!userRepository.existsById(id)) {
-            throw new RuntimeException("Thành viên không tồn tại.");
-        }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Thành viên không tồn tại có ID: " + id));
 
         // Kiểm tra xem ID này có đang là parentId của ai không
         boolean hasDescendants = userRepository.existsByParentId(id);
         if (hasDescendants) {
-            throw new RuntimeException("Thành viên này đã có con cháu. Không thể xóa để tránh làm gãy cây gia phả!");
+            // Thêm tên thành viên vào thông báo cho chuyên nghiệp
+            throw new RuntimeException("Không thể xóa '" + user.getFullName() + "' vì người này đã có con cháu. Vui lòng xóa hoặc cập nhật lại cha mẹ cho các con trước khi xóa thành viên này!");
         }
 
-        userRepository.deleteById(id);
-    }
-
-    public UserResponse getMemberById(String id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Thành viên không tồn tại."));
-        return mapToResponse(user);
+        userRepository.delete(user);
     }
 
     // --- Helper Methods để xử lý Mapping (Sửa lỗi đỏ trong ảnh) ---

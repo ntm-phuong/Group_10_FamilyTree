@@ -1,6 +1,5 @@
 package com.family.app.security;
 
-import com.family.app.model.User;
 import com.family.app.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

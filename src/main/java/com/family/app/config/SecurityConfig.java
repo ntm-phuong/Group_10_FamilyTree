@@ -4,6 +4,7 @@ import com.family.app.security.JwtAuthenticationFilter; // Import Filter của b
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -31,6 +32,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf.disable())
+
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
                     config.setAllowedOrigins(List.of("*"));
@@ -38,9 +41,15 @@ public class SecurityConfig {
                     config.setAllowedHeaders(List.of("*"));
                     return config;
                 }))
-                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll() // Mở cửa hoàn toàn cho login/register
+
+                        .requestMatchers(HttpMethod.GET, "/api/news/**").permitAll()
+
+                        .requestMatchers(HttpMethod.POST, "/api/news/**").hasRole("FAMILY_HEAD")
+                        .requestMatchers(HttpMethod.PUT, "/api/news/**").hasRole("FAMILY_HEAD")
+                        .requestMatchers(HttpMethod.DELETE, "/api/news/**").hasRole("FAMILY_HEAD")
+
                         .requestMatchers("/api/family-head/**").hasRole("FAMILY_HEAD")
                         .anyRequest().authenticated()
                 )

@@ -16,6 +16,7 @@ import java.util.List;
 public class FamilyHeadController {
 
     @Autowired private FamilyHeadService memberService;
+    @Autowired private FamilyHeadService familyHeadService;
 
     @GetMapping("/members")
     public ResponseEntity<List<UserResponse>> getAllMembers() {
