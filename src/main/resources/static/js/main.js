@@ -353,6 +353,43 @@ async function loadFamilyTree() {
   const treeFullscreenContent = document.getElementById("treeFullscreenContent");
   const treeCanvas = document.getElementById("treeCanvas");
   const treeFullscreenCanvas = document.querySelector(".tree-fullscreen-canvas");
+  const treeDetailPopupModal = document.getElementById("treeDetailPopupModal");
+  const treeDetailPopupClose = document.getElementById("treeDetailPopupClose");
+  const detailPopupInitial = document.getElementById("detailPopupInitial");
+  const detailPopupName = document.getElementById("detailPopupName");
+  const detailPopupYears = document.getElementById("detailPopupYears");
+  const detailPopupGeneration = document.getElementById("detailPopupGeneration");
+  const detailPopupHometown = document.getElementById("detailPopupHometown");
+  const detailPopupJob = document.getElementById("detailPopupJob");
+  const detailPopupBio = document.getElementById("detailPopupBio");
+  const detailPopupSpouse = document.getElementById("detailPopupSpouse");
+  const detailPopupChildren = document.getElementById("detailPopupChildren");
+  const detailPopupProfileLink = document.getElementById("detailPopupProfileLink");
+
+  const sidebarDetailEls = {
+    initial: detailInitial,
+    name: detailName,
+    years: detailYears,
+    generation: detailGeneration,
+    hometown: detailHometown,
+    job: detailJob,
+    bio: detailBio,
+    spouse: detailSpouse,
+    children: detailChildren,
+    profileLink: detailProfileLink,
+  };
+  const popupDetailEls = {
+    initial: detailPopupInitial,
+    name: detailPopupName,
+    years: detailPopupYears,
+    generation: detailPopupGeneration,
+    hometown: detailPopupHometown,
+    job: detailPopupJob,
+    bio: detailPopupBio,
+    spouse: detailPopupSpouse,
+    children: detailPopupChildren,
+    profileLink: detailPopupProfileLink,
+  };
 
   const centerOnFirstNode = (container, contentRoot) => {
     if (!container || !contentRoot) return;
@@ -444,6 +481,37 @@ async function loadFamilyTree() {
   let compareMode = false;
   let compareSelectedIds = [];
 
+  const isTreeFullscreenOpen = () => treeFullscreenModal?.classList.contains("open");
+
+  const closeDetailPopup = () => {
+    if (!treeDetailPopupModal) return;
+    treeDetailPopupModal.classList.remove("open");
+    treeDetailPopupModal.setAttribute("aria-hidden", "true");
+  };
+
+  const openDetailPopup = () => {
+    if (!treeDetailPopupModal) return;
+    treeDetailPopupModal.classList.add("open");
+    treeDetailPopupModal.setAttribute("aria-hidden", "false");
+  };
+
+  const fillDetailElements = (els, member) => {
+    if (!member || !els?.initial) return;
+    const spouse = member.spouseId ? byId.get(member.spouseId) : null;
+    const children = members.filter((m) => m.fatherId === member.id || m.motherId === member.id);
+
+    els.initial.textContent = (member.name || "--").slice(0, 2).toUpperCase();
+    els.name.textContent = member.name || "Không rõ";
+    els.years.textContent = `${member.birthYear || "?"} - ${member.deathYear || "nay"}`;
+    els.generation.textContent = `Thế hệ ${member.generation || "-"}`;
+    els.hometown.textContent = member.branch || "Chưa cập nhật";
+    els.job.textContent = member.occupation || "Chưa cập nhật";
+    els.bio.textContent = `Thành viên ${member.name || ""} thuộc ${member.branch || "dòng họ"}, dữ liệu đang được quản trị viên cập nhật.`;
+    els.spouse.textContent = spouse ? spouse.name : "Không có";
+    els.children.textContent = children.length ? children.map((c) => c.name).join(", ") : "Không có";
+    els.profileLink.href = `/member/${member.id}`;
+  };
+
   const getMemberInitials = (name) => (name || "--").slice(0, 2).toUpperCase();
   const genderClass = (m) => m?.gender === "FEMALE" ? "female" : "male";
 
@@ -509,6 +577,7 @@ async function loadFamilyTree() {
 
     if (compareMode) {
       setDetailPanelVisible(false);
+      closeDetailPopup();
       if (compareModeToggle) {
         compareModeToggle.classList.add("btn-primary");
         compareModeToggle.classList.remove("btn-white");
@@ -530,25 +599,21 @@ async function loadFamilyTree() {
     const member = byId.get(memberId);
     if (!member) return;
     selectedMemberId = member.id;
-    setDetailPanelVisible(true);
 
-    const spouse = member.spouseId ? byId.get(member.spouseId) : null;
-    const children = members.filter((m) => m.fatherId === member.id || m.motherId === member.id);
-
-    detailInitial.textContent = (member.name || "--").slice(0, 2).toUpperCase();
-    detailName.textContent = member.name || "Không rõ";
-    detailYears.textContent = `${member.birthYear || "?"} - ${member.deathYear || "nay"}`;
-    detailGeneration.textContent = `Thế hệ ${member.generation || "-"}`;
-    detailHometown.textContent = member.branch || "Chưa cập nhật";
-    detailJob.textContent = member.occupation || "Chưa cập nhật";
-    detailBio.textContent = `Thành viên ${member.name || ""} thuộc ${member.branch || "dòng họ"}, dữ liệu đang được quản trị viên cập nhật.`;
-    detailSpouse.textContent = spouse ? spouse.name : "Không có";
-    detailChildren.textContent = children.length ? children.map((c) => c.name).join(", ") : "Không có";
-    detailProfileLink.href = `/member/${member.id}`;
+    fillDetailElements(sidebarDetailEls, member);
+    fillDetailElements(popupDetailEls, member);
 
     document.querySelectorAll(".pcard").forEach((card) => {
       card.classList.toggle("selected", card.dataset.memberId === selectedMemberId);
     });
+
+    if (isTreeFullscreenOpen()) {
+      setDetailPanelVisible(false);
+      openDetailPopup();
+    } else {
+      closeDetailPopup();
+      setDetailPanelVisible(true);
+    }
   };
 
   const bindCompareCardClicks = (rootEl) => {
@@ -618,12 +683,26 @@ async function loadFamilyTree() {
     treeFullscreenModal.classList.add("open");
     treeFullscreenModal.setAttribute("aria-hidden", "false");
     requestAnimationFrame(() => centerOnFirstNode(treeFullscreenCanvas, treeFullscreenContent));
+    fullscreenScale = scale;
+    applyFullscreenZoom();
+    if (!compareMode && selectedMemberId) {
+      renderDetail(selectedMemberId);
+    } else {
+      setDetailPanelVisible(false);
+    }
   };
 
   const closeTreeFullscreen = () => {
     if (!treeFullscreenModal) return;
     treeFullscreenModal.classList.remove("open");
     treeFullscreenModal.setAttribute("aria-hidden", "true");
+    closeDetailPopup();
+    setDetailPanelVisible(true);
+    if (treeFullscreenContent) treeFullscreenContent.style.transform = "";
+    applyZoom();
+    if (selectedMemberId) {
+      renderDetail(selectedMemberId);
+    }
   };
 
   const exportTreeToPdf = () => {
@@ -662,6 +741,10 @@ async function loadFamilyTree() {
   treeFullscreenModal?.addEventListener("click", (e) => {
     if (e.target === treeFullscreenModal) closeTreeFullscreen();
   });
+  treeDetailPopupClose?.addEventListener("click", closeDetailPopup);
+  treeDetailPopupModal?.addEventListener("click", (e) => {
+    if (e.target === treeDetailPopupModal) closeDetailPopup();
+  });
   exportPdfBtn?.addEventListener("click", exportTreeToPdf);
 
   attachSpacePan(treeCanvas);
@@ -672,15 +755,58 @@ async function loadFamilyTree() {
   renderDetail(selectedMemberId);
 
   let scale = 1;
+  let fullscreenScale = 1;
   const zoomLabel = document.getElementById("zoomLabel");
   const applyZoom = () => {
     treeContent.style.transform = `scale(${scale})`;
     treeContent.style.transformOrigin = "top center";
-    if (zoomLabel) zoomLabel.textContent = `${Math.round(scale * 100)}%`;
+    if (zoomLabel && !isTreeFullscreenOpen()) zoomLabel.textContent = `${Math.round(scale * 100)}%`;
   };
-  document.getElementById("zoomIn")?.addEventListener("click", () => { scale = Math.min(2, scale + 0.2); applyZoom(); });
-  document.getElementById("zoomOut")?.addEventListener("click", () => { scale = Math.max(0.3, scale - 0.2); applyZoom(); });
-  document.getElementById("zoomReset")?.addEventListener("click", () => { scale = 1; applyZoom(); });
+  const applyFullscreenZoom = () => {
+    if (!treeFullscreenContent) return;
+    treeFullscreenContent.style.transform = `scale(${fullscreenScale})`;
+    treeFullscreenContent.style.transformOrigin = "top center";
+    if (zoomLabel && isTreeFullscreenOpen()) zoomLabel.textContent = `${Math.round(fullscreenScale * 100)}%`;
+  };
+  document.getElementById("zoomIn")?.addEventListener("click", () => {
+    if (isTreeFullscreenOpen()) {
+      fullscreenScale = Math.min(2, fullscreenScale + 0.2);
+      applyFullscreenZoom();
+    } else {
+      scale = Math.min(2, scale + 0.2);
+      applyZoom();
+    }
+  });
+  document.getElementById("zoomOut")?.addEventListener("click", () => {
+    if (isTreeFullscreenOpen()) {
+      fullscreenScale = Math.max(0.3, fullscreenScale - 0.2);
+      applyFullscreenZoom();
+    } else {
+      scale = Math.max(0.3, scale - 0.2);
+      applyZoom();
+    }
+  });
+  document.getElementById("zoomReset")?.addEventListener("click", () => {
+    if (isTreeFullscreenOpen()) {
+      fullscreenScale = 1;
+      applyFullscreenZoom();
+    } else {
+      scale = 1;
+      applyZoom();
+    }
+  });
+  treeFullscreenCanvas?.addEventListener(
+    "wheel",
+    (e) => {
+      if (!isTreeFullscreenOpen() || !e.ctrlKey) return;
+      e.preventDefault();
+      const step = 0.1;
+      fullscreenScale += e.deltaY < 0 ? step : -step;
+      fullscreenScale = Math.min(2, Math.max(0.3, fullscreenScale));
+      applyFullscreenZoom();
+    },
+    { passive: false }
+  );
 
   document.getElementById("treeSearch")?.addEventListener("input", function onInput() {
     const q = this.value.toLowerCase().trim();

@@ -117,6 +117,35 @@
       </div>
     </div>
   </div>
+
+  <div id="treeDetailPopupModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal tree-detail-popup-modal">
+      <aside class="tree-detail-panel tree-detail-popup">
+        <div class="tree-detail-header">
+          <h3>Thông tin chi tiết</h3>
+          <button id="treeDetailPopupClose" class="btn btn-ghost btn-icon" type="button"><i class="fas fa-times-circle"></i></button>
+        </div>
+        <div class="tree-detail-avatar" id="detailPopupInitial">--</div>
+        <div class="tree-detail-name" id="detailPopupName">Chưa chọn thành viên</div>
+        <div class="tree-detail-meta">
+          <div id="detailPopupYears">-</div>
+          <div id="detailPopupGeneration">-</div>
+        </div>
+        <div class="tree-detail-item"><i class="fas fa-map-marker-alt"></i><span id="detailPopupHometown">-</span></div>
+        <div class="tree-detail-item"><i class="fas fa-briefcase"></i><span id="detailPopupJob">-</span></div>
+        <div class="divider"></div>
+        <h4>Tiểu sử</h4>
+        <p id="detailPopupBio" class="tree-detail-bio">Chọn thành viên trên cây để xem thông tin.</p>
+        <div class="divider"></div>
+        <h4>Quan hệ gia đình</h4>
+        <div class="tree-detail-rel">
+          <div><strong>Vợ/chồng:</strong> <span id="detailPopupSpouse">-</span></div>
+          <div><strong>Con:</strong> <span id="detailPopupChildren">-</span></div>
+        </div>
+        <a id="detailPopupProfileLink" class="btn btn-primary btn-sm mt-4" href="#">Xem hồ sơ đầy đủ</a>
+      </aside>
+    </div>
+  </div>
 </div>
 
 <th:block th:replace="~{fragments/footer :: footer}"/>
