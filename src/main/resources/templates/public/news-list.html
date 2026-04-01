@@ -2,7 +2,7 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tin tuc - Gia pha</title>
+  <title>Tin tức - Gia phả</title>
   <link rel="stylesheet" th:href="@{/css/style.css}"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
@@ -12,36 +12,36 @@
   <div class="breadcrumb">
     <a href="/"><i class="fas fa-home"></i></a>
     <span class="breadcrumb-sep">></span>
-    <span>Tin tuc</span>
+    <span>Tin tức</span>
   </div>
 
-  <h1 style="font-size:1.4rem;font-weight:700;margin-bottom:.3rem;">Tin tuc dong ho</h1>
+  <h1 style="font-size:1.4rem;font-weight:700;margin-bottom:.3rem;">Tin tức dòng họ</h1>
   <p style="font-size:.85rem;color:var(--text-500);margin-bottom:1.25rem;">
-    Cap nhat cac hoat dong, su kien va tin tuc moi nhat cua dong ho
+    Cập nhật các hoạt động, sự kiện và tin tức mới nhất của dòng họ
   </p>
 
   <!-- Search -->
   <div class="search-input mb-4" style="max-width:320px;">
     <i class="fas fa-search"></i>
     <form th:action="@{/news}" method="get">
-      <input type="text" name="q" class="form-control" placeholder="Tim kiem..."/>
+      <input type="text" name="q" class="form-control" placeholder="Tìm kiếm..."/>
     </form>
   </div>
 
   <div class="news-cat-tabs">
-    <a href="/news" class="news-cat-tab active">Tat ca</a>
+    <a href="/news" class="news-cat-tab active">Tất cả</a>
     <div id="newsCategoryTabs"></div>
   </div>
 
   <div id="featuredNewsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;"></div>
 
   <p style="font-size:.82rem;color:var(--text-500);margin-bottom:1rem;">
-    Tim thay <strong id="newsCount">0</strong> bai viet
+    Tìm thấy <strong id="newsCount">0</strong> bài viết
   </p>
 
   <div id="newsEmptyState" class="empty-state" style="display:none;">
     <i class="fas fa-newspaper"></i>
-    <h3>Chua co bai viet</h3>
+    <h3>Chưa có bài viết</h3>
   </div>
 
   <div id="newsGrid" class="news-grid"></div>

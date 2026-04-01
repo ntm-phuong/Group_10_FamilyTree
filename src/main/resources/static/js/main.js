@@ -45,7 +45,7 @@ function getChildrenCount(parentIds, members) {
 
 function articleCardHtml(article) {
   const categoryLabel = article.categoryLabel || article.category;
-  const author = article.author?.name || "Tac gia";
+  const author = article.author?.name || "Tác giả";
   return `
     <div class="news-card">
       <div class="news-card-img">
@@ -55,11 +55,11 @@ function articleCardHtml(article) {
         <div class="news-card-meta">
           <span class="badge badge-gray">${categoryLabel}</span>
           <span class="text-xs text-muted">${author}</span>
-          <span class="text-xs text-muted">1 tuan truoc</span>
+          <span class="text-xs text-muted">1 tuần trước</span>
         </div>
         <div class="news-card-title"><a href="/news/${article.slug}">${article.title}</a></div>
         <p class="news-card-excerpt">${article.summary || ""}</p>
-        <div class="news-card-footer"><span></span><a href="/news/${article.slug}">Doc them <i class="fas fa-arrow-right"></i></a></div>
+        <div class="news-card-footer"><span></span><a href="/news/${article.slug}">Đọc thêm <i class="fas fa-arrow-right"></i></a></div>
       </div>
     </div>
   `;
@@ -80,7 +80,7 @@ async function loadFamilyTree() {
       const familyRes = await fetch("/api/public/families");
       if (familyRes.ok) {
         const families = await familyRes.json();
-        familyFilter.innerHTML = '<option value="">Chon dong ho</option>' +
+        familyFilter.innerHTML = '<option value="">Chọn dòng họ</option>' +
           families.map((f) => `<option value="${f.id}">${f.name}</option>`).join("");
 
         if (!familyId && families.length) {
@@ -127,11 +127,11 @@ async function loadFamilyTree() {
 
   const genFilter = document.getElementById("genFilter");
   if (genFilter) {
-    genFilter.innerHTML = '<option value="">Tat ca the he</option>';
+    genFilter.innerHTML = '<option value="">Tất cả thế hệ</option>';
     for (let g = 1; g <= maxGen; g += 1) {
       const opt = document.createElement("option");
       opt.value = String(g);
-      opt.textContent = `The he ${g}`;
+      opt.textContent = `Thế hệ ${g}`;
       genFilter.appendChild(opt);
     }
   }
@@ -144,50 +144,185 @@ async function loadFamilyTree() {
 
   const byId = new Map(members.map((m) => [m.id, m]));
 
-  let html = "";
-  for (let gen = 1; gen <= maxGen; gen += 1) {
-    const group = members.filter((m) => m.generation === gen);
-    const rendered = new Set();
-    html += `<div class="tree-level" id="gen-${gen}">`;
-    group.forEach((m) => {
-      if (rendered.has(m.id)) return;
+  const parentIdsOf = (member) => [member.fatherId, member.motherId].filter(Boolean);
+  const areBloodSiblings = (a, b) => {
+    if (!a || !b || a.id === b.id) return false;
+    const aFather = a.fatherId || null;
+    const aMother = a.motherId || null;
+    const bFather = b.fatherId || null;
+    const bMother = b.motherId || null;
+    const sameFather = !!aFather && aFather === bFather;
+    const sameMother = !!aMother && aMother === bMother;
+    return sameFather || sameMother;
+  };
 
-      const spouse = m.spouseId ? byId.get(m.spouseId) : null;
-      const canRenderPair = spouse && spouse.generation === gen && !rendered.has(spouse.id);
+  const coParentsByMember = new Map();
+  members.forEach((child) => {
+    const fatherId = child.fatherId || null;
+    const motherId = child.motherId || null;
+    if (!fatherId || !motherId) return;
+    if (!coParentsByMember.has(fatherId)) coParentsByMember.set(fatherId, new Set());
+    if (!coParentsByMember.has(motherId)) coParentsByMember.set(motherId, new Set());
+    coParentsByMember.get(fatherId).add(motherId);
+    coParentsByMember.get(motherId).add(fatherId);
+  });
 
-      if (canRenderPair) {
-        const childrenCount = getChildrenCount([m.id, spouse.id], members);
-        html += `
-          <div class="tree-node-col">
-            <div class="tree-pair" style="display:flex;align-items:center;">
-              ${cardMemberHtml(m)}
-              <div class="tree-couple-line"></div>
-              <i class="fas fa-heart tree-couple-icon" style="font-size:.7rem;color:#F9A8D4;"></i>
-              <div class="tree-couple-line"></div>
-              ${cardMemberHtml(spouse)}
-            </div>
-            ${childrenCount > 0 ? `<button class="tree-expand-btn"><i class="fas fa-chevron-down"></i><span>${childrenCount} con</span></button>` : ""}
-          </div>
-        `;
-        rendered.add(m.id);
-        rendered.add(spouse.id);
-      } else {
-        const childrenCount = getChildrenCount([m.id], members);
-        html += `
-          <div class="tree-node-col">
-            ${cardMemberHtml(m)}
-            ${childrenCount > 0 ? `<button class="tree-expand-btn"><i class="fas fa-chevron-down"></i><span>${childrenCount} con</span></button>` : ""}
-          </div>
-        `;
-        rendered.add(m.id);
-      }
-    });
-    html += `</div>`;
-    if (gen < maxGen) {
-      html += `<div style="display:flex;flex-direction:column;align-items:center;margin:0 auto;"><div class="tree-connector"></div></div>`;
+  const childrenOfParents = (parentIds) => {
+    const parentSet = new Set(parentIds.filter(Boolean));
+    if (!parentSet.size) return [];
+    return members
+      .filter((m) => {
+        const ps = parentIdsOf(m);
+        return ps.some((pid) => parentSet.has(pid));
+      })
+      .sort((a, b) => (a.generation || 999) - (b.generation || 999) || (a.orderInFamily || 999) - (b.orderInFamily || 999));
+  };
+
+  const consumed = new Set();
+  const resolvePartner = (member) => {
+    if (!member) return null;
+    const candidateIds = [];
+    if (member.spouseId) candidateIds.push(member.spouseId);
+    const coParents = Array.from(coParentsByMember.get(member.id) || []);
+    coParents.forEach((id) => candidateIds.push(id));
+
+    for (const candidateId of candidateIds) {
+      const candidate = byId.get(candidateId);
+      if (!candidate) continue;
+      if (candidate.id === member.id) continue;
+      if (consumed.has(candidate.id)) continue;
+      if (candidate.generation !== member.generation) continue;
+      // Never pair siblings as spouses (can happen with noisy co-parent data).
+      if (areBloodSiblings(member, candidate)) continue;
+      return candidate;
     }
-  }
-  treeContent.innerHTML = html;
+    return null;
+  };
+
+  const buildUnit = (member) => {
+    if (!member || consumed.has(member.id)) return null;
+    const partner = resolvePartner(member);
+    const unitMembers = partner ? [member, partner] : [member];
+    unitMembers.forEach((m) => consumed.add(m.id));
+
+    const unitParentIds = unitMembers.map((m) => m.id);
+    const directChildren = childrenOfParents(unitParentIds);
+    const childUnits = [];
+    directChildren.forEach((child) => {
+      const unit = buildUnit(child);
+      if (unit) childUnits.push(unit);
+    });
+    return { unitMembers, childUnits, primaryId: member.id };
+  };
+
+  const roots = members
+    .filter((m) => parentIdsOf(m).length === 0)
+    .sort((a, b) => (a.generation || 999) - (b.generation || 999) || (a.orderInFamily || 999) - (b.orderInFamily || 999));
+
+  const forest = [];
+  roots.forEach((root) => {
+    const unit = buildUnit(root);
+    if (unit) forest.push(unit);
+  });
+  members
+    .sort((a, b) => (a.generation || 999) - (b.generation || 999) || (a.orderInFamily || 999) - (b.orderInFamily || 999))
+    .forEach((m) => {
+      const unit = buildUnit(m);
+      if (unit) forest.push(unit);
+    });
+
+  const renderPair = (unit, sideHint = "center") => {
+    const [first, second] = unit.unitMembers;
+    if (!second) {
+      return cardMemberHtml(first);
+    }
+
+    const primaryIsFirst = first.id === unit.primaryId;
+    const primary = primaryIsFirst ? first : second;
+    const partner = primaryIsFirst ? second : first;
+
+    let left = primary;
+    let right = partner;
+    // Keep blood siblings visually closer in the middle, spouses outside.
+    if (sideHint === "left") {
+      left = partner;
+      right = primary;
+    } else if (sideHint === "right") {
+      left = primary;
+      right = partner;
+    } else {
+      left = primary;
+      right = partner;
+    }
+
+    return `
+      <div class="tree-pair">
+        ${cardMemberHtml(left)}
+        <div class="tree-couple-line"></div>
+        <i class="fas fa-heart tree-couple-icon"></i>
+        <div class="tree-couple-line"></div>
+        ${cardMemberHtml(right)}
+      </div>
+    `;
+  };
+
+  const renderUnit = (unit, sideHint = "center") => {
+    const pairHtml = renderPair(unit, sideHint);
+
+    const childCount = unit.childUnits.length;
+    const mid = (childCount - 1) / 2;
+    const childrenHtml = childCount
+      ? `
+        <div class="tree-children-wrap">
+          <div class="tree-children-line"></div>
+          <div class="tree-children">
+            ${unit.childUnits.map((childUnit, idx) => {
+              const hint = idx < mid ? "left" : (idx > mid ? "right" : "center");
+              return renderUnit(childUnit, hint);
+            }).join("")}
+          </div>
+        </div>
+      `
+      : "";
+
+    return `
+      <div class="tree-unit">
+        <div class="tree-node-col">
+          ${pairHtml}
+          ${childCount > 0 ? `<button class="tree-expand-btn" data-expanded="true" data-count="${childCount}" aria-expanded="true"><i class="fas fa-chevron-down"></i><span>${childCount} con</span></button>` : ""}
+        </div>
+        ${childrenHtml}
+      </div>
+    `;
+  };
+
+  const bindTreeExpandButtons = (rootEl) => {
+    if (!rootEl) return;
+    rootEl.querySelectorAll(".tree-expand-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const unit = btn.closest(".tree-unit");
+        if (!unit) return;
+        const childrenWrap = unit.querySelector(":scope > .tree-children-wrap");
+        if (!childrenWrap) return;
+
+        const current = btn.dataset.expanded !== "false";
+        const next = !current;
+        btn.dataset.expanded = String(next);
+        btn.setAttribute("aria-expanded", String(next));
+        btn.classList.toggle("collapsed", !next);
+        childrenWrap.classList.toggle("collapsed", !next);
+
+        const count = Number(btn.dataset.count || "0");
+        const label = btn.querySelector("span");
+        if (label) {
+          label.textContent = next ? `${count} con` : `Ẩn ${count} con`;
+        }
+      });
+    });
+  };
+
+  treeContent.innerHTML = `<div class="tree-level tree-root-level">${forest.map((unit) => renderUnit(unit)).join("")}</div>`;
+  bindTreeExpandButtons(treeContent);
 
   let selectedMemberId = members[0]?.id || null;
   const detailName = document.getElementById("detailName");
@@ -203,11 +338,192 @@ async function loadFamilyTree() {
   const detailPanel = document.getElementById("treeDetailPanel");
   const detailClose = document.getElementById("treeDetailClose");
   const treeLayout = document.getElementById("treeLayout");
+  const compareModeToggle = document.getElementById("compareModeToggle");
+  const compareModal = document.getElementById("compareModal");
+  const compareModalClose = document.getElementById("compareModalClose");
+  const compareA = document.getElementById("compareA");
+  const compareB = document.getElementById("compareB");
+  const compareRelationText = document.getElementById("compareRelationText");
+  const compareCommonAncestors = document.getElementById("compareCommonAncestors");
+  const expandAllBtn = document.getElementById("expandAll");
+  const collapseAllBtn = document.getElementById("collapseAll");
+  const exportPdfBtn = document.getElementById("exportPdf");
+  const treeFullscreenModal = document.getElementById("treeFullscreenModal");
+  const treeFullscreenClose = document.getElementById("treeFullscreenClose");
+  const treeFullscreenContent = document.getElementById("treeFullscreenContent");
+  const treeCanvas = document.getElementById("treeCanvas");
+  const treeFullscreenCanvas = document.querySelector(".tree-fullscreen-canvas");
+
+  const centerOnFirstNode = (container, contentRoot) => {
+    if (!container || !contentRoot) return;
+    const firstNode = contentRoot.querySelector(".pcard");
+    if (!firstNode) return;
+
+    const nodeRect = firstNode.getBoundingClientRect();
+    const contentRect = contentRoot.getBoundingClientRect();
+    const relLeft = nodeRect.left - contentRect.left + contentRoot.scrollLeft;
+    const relTop = nodeRect.top - contentRect.top + contentRoot.scrollTop;
+
+    const targetLeft = Math.max(0, relLeft - (container.clientWidth / 2) + (firstNode.clientWidth / 2));
+    const targetTop = Math.max(0, relTop - (container.clientHeight / 3));
+    container.scrollLeft = targetLeft;
+    container.scrollTop = targetTop;
+  };
+
+  const attachSpacePan = (container) => {
+    if (!container) return;
+    let isSpacePressed = false;
+    let isPanning = false;
+    let startX = 0;
+    let startY = 0;
+    let startScrollLeft = 0;
+    let startScrollTop = 0;
+
+    const setReadyCursor = () => {
+      container.classList.toggle("space-pan-ready", isSpacePressed && !isPanning);
+    };
+
+    const onKeyDown = (e) => {
+      if (e.code !== "Space") return;
+      const tag = (document.activeElement?.tagName || "").toLowerCase();
+      if (tag === "input" || tag === "textarea" || document.activeElement?.isContentEditable) return;
+      isSpacePressed = true;
+      setReadyCursor();
+      if (e.target === document.body) e.preventDefault();
+    };
+
+    const onKeyUp = (e) => {
+      if (e.code !== "Space") return;
+      isSpacePressed = false;
+      if (!isPanning) {
+        container.classList.remove("space-pan-ready");
+      }
+    };
+
+    const onMouseDown = (e) => {
+      if (!isSpacePressed || e.button !== 0) return;
+      isPanning = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      startScrollLeft = container.scrollLeft;
+      startScrollTop = container.scrollTop;
+      container.classList.add("space-panning");
+      container.classList.remove("space-pan-ready");
+      e.preventDefault();
+    };
+
+    const onMouseMove = (e) => {
+      if (!isPanning) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      container.scrollLeft = startScrollLeft - dx;
+      container.scrollTop = startScrollTop - dy;
+    };
+
+    const stopPan = () => {
+      if (!isPanning) return;
+      isPanning = false;
+      container.classList.remove("space-panning");
+      setReadyCursor();
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("keyup", onKeyUp);
+    container.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", stopPan);
+    container.addEventListener("mouseleave", stopPan);
+  };
 
   const setDetailPanelVisible = (visible) => {
     if (!treeLayout) return;
     treeLayout.classList.toggle("detail-open", visible);
     treeLayout.classList.toggle("detail-closed", !visible);
+  };
+
+  let compareMode = false;
+  let compareSelectedIds = [];
+
+  const getMemberInitials = (name) => (name || "--").slice(0, 2).toUpperCase();
+  const genderClass = (m) => m?.gender === "FEMALE" ? "female" : "male";
+
+  const renderCompareMember = (m) => `
+    <div class="compare-avatar ${genderClass(m)}">${getMemberInitials(m?.name)}</div>
+    <div class="compare-name">${m?.name || "Không rõ"}</div>
+    <div class="compare-years">${m?.birthYear || "?"} - ${m?.deathYear || "nay"}</div>
+    <div class="compare-job">${m?.occupation || "Chưa cập nhật"}</div>
+  `;
+
+  const syncCompareCardState = () => {
+    document.querySelectorAll(".pcard").forEach((card) => {
+      const isPicked = compareSelectedIds.includes(card.dataset.memberId);
+      card.classList.toggle("compare-picked", compareMode && isPicked);
+      card.classList.toggle("compare-mode", compareMode);
+    });
+  };
+
+  const openCompareModal = async () => {
+    if (!compareModal || compareSelectedIds.length !== 2) return;
+    const first = byId.get(compareSelectedIds[0]);
+    const second = byId.get(compareSelectedIds[1]);
+    if (!first || !second) return;
+
+    compareA.innerHTML = renderCompareMember(first);
+    compareB.innerHTML = renderCompareMember(second);
+    compareRelationText.textContent = "Đang phân tích...";
+    compareCommonAncestors.textContent = "Đang tải dữ liệu...";
+    compareModal.classList.add("open");
+    compareModal.setAttribute("aria-hidden", "false");
+
+    try {
+      const relationUrl = familyId
+        ? `/api/public/relationship?familyId=${encodeURIComponent(familyId)}&memberAId=${encodeURIComponent(first.id)}&memberBId=${encodeURIComponent(second.id)}`
+        : `/api/public/relationship?memberAId=${encodeURIComponent(first.id)}&memberBId=${encodeURIComponent(second.id)}`;
+      const relationRes = await fetch(relationUrl);
+      if (!relationRes.ok) {
+        throw new Error(`Request failed ${relationRes.status}`);
+      }
+      const relationData = await relationRes.json();
+      compareRelationText.textContent = relationData.relationship || "Không xác định";
+      const ancestors = relationData.commonAncestors || [];
+      compareCommonAncestors.textContent = ancestors.length
+        ? ancestors.join(", ")
+        : "Không có dữ liệu tổ tiên chung";
+    } catch (error) {
+      compareRelationText.textContent = "Không phân tích được";
+      compareCommonAncestors.textContent = "Không thể tải dữ liệu quan hệ từ hệ thống";
+    }
+  };
+
+  const closeCompareModal = () => {
+    if (!compareModal) return;
+    compareModal.classList.remove("open");
+    compareModal.setAttribute("aria-hidden", "true");
+  };
+
+  const setCompareMode = (enabled) => {
+    compareMode = enabled;
+    compareSelectedIds = [];
+    closeCompareModal();
+    syncCompareCardState();
+
+    if (compareMode) {
+      setDetailPanelVisible(false);
+      if (compareModeToggle) {
+        compareModeToggle.classList.add("btn-primary");
+        compareModeToggle.classList.remove("btn-white");
+        compareModeToggle.innerHTML = '<i class="fas fa-xmark"></i> Thoát so sánh';
+      }
+      return;
+    }
+
+    if (compareModeToggle) {
+      compareModeToggle.classList.remove("btn-primary");
+      compareModeToggle.classList.add("btn-white");
+      compareModeToggle.innerHTML = '<i class="fas fa-code-compare"></i> So sánh quan hệ';
+    }
+    setDetailPanelVisible(true);
+    renderDetail(selectedMemberId);
   };
 
   const renderDetail = (memberId) => {
@@ -220,14 +536,14 @@ async function loadFamilyTree() {
     const children = members.filter((m) => m.fatherId === member.id || m.motherId === member.id);
 
     detailInitial.textContent = (member.name || "--").slice(0, 2).toUpperCase();
-    detailName.textContent = member.name || "Khong ro";
+    detailName.textContent = member.name || "Không rõ";
     detailYears.textContent = `${member.birthYear || "?"} - ${member.deathYear || "nay"}`;
-    detailGeneration.textContent = `The he ${member.generation || "-"}`;
-    detailHometown.textContent = member.branch || "Chua cap nhat";
-    detailJob.textContent = member.occupation || "Chua cap nhat";
-    detailBio.textContent = `Thanh vien ${member.name || ""} thuoc ${member.branch || "dong ho"}, du lieu dang duoc quan tri vien cap nhat.`;
-    detailSpouse.textContent = spouse ? spouse.name : "Khong co";
-    detailChildren.textContent = children.length ? children.map((c) => c.name).join(", ") : "Khong co";
+    detailGeneration.textContent = `Thế hệ ${member.generation || "-"}`;
+    detailHometown.textContent = member.branch || "Chưa cập nhật";
+    detailJob.textContent = member.occupation || "Chưa cập nhật";
+    detailBio.textContent = `Thành viên ${member.name || ""} thuộc ${member.branch || "dòng họ"}, dữ liệu đang được quản trị viên cập nhật.`;
+    detailSpouse.textContent = spouse ? spouse.name : "Không có";
+    detailChildren.textContent = children.length ? children.map((c) => c.name).join(", ") : "Không có";
     detailProfileLink.href = `/member/${member.id}`;
 
     document.querySelectorAll(".pcard").forEach((card) => {
@@ -235,17 +551,122 @@ async function loadFamilyTree() {
     });
   };
 
-  treeContent.querySelectorAll(".pcard").forEach((card) => {
-    card.addEventListener("click", () => {
-      renderDetail(card.dataset.memberId);
+  const bindCompareCardClicks = (rootEl) => {
+    if (!rootEl) return;
+    rootEl.querySelectorAll(".pcard").forEach((card) => {
+      card.addEventListener("click", () => {
+        const memberId = card.dataset.memberId;
+        if (!compareMode) {
+          renderDetail(memberId);
+          return;
+        }
+
+        if (compareSelectedIds.includes(memberId)) {
+          compareSelectedIds = compareSelectedIds.filter((id) => id !== memberId);
+        } else if (compareSelectedIds.length < 2) {
+          compareSelectedIds.push(memberId);
+        } else {
+          compareSelectedIds = [compareSelectedIds[1], memberId];
+        }
+        syncCompareCardState();
+
+        if (compareSelectedIds.length === 2) {
+          openCompareModal();
+        }
+      });
     });
-  });
+  };
+  bindCompareCardClicks(treeContent);
 
   if (detailClose && detailPanel) {
     detailClose.addEventListener("click", () => {
       setDetailPanelVisible(false);
     });
   }
+
+  compareModeToggle?.addEventListener("click", () => {
+    setCompareMode(!compareMode);
+  });
+
+  compareModalClose?.addEventListener("click", closeCompareModal);
+  compareModal?.addEventListener("click", (e) => {
+    if (e.target === compareModal) {
+      closeCompareModal();
+    }
+  });
+
+  const expandAllNodes = () => {
+    treeContent.querySelectorAll(".tree-children-wrap.collapsed").forEach((wrap) => {
+      wrap.classList.remove("collapsed");
+    });
+    treeContent.querySelectorAll(".tree-expand-btn").forEach((btn) => {
+      btn.dataset.expanded = "true";
+      btn.setAttribute("aria-expanded", "true");
+      btn.classList.remove("collapsed");
+      const count = Number(btn.dataset.count || "0");
+      const label = btn.querySelector("span");
+      if (label) label.textContent = `${count} con`;
+    });
+  };
+
+  const openTreeFullscreen = () => {
+    if (!treeFullscreenModal || !treeFullscreenContent) return;
+    expandAllNodes();
+    treeFullscreenContent.innerHTML = treeContent.innerHTML;
+    bindTreeExpandButtons(treeFullscreenContent);
+    bindCompareCardClicks(treeFullscreenContent);
+    treeFullscreenModal.classList.add("open");
+    treeFullscreenModal.setAttribute("aria-hidden", "false");
+    requestAnimationFrame(() => centerOnFirstNode(treeFullscreenCanvas, treeFullscreenContent));
+  };
+
+  const closeTreeFullscreen = () => {
+    if (!treeFullscreenModal) return;
+    treeFullscreenModal.classList.remove("open");
+    treeFullscreenModal.setAttribute("aria-hidden", "true");
+  };
+
+  const exportTreeToPdf = () => {
+    const sourceHtml = treeFullscreenModal?.classList.contains("open")
+      ? treeFullscreenContent?.innerHTML
+      : treeContent.innerHTML;
+    if (!sourceHtml) return;
+
+    const printWin = window.open("", "_blank", "width=1400,height=900");
+    if (!printWin) return;
+    printWin.document.write(`
+      <html>
+      <head>
+        <title>Gia pha</title>
+        <link rel="stylesheet" href="/css/style.css"/>
+        <style>
+          body{margin:0;padding:20px;background:#fff;}
+          .tree-container{border:none;min-height:auto;overflow:visible;padding:0;}
+        </style>
+      </head>
+      <body>
+        <div class="tree-container">
+          ${sourceHtml}
+        </div>
+      </body>
+      </html>
+    `);
+    printWin.document.close();
+    printWin.focus();
+    printWin.print();
+  };
+
+  expandAllBtn?.addEventListener("click", openTreeFullscreen);
+  collapseAllBtn?.addEventListener("click", closeTreeFullscreen);
+  treeFullscreenClose?.addEventListener("click", closeTreeFullscreen);
+  treeFullscreenModal?.addEventListener("click", (e) => {
+    if (e.target === treeFullscreenModal) closeTreeFullscreen();
+  });
+  exportPdfBtn?.addEventListener("click", exportTreeToPdf);
+
+  attachSpacePan(treeCanvas);
+  attachSpacePan(treeFullscreenCanvas);
+  requestAnimationFrame(() => centerOnFirstNode(treeCanvas, treeContent));
 
   setDetailPanelVisible(true);
   renderDetail(selectedMemberId);
@@ -271,8 +692,9 @@ async function loadFamilyTree() {
 
   document.getElementById("genFilter")?.addEventListener("change", function onChange() {
     const v = this.value;
-    document.querySelectorAll('[id^="gen-"]').forEach((g) => {
-      g.style.display = (!v || g.id === `gen-${v}`) ? "" : "none";
+    document.querySelectorAll(".pcard").forEach((card) => {
+      const g = card.dataset.gen || "";
+      card.style.opacity = (!v || g === v) ? "1" : "0.2";
     });
   });
 }
@@ -326,18 +748,18 @@ async function loadNewsDetail() {
   const article = articles.find((a) => a.slug === slug);
 
   if (!article) {
-    titleEl.textContent = "Khong tim thay bai viet";
+    titleEl.textContent = "Không tìm thấy bài viết";
     return;
   }
 
-  document.title = `${article.title} - Tin tuc`;
+  document.title = `${article.title} - Tin tức`;
   document.getElementById("newsDetailBreadcrumbTitle").textContent = article.title;
   titleEl.textContent = article.title;
   document.getElementById("newsDetailCategory").textContent = article.categoryLabel || article.category;
   document.getElementById("newsDetailSummary").textContent = article.summary || "";
   document.getElementById("newsDetailContent").innerHTML = article.content || "";
   document.getElementById("newsDetailViewCount").textContent = String(article.viewCount || 0);
-  const authorName = article.author?.name || "Tac gia";
+  const authorName = article.author?.name || "Tác giả";
   document.getElementById("newsDetailAuthor").textContent = authorName;
   document.getElementById("newsDetailAuthorInitial").textContent = authorName.charAt(0).toUpperCase();
   document.getElementById("newsDetailDate").textContent = article.publishedDate || "";
@@ -347,7 +769,7 @@ async function loadNewsDetail() {
 
   const catTabs = document.getElementById("newsDetailCategoryTabs");
   catTabs.innerHTML = [
-    `<a href="/news" class="news-cat-tab" style="font-size:.78rem;">Tat ca</a>`,
+    `<a href="/news" class="news-cat-tab" style="font-size:.78rem;">Tất cả</a>`,
     ...categories.map((c) => `<a href="/news?category=${c.value}" class="news-cat-tab${article.category === c.value ? " active" : ""}" style="font-size:.78rem;">${c.label}</a>`)
   ].join("");
 
