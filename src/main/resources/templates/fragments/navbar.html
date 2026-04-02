@@ -3,13 +3,13 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 <nav th:fragment="navbar" class="pub-nav">
-  <a th:href="@{/}" class="pub-nav-logo">
+  <a th:href="@{/home}" class="pub-nav-logo">
     <i class="fas fa-leaf"></i>
     <span>Gia Phả</span>
   </a>
 
   <div id="navLinks" class="pub-nav-links">
-    <a th:href="@{/}" th:classappend="${activeMenu=='home'}?' active':''">
+    <a th:href="@{/home}" th:classappend="${activeMenu=='home'}?' active':''">
       <i class="fas fa-home"></i> Trang Chủ
     </a>
     <a th:href="@{/family-tree}" th:classappend="${activeMenu=='family-tree'}?' active':''">
