@@ -5,19 +5,26 @@ import com.family.app.dto.RelationshipCompareResponse;
 import com.family.app.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-@RestController
-@RequestMapping("/api/public")
+@Controller
 @RequiredArgsConstructor
 public class PublicFamilyTreeController {
 
     private final MemberService memberService;
 
     @GetMapping("/family-tree")
+    public String familyTreePage(Model model) {
+        model.addAttribute("activeMenu", "family-tree");
+        return "public/family-tree";
+    }
+
+    @GetMapping("/api/public/family-tree")
+    @ResponseBody
     public ResponseEntity<FamilyTreeResponse> getFamilyTree(
             @RequestParam(required = false) String familyId) {
         try {
@@ -29,7 +36,8 @@ public class PublicFamilyTreeController {
         }
     }
 
-    @GetMapping("/relationship")
+    @GetMapping("/api/public/relationship")
+    @ResponseBody
     public ResponseEntity<RelationshipCompareResponse> compareRelationship(
             @RequestParam(required = false) String familyId,
             @RequestParam String memberAId,

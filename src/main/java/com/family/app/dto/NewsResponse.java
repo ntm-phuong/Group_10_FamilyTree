@@ -17,4 +17,11 @@ public class NewsResponse {
     private String categoryName;
     private String userId;
     private String userName;
+
+    private String visibility;
+    private String slug;
+    private Boolean featured;
+    private Integer viewCount;
+    private String coverImage;
+    private String publicCategory;
 }

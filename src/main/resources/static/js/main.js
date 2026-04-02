@@ -43,28 +43,6 @@ function getChildrenCount(parentIds, members) {
   return members.filter((m) => parentSet.has(m.fatherId) || parentSet.has(m.motherId)).length;
 }
 
-function articleCardHtml(article) {
-  const categoryLabel = article.categoryLabel || article.category;
-  const author = article.author?.name || "Tác giả";
-  return `
-    <div class="news-card">
-      <div class="news-card-img">
-        ${article.coverImage ? `<img src="${article.coverImage}" alt="${article.title}"/>` : `<div class="ph-icon"><i class="fas fa-newspaper"></i></div>`}
-      </div>
-      <div class="news-card-body">
-        <div class="news-card-meta">
-          <span class="badge badge-gray">${categoryLabel}</span>
-          <span class="text-xs text-muted">${author}</span>
-          <span class="text-xs text-muted">1 tuần trước</span>
-        </div>
-        <div class="news-card-title"><a href="/news/${article.slug}">${article.title}</a></div>
-        <p class="news-card-excerpt">${article.summary || ""}</p>
-        <div class="news-card-footer"><span></span><a href="/news/${article.slug}">Đọc thêm <i class="fas fa-arrow-right"></i></a></div>
-      </div>
-    </div>
-  `;
-}
-
 async function loadFamilyTree() {
   const treeContent = document.getElementById("treeContent");
   if (!treeContent) return;
@@ -827,89 +805,4 @@ async function loadFamilyTree() {
   });
 }
 
-async function loadNewsList() {
-  const newsGrid = document.getElementById("newsGrid");
-  if (!newsGrid) return;
-
-  const params = new URLSearchParams(window.location.search);
-  const selectedCategory = params.get("category");
-  const query = (params.get("q") || "").trim().toLowerCase();
-
-  const res = await fetch("/data/news.json");
-  const data = await res.json();
-  const articles = data.articles || [];
-  const categories = data.categories || [];
-
-  const tabWrap = document.getElementById("newsCategoryTabs");
-  if (tabWrap) {
-    tabWrap.innerHTML = categories.map((c) => {
-      const active = selectedCategory === c.value ? " active" : "";
-      return `<a href="/news?category=${c.value}" class="news-cat-tab${active}">${c.label}</a>`;
-    }).join("");
-  }
-
-  const filtered = articles
-    .filter((a) => !selectedCategory || a.category === selectedCategory)
-    .filter((a) => !query || a.title.toLowerCase().includes(query) || (a.summary || "").toLowerCase().includes(query));
-
-  document.getElementById("newsCount").textContent = String(filtered.length);
-  document.getElementById("newsEmptyState").style.display = filtered.length ? "none" : "block";
-  newsGrid.innerHTML = filtered.map(articleCardHtml).join("");
-
-  const featuredGrid = document.getElementById("featuredNewsGrid");
-  if (featuredGrid) {
-    const featured = selectedCategory ? [] : articles.filter((a) => a.featured).slice(0, 2);
-    featuredGrid.style.display = featured.length ? "grid" : "none";
-    featuredGrid.innerHTML = featured.map(articleCardHtml).join("");
-  }
-}
-
-async function loadNewsDetail() {
-  const titleEl = document.getElementById("newsDetailTitle");
-  if (!titleEl) return;
-
-  const slug = pagePath.split("/").filter(Boolean).pop();
-  const res = await fetch("/data/news.json");
-  const data = await res.json();
-  const articles = data.articles || [];
-  const categories = data.categories || [];
-  const article = articles.find((a) => a.slug === slug);
-
-  if (!article) {
-    titleEl.textContent = "Không tìm thấy bài viết";
-    return;
-  }
-
-  document.title = `${article.title} - Tin tức`;
-  document.getElementById("newsDetailBreadcrumbTitle").textContent = article.title;
-  titleEl.textContent = article.title;
-  document.getElementById("newsDetailCategory").textContent = article.categoryLabel || article.category;
-  document.getElementById("newsDetailSummary").textContent = article.summary || "";
-  document.getElementById("newsDetailContent").innerHTML = article.content || "";
-  document.getElementById("newsDetailViewCount").textContent = String(article.viewCount || 0);
-  const authorName = article.author?.name || "Tác giả";
-  document.getElementById("newsDetailAuthor").textContent = authorName;
-  document.getElementById("newsDetailAuthorInitial").textContent = authorName.charAt(0).toUpperCase();
-  document.getElementById("newsDetailDate").textContent = article.publishedDate || "";
-
-  const featuredBadge = document.getElementById("newsDetailFeatured");
-  featuredBadge.style.display = article.featured ? "inline-flex" : "none";
-
-  const catTabs = document.getElementById("newsDetailCategoryTabs");
-  catTabs.innerHTML = [
-    `<a href="/news" class="news-cat-tab" style="font-size:.78rem;">Tất cả</a>`,
-    ...categories.map((c) => `<a href="/news?category=${c.value}" class="news-cat-tab${article.category === c.value ? " active" : ""}" style="font-size:.78rem;">${c.label}</a>`)
-  ].join("");
-
-  const related = articles.filter((a) => a.category === article.category && a.slug !== article.slug).slice(0, 3);
-  const relatedWrap = document.getElementById("newsRelatedList");
-  relatedWrap.innerHTML = related.map((r) => `
-    <div style="margin-bottom:.75rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);">
-      <a href="/news/${r.slug}" style="font-size:.83rem;font-weight:600;color:var(--text-900);line-height:1.4;display:block;">${r.title}</a>
-    </div>
-  `).join("");
-}
-
 if (pagePath.startsWith("/family-tree")) loadFamilyTree();
-if (pagePath === "/news") loadNewsList();
-if (pagePath.startsWith("/news/")) loadNewsDetail();

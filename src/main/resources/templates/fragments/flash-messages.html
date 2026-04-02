@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="flash-messages">
+  <div th:if="${successMessage}" class="alert alert-success alert-auto">
+    <i class="fas fa-check-circle"></i>
+    <span th:text="${successMessage}"></span>
+    <button type="button" class="alert-close"><i class="fas fa-times"></i></button>
+  </div>
+  <div th:if="${errorMessage}" class="alert alert-error">
+    <i class="fas fa-exclamation-circle"></i>
+    <span th:text="${errorMessage}"></span>
+    <button type="button" class="alert-close"><i class="fas fa-times"></i></button>
+  </div>
+  <div th:if="${infoMessage}" class="alert alert-info alert-auto">
+    <i class="fas fa-info-circle"></i>
+    <span th:text="${infoMessage}"></span>
+    <button type="button" class="alert-close"><i class="fas fa-times"></i></button>
+  </div>
+</div>
+</body>
+</html>

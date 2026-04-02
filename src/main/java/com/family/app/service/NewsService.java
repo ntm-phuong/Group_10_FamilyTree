@@ -41,7 +41,10 @@ public abstract class NewsService {
     @Transactional(readOnly = true)
     public List<NewsResponse> getLatestNews(String familyId) {
         return newsRepository.findTop5ByFamily_FamilyIdOrderByCreatedAtDesc(familyId)
-                .stream().map(this::convertToDTO).collect(Collectors.toList());
+                .stream()
+                .limit(5)
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -59,6 +62,7 @@ public abstract class NewsService {
                         LocalDateTime.now()
                 )
                 .stream()
+                .limit(4)
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -66,7 +70,10 @@ public abstract class NewsService {
     @Transactional(readOnly = true)
     public List<NewsResponse> getLatestNewsForHome(String familyId) {
         return newsRepository.findTop4ByFamily_FamilyIdOrderByCreatedAtDesc(familyId)
-                .stream().map(this::convertToDTO).collect(Collectors.toList());
+                .stream()
+                .limit(4)
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     private NewsResponse convertToDTO(NewsEvent news) {
@@ -88,6 +95,17 @@ public abstract class NewsService {
         if (news.getUser() != null) {
             dto.setUserId(news.getUser().getUserId());
             dto.setUserName(news.getUser().getFullName());
+        }
+
+        if (news.getVisibility() != null) {
+            dto.setVisibility(news.getVisibility().name());
+        }
+        dto.setSlug(news.getSlug());
+        dto.setFeatured(news.isFeatured());
+        dto.setViewCount(news.getViewCount());
+        dto.setCoverImage(news.getCoverImage());
+        if (news.getPublicCategory() != null) {
+            dto.setPublicCategory(news.getPublicCategory().name());
         }
 
         return dto;

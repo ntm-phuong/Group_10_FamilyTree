@@ -1,6 +1,12 @@
 /* =========================================
    STYLE CHO TRANG TIN TỨC
    ========================================= */
+/* Trang chi tiết: full width trong section để grid 2 cột không bị co sai */
+.news-detail-page{
+  width:100%;
+  max-width:100%;
+  box-sizing:border-box;
+}
 .news-page-wrap{max-width:1100px;margin:0 auto;padding:1.5rem;}
 .news-cat-tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.25rem;}
 .news-cat-tab{padding:.33rem .85rem;border-radius:var(--radius-full);font-size:.82rem;font-weight:500;cursor:pointer;border:1px solid var(--border-md);color:var(--text-700);background:var(--bg-white);transition:all .15s;}
@@ -20,14 +26,40 @@
 .news-card-footer{display:flex;align-items:center;justify-content:space-between;font-size:.78rem;color:var(--text-500);}
 .news-card-footer a{color:var(--green-700);font-weight:500;display:flex;align-items:center;gap:.25rem;}
 
-.news-detail-layout{display:flex;gap:1.5rem;max-width:1100px;margin:0 auto;padding:1.5rem;align-items:flex-start;}
-.news-content{flex:1;min-width:0;}
-.news-sidebar{width:240px;flex-shrink:0;}
+/* Chi tiết tin: breadcrumb + nút quay lại full width; trong layout chỉ còn .card (bài) và .news-sidebar cùng cấp */
+.news-detail-header{
+  max-width:1100px;
+  margin:0 auto;
+  width:100%;
+  box-sizing:border-box;
+}
+.news-detail-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(260px,300px);
+  gap:1.5rem 1.75rem;
+  max-width:1100px;
+  margin:0 auto;
+  align-items:start;
+  width:100%;
+  box-sizing:border-box;
+}
+.news-detail-layout > .news-detail-article{
+  min-width:0;
+}
+.news-sidebar{
+  min-width:0;
+  position:sticky;
+  top:1rem;
+  align-self:start;
+}
 .news-article-body h2{font-size:1rem;margin:1.2rem 0 .5rem;}
 .news-article-body p{font-size:.9rem;color:var(--text-700);line-height:1.75;margin-bottom:.9rem;}
 .news-article-body ul,.news-article-body ol{padding-left:1.5rem;margin-bottom:.9rem;}
 .news-article-body li{font-size:.9rem;color:var(--text-700);margin-bottom:.3rem;}
 .news-article-body strong{font-weight:600;}
 
-@media(max-width:1024px){.news-detail-layout{flex-direction:column;}.news-sidebar{width:100%;}}
+@media(max-width:900px){
+  .news-detail-layout{grid-template-columns:1fr;}
+  .news-sidebar{position:static;top:auto;}
+}
 @media(max-width:640px){.news-grid{grid-template-columns:1fr;}}

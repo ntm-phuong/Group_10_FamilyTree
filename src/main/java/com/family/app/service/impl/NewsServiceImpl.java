@@ -3,6 +3,7 @@ package com.family.app.service.impl;
 import com.family.app.dto.NewsRequest;
 import com.family.app.dto.NewsResponse;
 import com.family.app.model.NewsEvent;
+import com.family.app.model.NewsVisibility;
 import com.family.app.repository.CategoryRepository;
 import com.family.app.repository.FamilyRepository;
 import com.family.app.repository.NewsEventRepository;
@@ -38,7 +39,8 @@ public class NewsServiceImpl extends NewsService {
                 .startAt(request.getStartAt())
                 .endAt(request.getEndAt())
                 .location(request.getLocation())
-                .visibility(request.getVisibility())
+                .remindBefore(request.getRemindBefore())
+                .visibility(parseVisibility(request.getVisibility()))
                 .family(familyRepository.findById(request.getFamilyId()).orElse(null))
                 .category(categoryRepository.findById(request.getCategoryId()).orElse(null))
                 .user(userRepository.findById(request.getAuthorId()).orElse(null))
@@ -57,6 +59,12 @@ public class NewsServiceImpl extends NewsService {
         news.setSummary(request.getSummary());
         news.setContent(request.getContent());
         news.setLocation(request.getLocation());
+        news.setStartAt(request.getStartAt());
+        news.setEndAt(request.getEndAt());
+        news.setRemindBefore(request.getRemindBefore());
+        if (request.getVisibility() != null) {
+            news.setVisibility(parseVisibility(request.getVisibility()));
+        }
 
         if (request.getCategoryId() != null) {
             news.setCategory(categoryRepository.findById(request.getCategoryId()).orElse(null));
@@ -70,7 +78,6 @@ public class NewsServiceImpl extends NewsService {
         newsRepository.deleteById(id);
     }
 
-    // Mapping thủ công để đảm bảo khớp chính xác NewsResponse của bạn
     private NewsResponse mapToResponse(NewsEvent news) {
         NewsResponse response = new NewsResponse();
         response.setId(news.getId());
@@ -78,8 +85,7 @@ public class NewsServiceImpl extends NewsService {
         response.setSummary(news.getSummary());
         response.setContent(news.getContent());
         response.setCreatedAt(news.getCreatedAt());
-        // Giả sử bạn thêm @UpdateTimestamp vào Entity, nếu chưa có nó sẽ trả về null
-        // response.setUpdatedAt(news.getUpdatedAt());
+        response.setStartAt(news.getStartAt());
 
         if (news.getCategory() != null) {
             response.setCategoryId(news.getCategory().getCategoryId());
@@ -91,6 +97,28 @@ public class NewsServiceImpl extends NewsService {
             response.setUserName(news.getUser().getFullName());
         }
 
+        if (news.getVisibility() != null) {
+            response.setVisibility(news.getVisibility().name());
+        }
+        response.setSlug(news.getSlug());
+        response.setFeatured(news.isFeatured());
+        response.setViewCount(news.getViewCount());
+        response.setCoverImage(news.getCoverImage());
+        if (news.getPublicCategory() != null) {
+            response.setPublicCategory(news.getPublicCategory().name());
+        }
+
         return response;
+    }
+
+    private static NewsVisibility parseVisibility(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return NewsVisibility.FAMILY_ONLY;
+        }
+        try {
+            return NewsVisibility.valueOf(raw.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return NewsVisibility.FAMILY_ONLY;
+        }
     }
 }
