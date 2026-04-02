@@ -47,8 +47,8 @@
                 <span>Bạn đã đăng xuất thành công.</span>
             </div>
 
-            <form th:action="@{/login}" method="post">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <form id="loginForm" th:action="@{/api/auth/login}" method="post">
+                <input th:if="${_csrf != null}" type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
                 <div class="form-group">
                     <label class="form-label" for="email">Email</label>
@@ -95,5 +95,53 @@
     </div>
 </div>
 <script th:src="@{/js/main.js}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var form = document.getElementById("loginForm");
+        if (!form) {
+            return;
+        }
+
+        form.addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            var email = document.getElementById("email").value;
+            var password = document.getElementById("password").value;
+
+            try {
+                var response = await fetch(form.action, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+
+                if (!response.ok) {
+                    window.location.href = "/login?error";
+                    return;
+                }
+
+                var data = await response.json();
+                if (data && data.accessToken) {
+                    localStorage.setItem("accessToken", data.accessToken);
+                }
+                if (data && data.fullName) {
+                    localStorage.setItem("fullName", data.fullName);
+                }
+                if (data && data.role) {
+                    localStorage.setItem("role", data.role);
+                }
+
+                window.location.href = "/home";
+            } catch (error) {
+                window.location.href = "/login?error";
+            }
+        });
+    });
+</script>
 </body>
 </html>
