@@ -563,11 +563,14 @@ async function loadFamilyTree() {
     }
   };
 
+
   const closeCompareModal = () => {
-    if (!compareModal) return;
-    compareModal.classList.remove("open");
-    compareModal.setAttribute("aria-hidden", "true");
-  };
+  if (!compareModal) return;
+  compareModal.classList.remove("open");
+  compareModal.setAttribute("aria-hidden", "true");
+  compareSelectedIds = [];
+  syncCompareCardState();
+};
 
   const setCompareMode = (enabled) => {
     compareMode = enabled;
