@@ -2,56 +2,153 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cay Gia Pha - Dong ho</title>
+  <title>Cây Gia Phả - Dòng họ</title>
   <link rel="stylesheet" th:href="@{/css/style.css}"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
+<th:block th:replace="~{fragments/navbar :: navbar}"/>
 
 <div class="tree-page-wrap">
   <div class="breadcrumb">
     <a href="/"><i class="fas fa-home"></i></a>
     <span class="breadcrumb-sep">></span>
-    <span>Gia pha</span>
+    <span>Gia phả</span>
   </div>
 
-  <h1 style="font-size:1.4rem;font-weight:700;margin-bottom:.3rem;">Cay gia pha dong ho</h1>
+  <h1 style="font-size:1.4rem;font-weight:700;margin-bottom:.3rem;">Cây gia phả dòng họ</h1>
   <p style="font-size:.85rem;color:var(--text-500);margin-bottom:1.25rem;">
-    Kham pha moi quan he giua cac thanh vien qua nhieu the he. Click vao moi thanh vien de xem chi tiet.
+    Khám phá mối quan hệ giữa các thành viên qua nhiều thế hệ. Nhấn vào mỗi thành viên để xem chi tiết.
   </p>
 
   <div class="tree-toolbar">
+    <select id="familyFilter" class="form-control form-select" style="width:220px;">
+      <option value="">Chọn dòng họ</option>
+    </select>
     <div class="search-input" style="min-width:200px;max-width:260px;">
       <i class="fas fa-search"></i>
-      <input id="treeSearch" type="text" class="form-control" placeholder="Tim kiem thanh vien...."/>
+      <input id="treeSearch" type="text" class="form-control" placeholder="Tìm kiếm thành viên..."/>
     </div>
     <select id="genFilter" class="form-control form-select" style="width:140px;">
-      <option value="">Tat ca the he</option>
+      <option value="">Tất cả thế hệ</option>
     </select>
 
     <div style="display:flex;align-items:center;gap:.4rem;margin-left:.5rem;">
       <span class="tree-zoom-display" id="zoomLabel">100%</span>
-      <button id="zoomOut" class="btn btn-white btn-icon" title="Thu nho"><i class="fas fa-search-minus"></i></button>
-      <button id="zoomIn"  class="btn btn-white btn-icon" title="Phong to"><i class="fas fa-search-plus"></i></button>
-      <button id="zoomReset" class="btn btn-white btn-icon" title="Dat lai"><i class="fas fa-redo"></i></button>
+      <button id="zoomOut" class="btn btn-white btn-icon" title="Thu nhỏ"><i class="fas fa-search-minus"></i></button>
+      <button id="zoomIn"  class="btn btn-white btn-icon" title="Phóng to"><i class="fas fa-search-plus"></i></button>
+      <button id="zoomReset" class="btn btn-white btn-icon" title="Đặt lại"><i class="fas fa-redo"></i></button>
     </div>
 
     <div style="margin-left:auto;display:flex;gap:.5rem;">
-      <button id="expandAll" class="btn btn-white btn-sm"><i class="fas fa-expand-alt"></i> Mo rong</button>
-      <button id="collapseAll" class="btn btn-white btn-sm"><i class="fas fa-compress-alt"></i> Thu gon</button>
-      <button class="btn btn-white btn-sm"><i class="fas fa-file-pdf"></i> Xuat file PDF</button>
+      <button id="compareModeToggle" class="btn btn-white btn-sm"><i class="fas fa-code-compare"></i> So sánh quan hệ</button>
+      <button id="expandAll" class="btn btn-white btn-sm"><i class="fas fa-expand-alt"></i> Mở rộng</button>
+      <button id="collapseAll" class="btn btn-white btn-sm"><i class="fas fa-compress-alt"></i> Thu gọn</button>
+      <button id="exportPdf" class="btn btn-white btn-sm"><i class="fas fa-file-pdf"></i> Xuất file PDF</button>
     </div>
   </div>
 
-  <div class="tree-container" id="treeCanvas">
-    <div id="treeContent"></div>
-    <div id="treeEmptyState" class="empty-state" style="display:none;">
-      <i class="fas fa-sitemap"></i>
-      <h3>Chua co du lieu gia pha</h3>
+  <div class="tree-layout detail-open" id="treeLayout">
+    <div class="tree-container" id="treeCanvas">
+      <div id="treeContent"></div>
+      <div id="treeEmptyState" class="empty-state" style="display:none;">
+        <i class="fas fa-sitemap"></i>
+        <h3>Chưa có dữ liệu gia phả</h3>
+      </div>
+    </div>
+    <aside class="tree-detail-panel" id="treeDetailPanel">
+      <div class="tree-detail-header">
+        <h3>Thông tin chi tiết</h3>
+        <button id="treeDetailClose" class="btn btn-ghost btn-icon" type="button"><i class="fas fa-times-circle"></i></button>
+      </div>
+      <div class="tree-detail-avatar" id="detailInitial">--</div>
+      <div class="tree-detail-name" id="detailName">Chưa chọn thành viên</div>
+      <div class="tree-detail-meta">
+        <div id="detailYears">-</div>
+        <div id="detailGeneration">-</div>
+      </div>
+      <div class="tree-detail-item"><i class="fas fa-map-marker-alt"></i><span id="detailHometown">-</span></div>
+      <div class="tree-detail-item"><i class="fas fa-briefcase"></i><span id="detailJob">-</span></div>
+      <div class="divider"></div>
+      <h4>Tiểu sử</h4>
+      <p id="detailBio" class="tree-detail-bio">Chọn thành viên bên trái để xem thông tin.</p>
+      <div class="divider"></div>
+      <h4>Quan hệ gia đình</h4>
+      <div class="tree-detail-rel">
+        <div><strong>Vợ/chồng:</strong> <span id="detailSpouse">-</span></div>
+        <div><strong>Con:</strong> <span id="detailChildren">-</span></div>
+      </div>
+      <a id="detailProfileLink" class="btn btn-primary btn-sm mt-4" href="#">Xem hồ sơ đầy đủ</a>
+    </aside>
+  </div>
+
+  <div id="compareModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal compare-modal">
+      <div class="compare-modal-head">
+        <h3>So sánh thành viên</h3>
+        <button id="compareModalClose" class="modal-close" type="button"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="compare-members">
+        <div class="compare-member-card" id="compareA"></div>
+        <div class="compare-arrow"><i class="fas fa-arrows-left-right"></i></div>
+        <div class="compare-member-card" id="compareB"></div>
+      </div>
+      <div class="compare-result">
+        <div class="compare-result-label">Mối quan hệ</div>
+        <div class="compare-result-main" id="compareRelationText">-</div>
+      </div>
+      <div class="compare-common-box">
+        <div class="compare-common-title">Tổ tiên chung</div>
+        <div class="compare-common-list" id="compareCommonAncestors">Chưa xác định</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="treeFullscreenModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal tree-fullscreen-modal">
+      <div class="compare-modal-head">
+        <h3>Xem cây gia phả mở rộng</h3>
+        <button id="treeFullscreenClose" class="modal-close" type="button"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="tree-fullscreen-body">
+        <div class="tree-container tree-fullscreen-canvas">
+          <div id="treeFullscreenContent"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="treeDetailPopupModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal tree-detail-popup-modal">
+      <aside class="tree-detail-panel tree-detail-popup">
+        <div class="tree-detail-header">
+          <h3>Thông tin chi tiết</h3>
+          <button id="treeDetailPopupClose" class="btn btn-ghost btn-icon" type="button"><i class="fas fa-times-circle"></i></button>
+        </div>
+        <div class="tree-detail-avatar" id="detailPopupInitial">--</div>
+        <div class="tree-detail-name" id="detailPopupName">Chưa chọn thành viên</div>
+        <div class="tree-detail-meta">
+          <div id="detailPopupYears">-</div>
+          <div id="detailPopupGeneration">-</div>
+        </div>
+        <div class="tree-detail-item"><i class="fas fa-map-marker-alt"></i><span id="detailPopupHometown">-</span></div>
+        <div class="tree-detail-item"><i class="fas fa-briefcase"></i><span id="detailPopupJob">-</span></div>
+        <div class="divider"></div>
+        <h4>Tiểu sử</h4>
+        <p id="detailPopupBio" class="tree-detail-bio">Chọn thành viên trên cây để xem thông tin.</p>
+        <div class="divider"></div>
+        <h4>Quan hệ gia đình</h4>
+        <div class="tree-detail-rel">
+          <div><strong>Vợ/chồng:</strong> <span id="detailPopupSpouse">-</span></div>
+          <div><strong>Con:</strong> <span id="detailPopupChildren">-</span></div>
+        </div>
+        <a id="detailPopupProfileLink" class="btn btn-primary btn-sm mt-4" href="#">Xem hồ sơ đầy đủ</a>
+      </aside>
     </div>
   </div>
 </div>
 
+<th:block th:replace="~{fragments/footer :: footer}"/>
 <script th:src="@{/js/main.js}"></script>
 </body>
 </html>

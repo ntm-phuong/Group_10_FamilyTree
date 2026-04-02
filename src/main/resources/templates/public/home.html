@@ -37,22 +37,22 @@
     <div class="home-stats">
         <div class="home-stat">
             <div class="home-stat-icon">👥</div>
-            <div class="home-stat-value" th:text="${stats.totalMembers}">22</div>
+            <div class="home-stat-value" th:text="${stats != null ? stats.totalMembers : 22}">22</div>
             <div class="home-stat-label">Thành viên</div>
         </div>
         <div class="home-stat">
             <div class="home-stat-icon">🌿</div>
-            <div class="home-stat-value" th:text="${stats.totalGenerations}">4</div>
+            <div class="home-stat-value" th:text="${stats != null ? stats.totalGenerations : 4}">4</div>
             <div class="home-stat-label">Thế hệ</div>
         </div>
         <div class="home-stat">
             <div class="home-stat-icon">👨</div>
-            <div class="home-stat-value" th:text="${stats.maleCount}">11</div>
+            <div class="home-stat-value" th:text="${stats != null ? stats.maleCount : 11}">11</div>
             <div class="home-stat-label">Nam giới</div>
         </div>
         <div class="home-stat">
             <div class="home-stat-icon">👩</div>
-            <div class="home-stat-value" th:text="${stats.femaleCount}">11</div>
+            <div class="home-stat-value" th:text="${stats != null ? stats.femaleCount : 11}">11</div>
             <div class="home-stat-label">Nữ giới</div>
         </div>
     </div>

@@ -44,7 +44,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
 
                         // Cho phép các route của PageController (Các trang giao diện public)
-                        .requestMatchers("/login", "/about", "/family-tree", "/news/**").permitAll()
+                        .requestMatchers("/login", "/about", "/family-tree", "/news/**", "/member/**").permitAll()
 
                         // Cho phép API login/register
                         .requestMatchers("/api/auth/**").permitAll()

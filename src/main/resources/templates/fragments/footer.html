@@ -1,10 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org">
 <body>
-
+<footer th:fragment="footer" class="footer">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand"><i class="fas fa-leaf"></i> Khám Phá Gia Phả</div>
+        <p class="footer-desc">Hệ thống quản lý gia phả trực tuyến, giúp kết nối các thế hệ trong gia đình.</p>
+      </div>
+      <div>
+        <div class="footer-col-title">Khám Phá Gia Phả</div>
+        <nav class="footer-links">
+          <a th:href="@{/}">Trang chủ</a>
+          <a th:href="@{/family-tree}">Xem gia phả</a>
+          <a th:href="@{/news}">Tin tức dòng họ</a>
+        </nav>
+      </div>
+      <div>
+        <div class="footer-col-title">Khám Phá Gia Phả</div>
+        <nav class="footer-links">
+          <span><i class="fas fa-home fa-fw"></i> Nhà thờ Tổ: Xã Đại Mỗ, Từ Liêm, Hà Nội</span>
+          <span><i class="fas fa-user fa-fw"></i> Trưởng họ: Nguyễn Hồng Sơn</span>
+          <span><i class="fas fa-phone fa-fw"></i> Điện thoại: 0934 567 890</span>
+          <span><i class="fas fa-envelope fa-fw"></i> Email: contact@giapha.vn</span>
+        </nav>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Dòng họ Nguyễn. Mọi quyền được bảo lưu.</span>
+      <span>Được xây dựng với SE2</span>
+    </div>
+  </div>
+</footer>
 </body>
 </html>
