@@ -1,99 +1,339 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập – Gia Phả</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        /* CSS DÀNH RIÊNG CHO CÁC HIỆU ỨNG VALIDATION VÀ MODAL */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px);
+            display: none; align-items: center; justify-content: center; z-index: 9999;
+        }
+        .modal-card {
+            background: #FFFFFF; width: 100%; max-width: 420px;
+            padding: 2rem 2.5rem; border-radius: 16px; position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); animation: slideDownFade 0.3s ease-out forwards;
+        }
+        .modal-close-btn {
+            position: absolute; top: 15px; right: 20px; font-size: 1.5rem; color: #9CA3AF; cursor: pointer;
+        }
+        .modal-card h3 { font-size: 1.4rem; color: #111; margin-bottom: 0.5rem; text-align: center; }
+        .modal-card p { font-size: 0.9rem; color: #4B5563; text-align: center; margin-bottom: 1.5rem; line-height: 1.5; }
+
+        /* REAL-TIME VALIDATION CSS */
+        .input-icon-wrap-figma.error input {
+            border-color: #DC2626 !important; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+        .input-icon-wrap-figma.error i:first-child { color: #DC2626 !important; }
+        .input-icon-wrap-figma.success input {
+            border-color: #16A34A !important; box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+        }
+        .input-icon-wrap-figma.success i:first-child { color: #16A34A !important; }
+        .validation-msg { font-size: 0.8rem; margin-top: 6px; display: block; font-weight: 500; }
+        .validation-msg.error { color: #DC2626; }
+        .validation-msg.success { color: #16A34A; }
+        .btn-login-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
 </head>
-<body>
-<div class="login-page">
-    <!-- Top bar -->
-    <div class="login-topbar">
-        <a th:href="@{/}" class="login-topbar-logo">
-            <i class="fas fa-leaf" style="color:var(--green-700);"></i> Gia Phả
-        </a>
-        <nav style="display:flex;gap:.25rem;">
-            <a th:href="@{/}" class="pub-nav-links" style="display:flex;">
-                <a th:href="@{/}" style="display:flex;align-items:center;gap:.4rem;padding:.4rem .8rem;border-radius:var(--radius);font-size:.875rem;font-weight:500;color:var(--text-700);">
-                    <i class="fas fa-home"></i> Trang Chủ
-                </a>
-                <a th:href="@{/news}" style="display:flex;align-items:center;gap:.4rem;padding:.4rem .8rem;border-radius:var(--radius);font-size:.875rem;font-weight:500;color:var(--text-700);">
-                    <i class="fas fa-newspaper"></i> Tin Tức
-                </a>
-            </a>
-        </nav>
-    </div>
+<body class="login-page-bg">
 
-    <!-- Login body -->
-    <div class="login-body">
-        <div class="login-card">
-            <div style="text-align:center;margin-bottom:1.5rem;">
-                <div style="width:52px;height:52px;background:var(--green-100);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto .85rem;font-size:1.4rem;">
-                    <i class="fas fa-leaf" style="color:var(--green-700);"></i>
-                </div>
-                <h2>Đăng nhập</h2>
-                <p class="login-sub">Hệ thống quản lý gia phả họ Nguyễn</p>
-            </div>
+<th:block th:replace="~{fragments/navbar :: navbar}"/>
 
-            <!-- Error -->
-            <div th:if="${param.error}" class="alert alert-error">
+<main class="login-wrapper">
+    <div class="login-card-figma">
+        <div class="login-header-figma">
+            <h2>Đăng nhập</h2>
+            <p>Hệ thống quản lý gia phả họ Nguyễn</p>
+        </div>
+
+        <div id="alertContainer">
+            <div th:if="${param.error}" class="alert-popup error">
                 <i class="fas fa-exclamation-circle"></i>
                 <span>Email hoặc mật khẩu không đúng.</span>
-                <button class="alert-close"><i class="fas fa-times"></i></button>
-            </div>
-            <div th:if="${param.logout}" class="alert alert-info">
-                <i class="fas fa-info-circle"></i>
-                <span>Bạn đã đăng xuất thành công.</span>
-            </div>
-
-            <form th:action="@{/login}" method="post">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-
-                <div class="form-group">
-                    <label class="form-label" for="email">Email</label>
-                    <div class="input-icon-wrap">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" id="email" name="email" class="form-control"
-                               placeholder="email@example.com" required autocomplete="username"/>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;">
-                        <label class="form-label" for="password" style="margin:0;">Mật khẩu</label>
-                        <a href="#" style="font-size:.8rem;color:var(--green-700);">Quên mật khẩu?</a>
-                    </div>
-                    <div class="input-icon-wrap">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="password" name="password" class="form-control"
-                               placeholder="••••••••" required autocomplete="current-password"/>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-primary w-full" style="justify-content:center;padding:.65rem;">
-                    Đăng nhập
-                </button>
-            </form>
-
-            <p class="login-footer-link mt-4">
-                Chưa có tài khoản? <a th:href="@{/}">Liên hệ Ban Quản Trị</a> để được cấp quyền
-            </p>
-
-            <!-- Demo credentials hint -->
-            <div style="margin-top:1.25rem;padding:.9rem;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border);font-size:.78rem;color:var(--text-500);">
-                <div style="font-weight:600;color:var(--text-700);margin-bottom:.4rem;">Tài khoản demo:</div>
-                <div>Admin: minh.nguyen@email.com / admin123</div>
-                <div style="margin-top:.2rem;">Member: minhanh.nguyen@email.com / member123</div>
             </div>
         </div>
-    </div>
 
-    <!-- Footer -->
-    <div style="text-align:center;padding:1rem;font-size:.78rem;color:var(--text-300);border-top:1px solid var(--border);">
-        © 2026 Gia Phả. Mọi quyền được bảo lưu.
+        <form id="loginForm" th:action="@{/login}" method="post">
+            <div class="form-group-figma">
+                <label for="email">Email</label>
+                <div class="input-icon-wrap-figma">
+                    <i class="far fa-envelope"></i>
+                    <input type="email" id="email" name="username" required placeholder="Nhập email của bạn">
+                </div>
+            </div>
+
+            <div class="form-group-figma">
+                <div class="label-flex">
+                    <label for="password">Mật khẩu</label>
+                    <a href="#" class="forgot-pw" id="openForgotModal">Quên mật khẩu?</a>
+                </div>
+                <div class="input-icon-wrap-figma">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" name="password" required placeholder="••••••••">
+                    <i class="far fa-eye-slash toggle-pw" id="togglePassword"></i>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login-submit">Đăng nhập</button>
+        </form>
+
+        <div class="login-contact-admin">
+            Chưa có tài khoản? Liên hệ <a href="#"><strong>Ban Quản Trị</strong></a> để được cấp quyền
+        </div>
+    </div>
+</main>
+
+<div id="forgotPwModal" class="modal-overlay">
+    <div class="modal-card">
+        <span class="modal-close-btn" id="closeForgotModal">&times;</span>
+
+        <h3>Khôi phục mật khẩu</h3>
+        <div id="forgotAlertContainer"></div>
+
+        <form id="step1Form">
+            <p>Nhập email tài khoản của bạn. Chúng tôi sẽ gửi mã xác thực (OTP) gồm 6 chữ số.</p>
+            <div class="form-group-figma">
+                <div class="input-icon-wrap-figma">
+                    <i class="far fa-envelope"></i>
+                    <input type="email" id="forgotEmail" required placeholder="Nhập email của bạn...">
+                </div>
+            </div>
+            <button type="submit" class="btn-login-submit" id="btnSendOtp">Gửi mã xác thực</button>
+        </form>
+
+        <form id="step2Form" style="display: none;">
+            <p style="color: #16A34A; font-weight: 500;">Mã OTP đã được gửi đến email của bạn!</p>
+
+            <div class="form-group-figma">
+                <div class="input-icon-wrap-figma">
+                    <i class="fas fa-keyboard"></i>
+                    <input type="text" id="otpCode" required placeholder="Nhập mã OTP 6 số" maxlength="6">
+                </div>
+            </div>
+
+            <div class="form-group-figma">
+                <div class="input-icon-wrap-figma">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="newForgotPass" required placeholder="Nhập mật khẩu mới">
+                    <i class="far fa-eye-slash toggle-pw" onclick="togglePw('newForgotPass', this)"></i>
+                </div>
+                <span style="font-size: 0.75rem; color: #6B7280; display: block; margin-top: 5px;">
+                    Ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số & ký tự đặc biệt.
+                </span>
+            </div>
+
+            <div class="form-group-figma" style="margin-bottom: 1.5rem;">
+                <div class="input-icon-wrap-figma" id="forgotConfirmWrap">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="confirmForgotPass" required placeholder="Nhập lại mật khẩu">
+                    <i class="far fa-eye-slash toggle-pw" onclick="togglePw('confirmForgotPass', this)"></i>
+                </div>
+                <span id="forgotMatchMessage" class="validation-msg"></span>
+            </div>
+
+            <button type="submit" class="btn-login-submit" id="btnResetPass" disabled>Xác nhận đổi mật khẩu</button>
+        </form>
     </div>
 </div>
-<script th:src="@{/js/main.js}"></script>
+
+<th:block th:replace="~{fragments/footer :: footer}"/>
+
+<script th:inline="javascript">
+    function showPopup(message, type = 'error', containerId = 'alertContainer') {
+        const container = document.getElementById(containerId);
+        const iconClass = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+        container.innerHTML = `<div class="alert-popup ${type}"><i class="${iconClass}"></i><span>${message}</span></div>`;
+    }
+
+    function togglePw(id, el) {
+        const input = document.getElementById(id);
+        if (input.type === "password") {
+            input.type = "text"; el.classList.replace('fa-eye-slash', 'fa-eye');
+        } else {
+            input.type = "password"; el.classList.replace('fa-eye', 'fa-eye-slash');
+        }
+    }
+
+    // --- LOGIC ẨN HIỆN PASSWORD CHO FORM LOGIN CHÍNH ---
+    const togglePassword = document.querySelector('#togglePassword');
+    const passwordInput = document.querySelector('#password');
+    if (togglePassword) {
+        togglePassword.addEventListener('click', function () {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('fa-eye-slash');
+            this.classList.toggle('fa-eye');
+        });
+    }
+
+    // --- LOGIC ĐĂNG NHẬP CHÍNH ---
+    const loginForm = document.getElementById('loginForm');
+    loginForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const emailValue = document.querySelector('#email').value;
+        const passwordValue = passwordInput.value;
+        const btnSubmit = document.querySelector('#loginForm .btn-login-submit');
+
+        btnSubmit.innerText = "Đang xác thực..."; btnSubmit.disabled = true;
+
+        fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: emailValue, password: passwordValue })
+        })
+        .then(response => {
+            if (response.ok) return response.json();
+            throw new Error("Tài khoản hoặc mật khẩu không chính xác!");
+        })
+        .then(data => {
+            if (data.accessToken) {
+                localStorage.setItem('token', data.accessToken);
+                localStorage.setItem('full_name', data.fullName);
+                localStorage.setItem('user_id', data.userId);
+                const userStatus = data.status !== null ? Number(data.status) : 0;
+                window.location.href = userStatus === 1 ? '/active' : '/home';
+            }
+        })
+        .catch(error => {
+            showPopup(error.message, 'error', 'alertContainer');
+            btnSubmit.innerText = "Đăng nhập"; btnSubmit.disabled = false;
+        });
+    });
+
+    // ==========================================
+    // LOGIC MODAL QUÊN MẬT KHẨU
+    // ==========================================
+    const modal = document.getElementById('forgotPwModal');
+    const openBtn = document.getElementById('openForgotModal');
+    const closeBtn = document.getElementById('closeForgotModal');
+    const step1Form = document.getElementById('step1Form');
+    const step2Form = document.getElementById('step2Form');
+    let userEmailForReset = "";
+
+    // Mở / Đóng Modal
+    openBtn.addEventListener('click', (e) => {
+        e.preventDefault(); modal.style.display = 'flex';
+        step1Form.style.display = 'block'; step2Form.style.display = 'none';
+        document.getElementById('forgotAlertContainer').innerHTML = '';
+        document.getElementById('forgotEmail').value = '';
+    });
+    closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
+
+    // Submit B1: Xin OTP
+    step1Form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        userEmailForReset = document.getElementById('forgotEmail').value;
+        const btnSendOtp = document.getElementById('btnSendOtp');
+
+        btnSendOtp.innerText = "Đang gửi mã..."; btnSendOtp.disabled = true;
+
+        fetch('/api/auth/forgot-password/send-otp', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: userEmailForReset })
+        })
+        .then(response => {
+            if(response.ok) {
+                step1Form.style.display = 'none'; step2Form.style.display = 'block';
+                document.getElementById('forgotAlertContainer').innerHTML = '';
+
+                // Reset lại các trường của B2 cho sạch
+                document.getElementById('otpCode').value = '';
+                newForgotInput.value = '';
+                confirmForgotInput.value = '';
+                checkForgotMatch(); // Khóa nút submit lại
+            } else {
+                throw new Error("Email không tồn tại trong hệ thống!");
+            }
+        })
+        .catch(error => showPopup(error.message, 'error', 'forgotAlertContainer'))
+        .finally(() => { btnSendOtp.innerText = "Gửi mã xác thực"; btnSendOtp.disabled = false; });
+    });
+
+    // --- LOGIC XÁC NHẬN MẬT KHẨU REAL-TIME CHO MODAL ---
+    const newForgotInput = document.getElementById('newForgotPass');
+    const confirmForgotInput = document.getElementById('confirmForgotPass');
+    const forgotConfirmWrap = document.getElementById('forgotConfirmWrap');
+    const forgotMatchMsg = document.getElementById('forgotMatchMessage');
+    const btnResetPass = document.getElementById('btnResetPass');
+
+    function checkForgotMatch() {
+        const pwd = newForgotInput.value;
+        const confirmPwd = confirmForgotInput.value;
+
+        if (confirmPwd.length === 0) {
+            forgotConfirmWrap.classList.remove('error', 'success');
+            forgotMatchMsg.textContent = '';
+            forgotMatchMsg.className = 'validation-msg';
+            btnResetPass.disabled = true;
+            return;
+        }
+
+        if (pwd !== confirmPwd) {
+            forgotConfirmWrap.classList.remove('success');
+            forgotConfirmWrap.classList.add('error');
+            forgotMatchMsg.textContent = 'Mật khẩu chưa khớp!';
+            forgotMatchMsg.className = 'validation-msg error';
+            btnResetPass.disabled = true;
+        } else {
+            forgotConfirmWrap.classList.remove('error');
+            forgotConfirmWrap.classList.add('success');
+            forgotMatchMsg.innerHTML = '<i class="fas fa-check"></i> Mật khẩu đã khớp!';
+            forgotMatchMsg.className = 'validation-msg success';
+            btnResetPass.disabled = false;
+        }
+    }
+    newForgotInput.addEventListener('input', checkForgotMatch);
+    confirmForgotInput.addEventListener('input', checkForgotMatch);
+
+    // Submit B2: Đổi Pass
+    // Submit B2: Đổi Pass trong Modal Quên mật khẩu
+    step2Form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const otpCode = document.getElementById('otpCode').value;
+        const newPassword = newForgotInput.value;
+
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if(!passwordRegex.test(newPassword)) {
+            showPopup("Mật khẩu yếu! Cần đủ 8 ký tự, chữ Hoa, Thường, Số và Ký tự đặc biệt.", 'error', 'forgotAlertContainer');
+            return;
+        }
+
+        btnResetPass.innerText = "Đang xử lý..."; btnResetPass.disabled = true;
+
+        fetch('/api/auth/forgot-password/reset', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: userEmailForReset, otp: otpCode, newPassword: newPassword })
+        })
+        .then(response => {
+            if(response.ok) return response.json(); // Nhận dữ liệu JSON từ Backend
+            throw new Error("Mã OTP không chính xác hoặc đã hết hạn!");
+        })
+        .then(data => {
+            showPopup("Đổi mật khẩu thành công! Đang vào Gia Phả...", 'success', 'forgotAlertContainer');
+
+            // LƯU THÔNG TIN ĐĂNG NHẬP MỚI VÀO LOCALSTORAGE
+            if (data.accessToken) {
+                localStorage.setItem('token', data.accessToken);
+                localStorage.setItem('full_name', data.fullName);
+                localStorage.setItem('user_id', data.userId);
+            }
+
+            // Đợi 1.5 giây để hiện thông báo rồi bay thẳng vào Home
+            setTimeout(() => {
+                window.location.href = '/home';
+            }, 1500);
+        })
+        .catch(error => {
+            showPopup(error.message, 'error', 'forgotAlertContainer');
+            btnResetPass.innerText = "Xác nhận đổi mật khẩu";
+            btnResetPass.disabled = false;
+        });
+    });
+</script>
 </body>
 </html>

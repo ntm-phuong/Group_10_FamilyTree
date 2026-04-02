@@ -7,11 +7,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class PageController {
+    @GetMapping("/")
+    public String index() {
+        // Trả về file giao diện khách mà anh em mình vừa làm
+        return "public/home-guest";
+    }
+
 
     @GetMapping("/home")
     public String home() {
         return "public/home";
     }
+
 
     @GetMapping("/about")
     public String about() {
@@ -21,6 +28,10 @@ public class PageController {
     @GetMapping("/login")
     public String login() {
         return "public/login";
+    }
+    @GetMapping("/active")
+    public String active() {
+        return "public/active";
     }
 
     @GetMapping("/family-tree")

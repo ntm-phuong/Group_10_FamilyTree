@@ -1,10 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org">
 <body>
+<footer th:fragment="footer" class="footer-figma">
+    <div class="footer-container-figma">
+        <div class="footer-grid-figma">
+            <div class="footer-col-figma">
+                <div class="footer-brand-figma">
+                    <img th:src="@{/images/logo-2.png}" alt="Logo" class="footer-logo-img">
+                    <span style="margin-top: 10px; display: block; font-weight: 700;">Gia phả dòng họ Nguyễn</span>
+                </div>
+                <p class="footer-desc-figma">Hệ thống quản lý gia phả trực tuyến, giúp kết nối các thế hệ trong gia đình.</p>
+            </div>
 
+            <div class="footer-col-figma">
+                <div class="footer-title-figma">Liên kết nhanh</div>
+                <nav class="footer-links-figma">
+                    <a th:href="@{/}">Trang chủ</a>
+                    <a th:href="@{/family-tree}">Xem gia phả</a>
+                    <a th:href="@{/news}">Tin tức dòng họ</a>
+                </nav>
+            </div>
+
+            <div class="footer-col-figma">
+                <div class="footer-title-figma">Thông tin liên hệ</div>
+                <div class="footer-info-figma">
+                    <p><i class="fas fa-map-marker-alt fa-fw"></i> Xã Đại Mỗ, Từ Liêm, Hà Nội</p>
+                    <p><i class="fas fa-user fa-fw"></i> Trưởng họ: Nguyễn Hồng Sơn</p>
+                    <p><i class="fas fa-phone fa-fw"></i> 0934 567 890</p>
+                    <p><i class="fas fa-envelope fa-fw"></i> contact@giapha.vn</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom-figma">
+            <span>© 2026 Dòng họ Nguyễn. Mọi quyền được bảo lưu.</span>
+            <span>Được xây dựng với SE2</span>
+        </div>
+    </div>
+</footer>
 </body>
 </html>

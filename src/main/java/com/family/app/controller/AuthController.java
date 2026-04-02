@@ -2,6 +2,8 @@ package com.family.app.controller;
 
 import com.family.app.dto.LoginRequest;
 import com.family.app.service.AuthService;
+import com.family.app.security.JwtTokenProvider;
+import com.family.app.model.User; // 1. THÊM DÒNG NÀY (Import Model User)
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,8 +14,12 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
@@ -21,11 +27,66 @@ public class AuthController {
 
         Map<String, Object> response = new HashMap<>();
         response.put("accessToken", authData.get("token"));
+        response.put("status", authData.get("status"));
         response.put("tokenType", "Bearer");
         response.put("userId", authData.get("userId"));
         response.put("fullName", authData.get("fullName"));
         response.put("role", authData.get("role"));
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/active")
+    public ResponseEntity<?> activeUser(@RequestBody Map<String, String> request) {
+        try {
+            String userId = request.get("userId");
+            String password = request.get("password");
+            authService.activateUser(userId, password);
+            String newToken = jwtTokenProvider.generateToken(userId);
+            return ResponseEntity.ok().body(Map.of("accessToken", newToken));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/forgot-password/send-otp")
+    public ResponseEntity<?> sendOtp(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            authService.generateAndSendOtp(email);
+            return ResponseEntity.ok().body(Map.of("message", "Đã gửi OTP thành công!"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/forgot-password/reset")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            String otp = request.get("otp");
+            String newPassword = request.get("newPassword");
+
+            // 1. Đổi mật khẩu
+            authService.resetPasswordWithOtp(email, otp, newPassword);
+
+            // 2. Lấy thông tin user thông qua Service (Thay vì gọi trực tiếp Repo)
+            User user = authService.getUserByEmail(email);
+
+            // 3. Tạo Token mới
+            // LƯU Ý: Kiểm tra chính xác tên hàm getId() hoặc getUserId() trong file User.java của bạn
+            String newToken = jwtTokenProvider.generateToken(user.getUserId());
+
+            // 4. Trả về kết quả cho Frontend
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Đổi mật khẩu thành công!");
+            response.put("accessToken", newToken);
+            response.put("fullName", user.getFullName());
+            response.put("userId", user.getUserId());
+
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

@@ -3,15 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang Chủ - Hệ Thống Quản Lý Gia Phả</title>
+    <title>Trang Chủ - Gia Phả Dòng Họ Nguyễn</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/guest-home.css}">
 </head>
-<body class="bamboo-scenery-bg">
+<body>
 
 <th:block th:replace="~{fragments/navbar :: navbar}"/>
 
@@ -22,7 +20,7 @@
         <p class="hero-quote">"Mộc bản hồ thủy, vạn cổ tầm tông"</p>
         <p class="hero-desc">Cây có gốc mới nở cành xanh ngọn, nước có nguồn mới bể rộng sông sâu. Nơi lưu giữ truyền thống và kết nối các thế hệ con cháu họ Nguyễn.</p>
         <div class="hero-buttons">
-            <a th:href="@{/family-tree}" class="btn btn-outline"><i class="fas fa-sitemap"></i> Xem Gia Phả</a>
+            <a href="#" class="btn btn-outline"><i class="fas fa-sitemap"></i> Xem Gia Phả</a>
             <a th:href="@{/news}" class="btn btn-outline"><i class="far fa-newspaper"></i> Tin Tức Dòng Họ</a>
         </div>
     </div>
@@ -52,27 +50,11 @@
 </section>
 
 <section class="guest-about">
-    <div class="container about-search-wrapper">
-        <div class="about-text-col">
-            <h2>Về Dòng Họ</h2>
-            <p>Dòng họ Nguyễn có lịch sử lâu đời, bắt nguồn từ vùng đất Hà Tây, nay là Hà Nội. Qua nhiều thế hệ, con cháu đã lan tỏa khắp nơi và có nhiều đóng góp trong các lĩnh vực khác nhau.</p>
-            <p>Với mục tiêu bảo tồn và phát huy truyền thống gia đình, hệ thống gia phả trực tuyến được xây dựng để giúp các thành viên dễ dàng tra cứu thông tin, kết nối với nhau và lưu giữ những kỷ niệm quý báu.</p>
-            <a th:href="@{/about}" class="btn btn-outline-dark">Tìm hiểu lịch sử dòng họ <i class="fas fa-arrow-right"></i></a>
-        </div>
-
-        <div class="search-card-figma">
-            <div class="search-card-header">
-                <i class="fas fa-search"></i> Tra cứu nhanh
-            </div>
-            <p class="search-card-desc">Tìm kiếm thành viên trong gia phả</p>
-            <form th:action="@{/family-tree}" method="get">
-                <div class="search-input-wrap">
-                    <i class="fas fa-search"></i>
-                    <input type="text" name="q" placeholder="Tìm kiếm thành viên...">
-                </div>
-                <button type="submit" class="btn-search-submit">Xem cây gia phả</button>
-            </form>
-        </div>
+    <div class="container">
+        <h2>Về Dòng Họ</h2>
+        <p>Dòng họ Nguyễn có lịch sử lâu đời, bắt nguồn từ vùng đất Hà Tây, nay là Hà Nội. Qua nhiều thế hệ, con cháu đã lan tỏa khắp nơi và có nhiều đóng góp trong các lĩnh vực khác nhau.</p>
+        <p>Với mục tiêu bảo tồn và phát huy truyền thống gia đình, hệ thống gia phả trực tuyến được xây dựng để giúp các thành viên dễ dàng tra cứu thông tin, kết nối với nhau và lưu giữ những kỷ niệm quý báu.</p>
+        <a th:href="@{/about}" class="btn btn-outline-dark">Tìm hiểu lịch sử dòng họ <i class="fas fa-arrow-right"></i></a>
     </div>
 </section>
 
@@ -158,7 +140,7 @@
     <div class="container text-center">
         <h2>Kết Nối Với Gia Đình</h2>
         <p>Hãy cùng nhau xây dựng và gìn giữ gia phả dòng họ. Mỗi thành viên đều là một phần quan trọng trong lịch sử gia đình.</p>
-        <a th:href="@{/family-tree}" class="btn btn-light"><i class="fas fa-tree"></i> Khám Phá Gia Phả</a>
+        <a th:href="@{/login}" class="btn btn-light"><i class="fas fa-sign-in-alt"></i> Đăng Nhập</a>
     </div>
 </section>
 

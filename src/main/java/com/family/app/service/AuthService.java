@@ -17,6 +17,53 @@ public class AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
+    private EmailService emailService;
+
+    public void generateAndSendOtp(String email) {
+        // 1. Tìm user theo email
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Email không tồn tại trong hệ thống!"));
+
+        // 2. Tạo mã OTP 6 số ngẫu nhiên
+        String otp = String.format("%06d", new java.util.Random().nextInt(999999));
+
+        // 3. Set thời gian hết hạn (ví dụ: 5 phút kể từ lúc tạo)
+        user.setOtpCode(otp);
+        user.setOtpExpiry(java.time.LocalDateTime.now().plusMinutes(5));
+        userRepository.save(user);
+
+        // 4. Gửi email
+        emailService.sendOtpEmail(email, otp);
+    }
+    public void resetPasswordWithOtp(String email, String otp, String newPassword) {
+        // 1. Tìm user theo email
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Email không tồn tại!"));
+
+        // 2. Kiểm tra mã OTP có khớp không
+        if (user.getOtpCode() == null || !user.getOtpCode().equals(otp)) {
+            throw new RuntimeException("Mã OTP không chính xác!");
+        }
+
+        // 3. Kiểm tra mã OTP đã hết hạn chưa (Quá 5 phút)
+        if (user.getOtpExpiry() == null || user.getOtpExpiry().isBefore(java.time.LocalDateTime.now())) {
+            throw new RuntimeException("Mã OTP đã hết hạn!");
+        }
+
+        // 4. Vượt qua hết bài test -> Tiến hành đổi mật khẩu
+        user.setPassword(passwordEncoder.encode(newPassword));
+
+        // 5. Cực kỳ quan trọng: Xóa mã OTP đi để mã này không bị xài lại lần 2
+        user.setOtpCode(null);
+        user.setOtpExpiry(null);
+
+        // 6. Đổi status sang 2 (Đã kích hoạt) phòng trường hợp user chưa active mà quên pass
+        user.setStatus(2);
+
+        // 7. Lưu vào Database
+        userRepository.save(user);
+    }
+    @Autowired
     private JwtTokenProvider tokenProvider;
 
     public Map<String, Object> authenticate(String email, String password) {
@@ -30,6 +77,7 @@ public class AuthService {
             authData.put("token", token);
             authData.put("userId", user.getUserId());
             authData.put("fullName", user.getFullName());
+            authData.put("status", user.getStatus());
 
             if (user.getRole() != null) {
                 authData.put("role", user.getRole().getRoleName());
@@ -39,5 +87,24 @@ public class AuthService {
         } else {
             throw new RuntimeException("Mật khẩu không chính xác");
         }
+    }
+
+    public void activateUser(String userId, String newPassword) {
+        // Tìm user trong DB
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User không tồn tại"));
+
+        // 1. Mã hóa mật khẩu mới (Dùng BCrypt)
+        user.setPassword(passwordEncoder.encode(newPassword));
+
+        // 2. Chuyển status sang 2 (Đã kích hoạt)
+        user.setStatus(2);
+
+        // 3. Lưu xuống DB
+        userRepository.save(user);
+    }
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
     }
 }

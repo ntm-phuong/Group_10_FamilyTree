@@ -123,8 +123,46 @@ ul{list-style:none;}
 .pub-nav-links a:hover{background:var(--green-50);color:var(--green-800);}
 .pub-nav-links a.active{background:var(--green-700);color:#fff;}
 .pub-nav-right{margin-left:auto;display:flex;align-items:center;gap:.75rem;}
-.pub-nav-user{display:flex;align-items:center;gap:.5rem;font-size:.875rem;font-weight:500;cursor:pointer;padding:.3rem .8rem;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg-white);}
-.pub-nav-user:hover{background:var(--bg);}
+.pub-nav-user {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Khoảng cách đều giữa Avatar - Tên - Mũi tên */
+    background-color: #F3F4F6; /* Nền xám nhạt như Figma */
+    padding: 6px 14px 6px 6px; /* Padding trái nhỏ hơn để bọc sát Avatar */
+    border-radius: 50px; /* Bo tròn hoàn toàn hai đầu */
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+.pub-nav-user:hover {
+    background-color: #E5E7EB; /* Hiệu ứng đậm lên chút xíu khi di chuột */
+}
+.pub-nav-user .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #E5E7EB; /* Xám nhạt hơn nền một chút */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #111;
+}
+
+/* 3. Tên User */
+#navFullName {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1F2937;
+}
+
+/* 4. Icon mũi tên xuống */
+.pub-nav-user i.fa-chevron-down {
+    font-size: 0.75rem;
+    color: #4B5563;
+    margin-left: 2px;
+}
 .pub-nav-toggle{display:none;background:none;border:none;font-size:1.3rem;color:var(--text-700);}
 
 .breadcrumb{display:flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--text-500);padding:1rem 0 .5rem;}
@@ -246,3 +284,1121 @@ ul{list-style:none;}
 
 @media(max-width:1024px){.profile-body{grid-template-columns:1fr;}.news-detail-layout{flex-direction:column;}.news-sidebar{width:100%;}}
 @media(max-width:640px){.pub-nav-links{display:none;}.pub-nav-links.open{display:flex;flex-direction:column;position:absolute;top:var(--nav-h);left:0;right:0;background:var(--bg-white);border-bottom:1px solid var(--border);padding:.75rem 1rem;}.pub-nav-toggle{display:block;}.news-grid{grid-template-columns:1fr;}}
+/* ===== BIẾN MÀU SẮC (Dựa theo Figma) ===== */
+:root {
+    --primary-green: #2E7D32; /* Màu xanh đậm của logo, nút bấm */
+    --primary-green-hover: #1B5E20;
+    --bg-light: #F5F6F1; /* Màu nền xám/be nhẹ */
+    --card-bg: #FFFFFF;
+    --text-main: #1A1A1A;
+    --text-muted: #666666;
+    --border-color: #E0E0E0;
+}
+
+/* ===== RESET CƠ BẢN ===== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ===== LAYOUT TRANG ĐĂNG NHẬP ===== */
+.login-page {
+    background-color: var(--bg-light);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Navbar */
+.login-navbar {
+    background-color: var(--card-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Đưa các link ra giữa */
+    padding: 16px 40px;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.brand-logo {
+    position: absolute;
+    left: 40px;
+    color: var(--primary-green);
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 24px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-main);
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s;
+}
+
+.nav-links a:hover {
+    color: var(--primary-green);
+}
+
+/* Khu vực giữa chứa Card */
+.login-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Form Đăng Nhập (Login Card) */
+.login-card {
+    background-color: var(--card-bg);
+    width: 100%;
+    max-width: 440px;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-header h1 {
+    font-size: 1.5rem;
+    color: var(--text-main);
+    margin-bottom: 8px;
+}
+
+.login-header p {
+    color: var(--text-main);
+    font-size: 0.95rem;
+}
+
+/* Cấu trúc Form */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 8px;
+}
+
+.label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.label-row label {
+    margin-bottom: 0;
+}
+
+.forgot-link {
+    font-size: 0.85rem;
+    color: var(--primary-green);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+/* Input Wrapper có chứa Icon */
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 12px 40px; /* Chừa chỗ cho icon trái và phải */
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.input-wrapper input:focus {
+    border-color: var(--primary-green);
+}
+
+.input-wrapper .icon-left {
+    position: absolute;
+    left: 14px;
+    color: var(--primary-green);
+    font-size: 0.95rem;
+}
+
+.input-wrapper .icon-right {
+    position: absolute;
+    right: 14px;
+    color: var(--primary-green);
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+/* Nút Submit */
+.btn-submit {
+    width: 100%;
+    background-color: var(--primary-green);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.2s;
+}
+
+.btn-submit:hover {
+    background-color: var(--primary-green-hover);
+}
+
+/* Footer trong form */
+.login-footer {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 0.85rem;
+    color: var(--text-main);
+}
+
+.login-footer strong {
+    color: var(--primary-green);
+}
+
+/* Chân trang ngoài cùng */
+.login-bottom-footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* Thông báo lỗi */
+.error-message {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+/* --- Tùy chỉnh Layout cho trang Login --- */
+/* =========================================
+   2. TRANG ĐĂNG NHẬP (BODY CÓ NỀN ẢNH)
+   ========================================= */
+.login-page-bg {
+    /* CÁCH 1: Dùng linear-gradient để tạo lớp phủ mờ */
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), /* Lớp phủ trắng mờ (75% độ đục) */
+        url('../images/bamboo-bg.png'); /* Đường dẫn đến ảnh cây tre của bạn */
+
+    /* Cấu hình để ảnh phủ kín và không lặp lại */
+    background-size: cover;          /* Ảnh phủ kín toàn bộ màn hình */
+    background-position: center;     /* Căn giữa ảnh */
+    background-repeat: no-repeat;    /* Không lặp lại ảnh */
+    background-attachment: fixed;    /* Giữ ảnh cố định khi cuộn trang (tùy chọn, tạo hiệu ứng đẹp) */
+
+    /* Giữ nguyên các thuộc tính layout cũ */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.login-wrapper {
+    flex: 1; /* Đẩy nội dung vào giữa khoảng trống giữa Navbar và Footer */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+}
+
+/* --- Card Đăng Nhập --- */
+.login-card-figma {
+    background: #FFFFFF;
+    width: 100%;
+    max-width: 420px;
+    padding: 2.5rem 2.5rem;
+    border-radius: 16px; /* Bo góc mượt mà */
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+}
+
+.login-header-figma {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-header-figma h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1A1A1A;
+    margin-bottom: 0.5rem;
+}
+
+.login-header-figma p {
+    font-size: 0.95rem;
+    color: #4B5563;
+}
+
+/* --- Form --- */
+.form-group-figma {
+    margin-bottom: 1.25rem;
+}
+
+.form-group-figma label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #1A1A1A;
+}
+
+.label-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.forgot-pw {
+    font-size: 0.85rem;
+    color: #2D6A4F; /* Màu xanh của nhóm */
+    font-weight: 500;
+}
+
+.input-icon-wrap-figma {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon-wrap-figma i {
+    position: absolute;
+    left: 1rem;
+    color: #40916C;
+}
+
+.input-icon-wrap-figma .toggle-pw {
+    left: auto;
+    right: 1rem;
+    cursor: pointer;
+}
+
+.input-icon-wrap-figma input {
+    width: 100%;
+    padding: 0.75rem 2.8rem;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.input-icon-wrap-figma input:focus {
+    border-color: #40916C;
+}
+
+/* --- Nút bấm Figma --- */
+.btn-login-submit {
+    width: 100%;
+    background-color: #2D6A4F; /* Xanh đậm */
+    color: white;
+    border: none;
+    padding: 0.85rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background 0.2s;
+}
+
+.btn-login-submit:hover {
+    background-color: #1B4332;
+}
+
+.login-contact-admin {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    color: #4B5563;
+}
+
+.login-contact-admin a {
+    color: #2D6A4F;
+    text-decoration: none;
+}
+
+/* --- Lỗi --- */
+.alert-error {
+    background: #FEE2E2;
+    color: #B91C1C;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+/* =========================================
+   STYLE CHO NAVBAR VÀ FOOTER (THEO FIGMA)
+   ========================================= */
+
+/* --- Tông màu chung theo Figma --- */
+:root {
+    --primary-green-figma: #2D6A4F; /* Màu xanh đậm chủ đạo */
+    --hover-green-figma: #1B4332;
+    --bg-light-figma: #F5F6F1; /* Màu nền be nhạt */
+}
+
+/* --- NAVBAR STYLE --- */
+.pub-nav-figma {
+    background-color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 4rem; /* Căn lề trái phải rộng rãi */
+    border-bottom: 1px solid #E5E7EB;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-logo-figma {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-green-figma);
+    text-decoration: none;
+}
+.logo-icon-img {
+    height: 1.5rem; /* Tùy chỉnh kích thước icon */
+}
+
+.nav-links-figma {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem; /* Khoảng cách giữa các menu */
+}
+/* --- Style mặc định cho các link trên Navbar --- */
+.nav-links-figma a {
+    text-decoration: none;
+    color: #1A1A1A; /* Màu chữ đen xám mặc định */
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 10px 18px; /* THÊM: Tạo độ rộng và cao cho ô chữ nhật */
+    border-radius: 12px; /* THÊM: Bo góc tròn trịa giống Figma */
+    transition: all 0.2s ease-in-out; /* Làm mượt hiệu ứng chuyển màu */
+}
+
+/* --- Hiệu ứng khi Hover (di chuột) hoặc Active (đang ở trang đó) --- */
+.nav-links-figma a:hover,
+.nav-links-figma a.active {
+    background-color: #205A32; /* Đổ nền xanh lá đậm (bạn có thể dùng var(--primary-green) nếu muốn) */
+    color: #FFFFFF; /* Đổi màu chữ thành trắng */
+}
+
+/* --- Đảm bảo icon bên trong cũng đổi sang màu trắng --- */
+.nav-links-figma a:hover i,
+.nav-links-figma a.active i {
+    color: #FFFFFF;
+}
+
+.nav-toggle-btn {
+    display: none; /* Ẩn nút mobile trên desktop */
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: #1A1A1A;
+    cursor: pointer;
+}
+
+/* --- FOOTER STYLE --- */
+.footer-figma {
+    background-color: var(--bg-light-figma);
+    padding: 4rem 2rem 1rem; /* Padding trên rộng hơn */
+    color: #4B5563;
+    font-size: 0.9rem;
+}
+
+.footer-container-figma {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-grid-figma {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.5fr; /* Chia 3 cột với tỷ lệ chuẩn Figma */
+    gap: 3rem;
+    margin-bottom: 3rem;
+}
+
+.footer-col-figma {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.footer-brand-figma {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--primary-green-figma);
+}
+.footer-desc-figma {
+    line-height: 1.6;
+}
+
+.footer-title-figma {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1A1A1A;
+    margin-bottom: 0.5rem;
+}
+
+.footer-links-figma {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.footer-links-figma a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.2s;
+}
+.footer-links-figma a:hover {
+    color: var(--primary-green-figma);
+}
+
+.footer-info-figma {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.footer-info-figma p {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    line-height: 1.5;
+}
+.footer-info-figma p i {
+    margin-top: 0.25rem;
+    color: var(--primary-green-figma);
+}
+
+.footer-bottom-figma {
+    border-top: 1px solid #E5E7EB;
+    padding-top: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #6B7280;
+}
+
+/* --- RESPONSIVE BASIC --- */
+@media (max-width: 768px) {
+    .pub-nav-figma {
+        padding: 1rem 1.5rem;
+    }
+    .nav-links-figma {
+        display: none; /* Ẩn menu trên mobile, cần thêm JS để toggle class open */
+    }
+    .nav-toggle-btn {
+        display: block;
+    }
+
+    .footer-grid-figma {
+        grid-template-columns: 1fr; /* Footer 1 cột trên mobile */
+        gap: 2rem;
+    }
+}
+/* Tùy chỉnh thêm icon cho form kích hoạt */
+.input-icon-wrap-figma i.fa-user,
+.input-icon-wrap-figma i.fa-shield-alt {
+    color: var(--green-700);
+    font-size: 0.9rem;
+}
+
+.login-card-figma h2 {
+    color: var(--green-900); /* Làm tiêu đề nổi bật hơn chút */
+}
+/* Điều chỉnh kích thước Logo cho chuẩn Figma */
+.logo-img {
+    height: 50px; /* Độ cao cho Navbar */
+    width: auto;
+    object-fit: contain;
+}
+
+.footer-logo-img {
+    height: 60px; /* Độ cao cho Footer */
+    width: auto;
+    object-fit: contain;
+}
+
+/* Đảm bảo dropdown user hoạt động (hover để hiện menu) */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px); /* Cách Nút User một khoảng 10px */
+    right: 0;
+    background-color: #FFFFFF;
+    min-width: 190px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); /* Bóng đổ siêu mịn */
+    border-radius: 12px; /* Bo góc mềm mại */
+    padding: 8px 0;
+    z-index: 1000;
+    border: 1px solid #F3F4F6;
+    animation: fadeInDown 0.2s ease-out; /* Hiệu ứng xuất hiện */
+}
+/* Tạo cầu nối vô hình lấp đầy khoảng trống 10px để không bị mất hover */
+.dropdown-menu::before {
+    content: "";
+    position: absolute;
+    top: -10px; /* Đẩy lên trên bằng đúng khoảng cách 10px đã tạo ra */
+    left: 0;
+    width: 100%;
+    height: 10px; /* Độ dày của cầu nối = khoảng trống */
+    background-color: transparent; /* Trong suốt hoàn toàn */
+}
+
+/* Hiển thị khi hover */
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+/* 6. Các mục bên trong Menu */
+.dropdown-item {
+    padding: 10px 20px;
+    display: block;
+    font-size: 0.95rem;
+    color: #374151;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+    font-weight: 500;
+}
+
+.dropdown-item:hover {
+    background-color: #F9FAFB; /* Đổi nền xám cực nhạt khi hover */
+    color: #111;
+}
+
+/* 7. Nút Đăng xuất (Riêng biệt) */
+.dropdown-item.logout-btn {
+    color: #DC2626; /* Chữ màu đỏ */
+    margin-top: 6px;
+    border-top: 1px solid #F3F4F6; /* Vạch kẻ ngang mỏng phân tách */
+    padding-top: 12px;
+}
+
+.dropdown-item.logout-btn:hover {
+    background-color: #FEF2F2; /* Hover vào hiện nền đỏ mờ rất đẹp */
+    color: #B91C1C;
+}
+
+/* Hiệu ứng trượt nhẹ xuống */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+/* --- BIẾN MÀU SẮC (CSS Variables) --- */
+:root {
+    --primary-color: #1c5233; /* Xanh lá đậm cho CTA */
+    --text-color: #333;
+    --text-light: #666;
+    --bg-light: #f9fbf9; /* Nền nhạt cho section Về dòng họ */
+    --border-color: #eaeaea;
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    font-family: var(--font-family);
+    margin: 0;
+    padding: 0;
+    color: var(--text-color);
+    background-color: #fff;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* --- HEADER TẠM --- */
+.guest-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 50px;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.guest-header .logo { font-weight: bold; font-size: 1.2rem; color: var(--primary-color); }
+.guest-nav a { margin: 0 15px; text-decoration: none; color: var(--text-color); font-weight: 500; }
+.guest-nav a.active { color: var(--primary-color); background: #e8f5e9; padding: 8px 15px; border-radius: 20px; }
+
+/* --- HERO SECTION --- */
+.guest-hero {
+    position: relative;
+    /* 1. Phủ một lớp màu be/trắng mờ (độ đục 75%) lên trên để làm nổi bật chữ.
+       2. Gọi file ảnh gốc ở bên dưới.
+       LƯU Ý: Sửa 'bamboo-bg.png' thành đúng tên file ảnh bạn đã tải vào thư mục images.
+    */
+    background: linear-gradient(rgba(245, 246, 241, 0.75), rgba(245, 246, 241, 0.75)),
+                url('../images/bamboo-bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    text-align: center;
+    padding: 120px 20px; /* Tăng padding để khoảng không rộng rãi như ảnh */
+    min-height: 500px;   /* Tăng chiều cao để lấy trọn vẹn cảnh cây tre */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 1100px;
+    width: 100%;
+
+}
+
+/* Chỉnh chữ tiêu đề to và đậm hơn */
+.guest-hero h1 {
+    /* Dùng font Thư pháp */
+    font-family: 'Dancing Script', cursive;
+    font-size: 5.0rem; /* Tăng size để nét chữ thư pháp rõ ràng hơn */
+    margin-bottom: 40px;
+    color: #111;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5); /* Thêm viền sáng mờ nhẹ để chữ nổi bật trên nền tre */
+}
+
+/* Căn chỉnh lại màu chữ đoạn mô tả cho giống với tone xanh của ảnh */
+.hero-quote {
+    font-style: italic;
+    font-weight: 600;
+    color: #1A4D32; /* Sửa màu: Xanh lá cây sẫm hơn một chút để nổi bật trên nền */
+    font-size: 2.0rem;
+    margin-bottom: 25px;
+    /* Thêm shadow: Tạo viền sáng mờ xung quanh chữ để nó "tách" ra khỏi nền */
+    text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.6);
+}
+
+.hero-desc {
+    font-size: 1.1rem;
+    color: #111; /* Sửa màu: Chuyển thành màu đen hoặc xám rất đậm để tương phản tốt nhất */
+    margin-bottom: 35px;
+    line-height: 1.6;
+    font-weight: 500;
+    /* Thêm shadow nhẹ: Giúp chữ rõ ràng hơn trên nền phức tạp */
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.4);
+}
+
+/* --- Nút bấm (Hero Buttons) --- */
+.hero-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* Nút bấm ở trang chủ trong ảnh là nền trắng hơi trong suốt, viền nhạt */
+.guest-hero .btn-outline {
+    background: rgba(255, 255, 255, 0.6); /* Trắng mờ 60% */
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #111;
+    margin: 0;
+    padding: 10px 20px;
+    border-radius: 8px; /* Bo góc nhẹ thay vì bo tròn hoàn toàn */
+    font-weight: 600;
+    backdrop-filter: blur(4px); /* Hiệu ứng kính mờ (glassmorphism) */
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.guest-hero .btn-outline:hover {
+    background: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.guest-hero .btn-outline i {
+    font-size: 1.1rem;
+}
+/* --- STATS SECTION --- */
+.guest-stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px; /* Tăng khoảng cách giữa các thẻ ra một chút cho thoáng */
+
+    /* ĐIỂM MẤU CHỐT: Xóa cái margin-top âm đi, đổi thành dương để đẩy nó xuống */
+    margin-top: 50px;
+    margin-bottom: 40px; /* Thêm khoảng cách với phần "Về Dòng Họ" bên dưới */
+
+    position: relative;
+    z-index: 3;
+}
+
+.stat-card {
+    background: #fff;
+    padding: 30px 20px; /* Tăng độ cao cho thẻ */
+    border-radius: 12px; /* Bo góc tròn hơn cho giống Figma */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); /* Đổ bóng cực nhẹ cho sang */
+    text-align: center;
+    flex: 1;
+    border: 1px solid #E5E7EB; /* Viền nhạt giống thiết kế */
+    transition: transform 0.2s; /* Thêm hiệu ứng di chuột nhẹ cho sinh động */
+}
+
+.stat-card:hover {
+    transform: translateY(-5px); /* Khi trỏ chuột vào thẻ sẽ nảy lên một chút */
+}
+
+.stat-card i {
+    font-size: 2.2rem;
+    margin-bottom: 12px;
+}
+
+.stat-card h3 {
+    font-size: 2.2rem;
+    margin: 0 0 5px 0;
+    color: #111;
+    font-weight: 700;
+}
+
+.stat-card p {
+    margin: 0;
+    color: #4B5563; /* Màu chữ xám nhạt chuẩn Figma */
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+/* --- ABOUT SECTION --- */
+.guest-about {
+    background-color: var(--bg-light);
+    padding: 80px 0;
+    margin-top: 60px;
+}
+.guest-about h2 { margin-bottom: 20px; }
+.guest-about p { line-height: 1.8; color: var(--text-light); margin-bottom: 15px; max-width: 900px; }
+
+/* --- EVENTS & NEWS (Dùng chung Grid) --- */
+.guest-events, .guest-news {
+    padding: 60px 0;
+}
+.section-header { margin-bottom: 30px; }
+.section-header h2 { margin: 0 0 5px; }
+.section-header p { margin: 0; color: var(--text-light); font-size: 0.95rem; }
+
+.grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+/* Thẻ Sự kiện */
+.event-card {
+    display: flex;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    align-items: flex-start;
+}
+.event-date {
+    background: #e8f5e9;
+    color: var(--primary-color);
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    min-width: 60px;
+    margin-right: 15px;
+}
+.event-date span { display: block; font-size: 0.8rem; }
+.event-date strong { display: block; font-size: 1.5rem; }
+.event-info h4 { margin: 10px 0 5px; font-size: 1rem; line-height: 1.4; }
+.event-info p { margin: 3px 0; font-size: 0.8rem; color: var(--text-light); }
+
+/* Thẻ Tin tức */
+.news-card {
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+}
+.news-card h4 { margin: 15px 0 10px; line-height: 1.4; }
+.news-card p { font-size: 0.85rem; color: var(--text-light); line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.read-more { color: var(--primary-color); text-decoration: none; font-size: 0.9rem; font-weight: 600; display: inline-block; margin-top: 10px;}
+
+/* Badges */
+.badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+.badge-warning { background: #fff3e0; color: #e65100; }
+.badge-success { background: #e8f5e9; color: var(--primary-color); }
+.news-time { font-size: 0.8rem; color: var(--text-light); margin-left: 10px; }
+
+/* --- CTA SECTION --- */
+.guest-cta {
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 60px 0;
+}
+.text-center { text-align: center; }
+.guest-cta h2 { margin-top: 0; }
+.guest-cta p { max-width: 600px; margin: 0 auto 30px; line-height: 1.6; opacity: 0.9; }
+
+/* Responsive cơ bản */
+@media (max-width: 992px) {
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .guest-stats { flex-wrap: wrap; }
+    .stat-card { flex: 1 1 40%; }
+}
+@media (max-width: 768px) {
+    .grid-4 { grid-template-columns: 1fr; }
+    .guest-header { flex-direction: column; gap: 10px; }
+}
+.nav-right-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+/* =========================================
+   STYLE CHO TRANG HOME USER (TRA CỨU NHANH)
+   ========================================= */
+
+/* Chia lưới 2 cột cho phần Về dòng họ */
+.about-search-wrapper {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr; /* Cột trái to hơn cột phải một chút */
+    gap: 50px;
+    align-items: center;
+}
+
+.about-text-col h2 {
+    font-size: 1.8rem;
+    color: #111;
+    margin-bottom: 20px;
+}
+
+/* Card Tra Cứu Nhanh theo chuẩn Figma */
+.search-card-figma {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.search-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 5px;
+}
+
+.search-card-desc {
+    color: #6B7280;
+    font-size: 0.9rem;
+    margin-bottom: 20px !important; /* Đè lại margin mặc định của p */
+}
+
+.search-input-wrap {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.search-input-wrap i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9CA3AF;
+}
+
+.search-input-wrap input {
+    width: 100%;
+    padding: 12px 15px 12px 40px;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.search-input-wrap input:focus {
+    border-color: #2D6A4F; /* Chuyển màu viền xanh khi nhấp vào */
+}
+
+.btn-search-submit {
+    width: 100%;
+    background-color: #2D6A4F;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-search-submit:hover {
+    background-color: #1B4332;
+}
+
+/* Responsive cho màn hình nhỏ */
+@media (max-width: 992px) {
+    .about-search-wrapper {
+        grid-template-columns: 1fr; /* Đẩy Card tìm kiếm xuống dưới nếu xem trên điện thoại */
+        gap: 30px;
+    }
+}
+/* =========================================
+   POPUP THÔNG BÁO (ALERTS) CHO LOGIN & ACTIVE
+   ========================================= */
+
+/* Khung popup chung */
+.alert-popup {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideDownFade 0.4s ease-out forwards; /* Hiệu ứng xuất hiện mượt mà */
+    border-left: 4px solid transparent; /* Vệt màu nhấn ở viền trái */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Bóng mờ nhẹ */
+}
+
+/* Biểu tượng (Icon) bên trong popup */
+.alert-popup i {
+    font-size: 1.2rem;
+}
+
+/* --- 1. Popup LỖI (Màu đỏ) --- */
+.alert-popup.error {
+    background-color: #FEF2F2; /* Nền đỏ cực nhạt */
+    color: #991B1B; /* Chữ đỏ sẫm */
+    border-left-color: #DC2626; /* Viền trái đỏ tươi */
+    border: 1px solid #FEE2E2; /* Viền bao quanh nhạt */
+    border-left: 4px solid #DC2626; /* Đè lại viền trái cho đậm */
+}
+
+.alert-popup.error i {
+    color: #DC2626;
+}
+
+/* --- 2. Popup THÀNH CÔNG (Màu xanh lá) --- */
+.alert-popup.success {
+    background-color: #F0FDF4; /* Nền xanh nhạt */
+    color: #166534; /* Chữ xanh sẫm */
+    border-left-color: #16A34A; /* Viền trái xanh tươi */
+    border: 1px solid #DCFCE7;
+    border-left: 4px solid #16A34A;
+}
+
+.alert-popup.success i {
+    color: #16A34A;
+}
+
+/* Hiệu ứng trượt từ trên xuống và rõ dần */
+@keyframes slideDownFade {
+    0% {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================
+   MODAL QUÊN MẬT KHẨU
+   ========================================= */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px); /* Làm mờ cảnh nền phía sau */
+    display: none; /* Mặc định ẩn */
+    align-items: center; justify-content: center;
+    z-index: 9999;
+}
+
+.modal-card {
+    background: #FFFFFF;
+    width: 100%; max-width: 420px;
+    padding: 2rem 2.5rem;
+    border-radius: 16px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    animation: slideDownFade 0.3s ease-out forwards;
+}
+
+.modal-close-btn {
+    position: absolute; top: 15px; right: 20px;
+    font-size: 1.5rem; color: #9CA3AF;
+    cursor: pointer; transition: color 0.2s;
+}
+
+.modal-close-btn:hover { color: #111; }
+
+.modal-card h3 {
+    font-size: 1.4rem; color: #111; margin-bottom: 0.5rem; text-align: center;
+}
+
+.modal-card p {
+    font-size: 0.9rem; color: #4B5563; text-align: center; margin-bottom: 1.5rem; line-height: 1.5;
+}
