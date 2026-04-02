@@ -29,14 +29,12 @@ function cardMemberHtml(member) {
   const initials = (member.name || "U").slice(0, 2).toUpperCase();
   const years = `${member.birthYear || ""} - ${member.deathYear || "nay"}`;
   return `
-    <a href="/member/${member.id}">
-      <div class="pcard${femaleCls}" data-member-id="${member.id}" data-gen="${member.generation}">
-        <div class="pcard-avatar"><span>${initials}</span></div>
-        <div class="pcard-name">${member.name}</div>
-        <div class="pcard-years"><i class="fas fa-birthday-cake" style="font-size:.6rem;"></i><span>${years}</span></div>
-        ${member.occupation ? `<div class="pcard-job">${member.occupation}</div>` : ""}
-      </div>
-    </a>
+    <div class="pcard${femaleCls}" data-member-id="${member.id}" data-gen="${member.generation}" role="button" tabindex="0">
+      <div class="pcard-avatar"><span>${initials}</span></div>
+      <div class="pcard-name">${member.name}</div>
+      <div class="pcard-years"><i class="fas fa-birthday-cake" style="font-size:.6rem;"></i><span>${years}</span></div>
+      ${member.occupation ? `<div class="pcard-job">${member.occupation}</div>` : ""}
+    </div>
   `;
 }
 
@@ -75,6 +73,95 @@ async function loadFamilyTree() {
   const data = await res.json();
   const members = data.members || [];
   const maxGen = data.totalGenerations || 1;
+  const membersById = new Map(members.map((member) => [member.id, member]));
+  const treeLayout = document.getElementById("treeLayout");
+  const treeCanvas = document.getElementById("treeCanvas");
+  const infoPanel = document.getElementById("memberInfoPanel");
+
+  const syncPanelHeight = () => {
+    if (!infoPanel || infoPanel.hidden || !treeCanvas) return;
+    const minHeight = treeCanvas.offsetHeight || 480;
+    const card = infoPanel.querySelector(".tree-info-card");
+    if (card) {
+      card.style.minHeight = `${minHeight}px`;
+    }
+  };
+
+  const getMemberBio = (member) => {
+    if (member.bio) return member.bio;
+    if (member.description) return member.description;
+    const branchText = member.branch ? `thuoc ${member.branch}` : "la thanh vien trong dong ho";
+    const jobText = member.occupation ? `hien lam ${member.occupation.toLowerCase()}` : "dang dong gop vao hoat dong gia dinh";
+    return `${member.name} ${branchText}, ${jobText}, thuoc the he ${member.generation}.`;
+  };
+
+  const getRelations = (member) => {
+    const parents = [member.fatherId, member.motherId]
+      .map((id) => membersById.get(id))
+      .filter(Boolean)
+      .map((relative) => relative.name);
+    const spouse = member.spouseId ? [membersById.get(member.spouseId)].filter(Boolean).map((relative) => relative.name) : [];
+    const children = members
+      .filter((relative) => relative.fatherId === member.id || relative.motherId === member.id)
+      .map((relative) => relative.name);
+
+    return { parents, spouse, children };
+  };
+
+  const renderRelationList = (elementId, items, emptyText) => {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+
+    if (!items.length) {
+      element.innerHTML = `<li class="empty">${emptyText}</li>`;
+      return;
+    }
+
+    element.innerHTML = items.map((item) => `<li>${item}</li>`).join("");
+  };
+
+  const setSelectedCard = (memberId) => {
+    document.querySelectorAll(".pcard").forEach((card) => {
+      card.classList.toggle("is-selected", Number(card.dataset.memberId) === memberId);
+    });
+  };
+
+  const openMemberPanel = (memberId) => {
+    const member = membersById.get(memberId);
+    if (!member) return;
+
+    const initials = (member.name || "M")
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join("");
+    const relations = getRelations(member);
+
+    document.getElementById("memberInfoAvatar").textContent = initials || "M";
+    document.getElementById("memberInfoName").textContent = member.name || "-";
+    document.getElementById("memberInfoBirthYear").textContent = member.birthYear || "-";
+    document.getElementById("memberInfoJob").textContent = member.occupation || member.job || "-";
+    document.getElementById("memberInfoBio").textContent = getMemberBio(member);
+    document.getElementById("memberInfoAction").href = `/member-detail?id=${member.id}`;
+
+    renderRelationList("memberInfoParents", relations.parents, "Chua co thong tin");
+    renderRelationList("memberInfoSpouse", relations.spouse, "Chua co thong tin");
+    renderRelationList("memberInfoChildren", relations.children, "Chua co thong tin");
+
+    infoPanel.hidden = false;
+    treeLayout?.classList.add("has-panel");
+    setSelectedCard(member.id);
+    syncPanelHeight();
+  };
+
+  const closeMemberPanel = () => {
+    if (infoPanel) {
+      infoPanel.hidden = true;
+    }
+    treeLayout?.classList.remove("has-panel");
+    setSelectedCard(-1);
+  };
 
   const genFilter = document.getElementById("genFilter");
   if (genFilter) {
@@ -137,6 +224,7 @@ async function loadFamilyTree() {
     }
   }
   treeContent.innerHTML = html;
+  closeMemberPanel();
 
   let scale = 1;
   const zoomLabel = document.getElementById("zoomLabel");
@@ -163,6 +251,31 @@ async function loadFamilyTree() {
       g.style.display = (!v || g.id === `gen-${v}`) ? "" : "none";
     });
   });
+
+  treeContent.addEventListener("click", (event) => {
+    const card = event.target.closest(".pcard");
+    if (!card) return;
+    event.stopPropagation();
+    openMemberPanel(Number(card.dataset.memberId));
+  });
+
+  treeContent.addEventListener("keydown", (event) => {
+    const card = event.target.closest(".pcard");
+    if (!card) return;
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    openMemberPanel(Number(card.dataset.memberId));
+  });
+
+  document.addEventListener("click", (event) => {
+    const clickedCard = event.target.closest(".pcard");
+    const clickedPanel = event.target.closest("#memberInfoPanel");
+    if (!clickedCard && !clickedPanel) {
+      closeMemberPanel();
+    }
+  });
+
+  window.addEventListener("resize", syncPanelHeight);
 }
 
 async function loadNewsList() {

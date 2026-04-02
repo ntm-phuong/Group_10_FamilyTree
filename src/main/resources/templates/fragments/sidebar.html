@@ -1,10 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org">
 <body>
+<aside th:fragment="sidebar" id="adminSidebar" class="sidebar">
+    <div class="sidebar-brand">
+        <div class="sidebar-brand-logo">🌳</div>
+        <div>
+            <div class="sidebar-brand-text">Gia Phả</div>
+            <div class="sidebar-brand-sub">Hệ thống quản lý</div>
+        </div>
+    </div>
 
+    <nav class="sidebar-nav">
+        <a th:href="@{/admin}"
+           th:classappend="${activeMenu=='dashboard'}?' active':''"
+           class="sidebar-link">
+            <i class="fas fa-th-large"></i> Tổng quan
+        </a>
+        <a th:href="@{/admin/members}"
+           th:classappend="${activeMenu=='members'}?' active':''"
+           class="sidebar-link">
+            <i class="fas fa-users"></i> Thành viên
+        </a>
+        <a th:href="@{/admin/news}"
+           th:classappend="${activeMenu=='news'}?' active':''"
+           class="sidebar-link">
+            <i class="fas fa-newspaper"></i> Tin tức
+        </a>
+        <a th:href="@{/admin/family-info}"
+           th:classappend="${activeMenu=='family-info'}?' active':''"
+           class="sidebar-link">
+            <i class="fas fa-sitemap"></i> Gia phả
+        </a>
+        <a th:href="@{/admin/events}"
+           th:classappend="${activeMenu=='events'}?' active':''"
+           class="sidebar-link">
+            <i class="fas fa-calendar-alt"></i> Sự kiện
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="sidebar-user">
+            <div class="avatar avatar-sm avatar-male" style="font-size:.75rem;">
+                <span th:if="${currentUser != null}" th:text="${currentUser.name.substring(0,1)}">N</span>
+                <span th:if="${currentUser == null}">A</span>
+            </div>
+            <div>
+                <div class="sidebar-user-name" th:text="${currentUser != null ? currentUser.name : 'Admin'}">Admin</div>
+                <div class="sidebar-user-email" th:text="${currentUser != null ? currentUser.email : 'admin@giapha.vn'}">admin@giapha.vn</div>
+            </div>
+        </div>
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="sidebar-logout">
+                <i class="fas fa-sign-out-alt"></i> Đăng xuất
+            </button>
+        </form>
+        <div style="margin-top:.65rem;">
+            <a th:href="@{/}" class="sidebar-link" style="padding:.4rem .6rem;font-size:.78rem;border-radius:var(--radius);" target="_blank">
+                <i class="fas fa-globe"></i> Trang chủ
+            </a>
+        </div>
+    </div>
+</aside>
 </body>
 </html>

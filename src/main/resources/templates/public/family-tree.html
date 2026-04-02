@@ -7,8 +7,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
+<th:block th:replace="~{fragments/navbar :: navbar}"/>
 
-<div class="tree-page-wrap">
+<main class="tree-page-wrap">
   <div class="breadcrumb">
     <a href="/"><i class="fas fa-home"></i></a>
     <span class="breadcrumb-sep">></span>
@@ -43,15 +44,20 @@
     </div>
   </div>
 
-  <div class="tree-container" id="treeCanvas">
-    <div id="treeContent"></div>
-    <div id="treeEmptyState" class="empty-state" style="display:none;">
-      <i class="fas fa-sitemap"></i>
-      <h3>Chua co du lieu gia pha</h3>
+  <div id="treeLayout" class="tree-layout">
+    <div class="tree-container" id="treeCanvas">
+      <div id="treeContent"></div>
+      <div id="treeEmptyState" class="empty-state" style="display:none;">
+        <i class="fas fa-sitemap"></i>
+        <h3>Chua co du lieu gia pha</h3>
+      </div>
     </div>
-  </div>
-</div>
 
+    <th:block th:replace="~{fragments/member-panel :: memberPanel}"/>
+  </div>
+</main>
+
+<th:block th:replace="~{fragments/footer :: footer}"/>
 <script th:src="@{/js/main.js}"></script>
 </body>
 </html>

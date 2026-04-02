@@ -1,10 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Components</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
+<th:block th:replace="~{fragments/navbar :: navbar}"/>
 
+<main class="tree-page-wrap">
+    <div class="card">
+        <div class="card-header">
+            <h3>Components</h3>
+        </div>
+        <div class="card-body">
+            <p>Trang tong hop component dang duoc cap nhat.</p>
+        </div>
+    </div>
+</main>
+
+<th:block th:replace="~{fragments/footer :: footer}"/>
 </body>
 </html>

@@ -1,99 +1,139 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập – Gia Phả</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
-<body>
-<div class="login-page">
-    <!-- Top bar -->
-    <div class="login-topbar">
-        <a th:href="@{/}" class="login-topbar-logo">
-            <i class="fas fa-leaf" style="color:var(--green-700);"></i> Gia Phả
-        </a>
-        <nav style="display:flex;gap:.25rem;">
-            <a th:href="@{/}" class="pub-nav-links" style="display:flex;">
-                <a th:href="@{/}" style="display:flex;align-items:center;gap:.4rem;padding:.4rem .8rem;border-radius:var(--radius);font-size:.875rem;font-weight:500;color:var(--text-700);">
-                    <i class="fas fa-home"></i> Trang Chủ
-                </a>
-                <a th:href="@{/news}" style="display:flex;align-items:center;gap:.4rem;padding:.4rem .8rem;border-radius:var(--radius);font-size:.875rem;font-weight:500;color:var(--text-700);">
-                    <i class="fas fa-newspaper"></i> Tin Tức
-                </a>
-            </a>
-        </nav>
-    </div>
+<body class="login-page-bg">
 
-    <!-- Login body -->
-    <div class="login-body">
-        <div class="login-card">
-            <div style="text-align:center;margin-bottom:1.5rem;">
-                <div style="width:52px;height:52px;background:var(--green-100);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto .85rem;font-size:1.4rem;">
-                    <i class="fas fa-leaf" style="color:var(--green-700);"></i>
+<th:block th:replace="~{fragments/navbar :: navbar}"/>
+
+<main class="login-wrapper">
+    <div class="login-card-figma">
+        <div class="login-header-figma">
+            <h2>Đăng nhập</h2>
+            <p>Hệ thống quản lý gia phả họ Nguyễn</p>
+        </div>
+
+        <div th:if="${param.error}" class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i> Email hoặc mật khẩu không đúng.
+        </div>
+
+        <form th:action="@{/login}" method="post">
+            <div class="form-group-figma">
+                <label for="email">Email</label>
+                <div class="input-icon-wrap-figma">
+                    <i class="far fa-envelope"></i>
+                    <input type="email" id="email" name="username" required placeholder="Nhập email của bạn">
                 </div>
-                <h2>Đăng nhập</h2>
-                <p class="login-sub">Hệ thống quản lý gia phả họ Nguyễn</p>
             </div>
 
-            <!-- Error -->
-            <div th:if="${param.error}" class="alert alert-error">
-                <i class="fas fa-exclamation-circle"></i>
-                <span>Email hoặc mật khẩu không đúng.</span>
-                <button class="alert-close"><i class="fas fa-times"></i></button>
-            </div>
-            <div th:if="${param.logout}" class="alert alert-info">
-                <i class="fas fa-info-circle"></i>
-                <span>Bạn đã đăng xuất thành công.</span>
-            </div>
-
-            <form th:action="@{/login}" method="post">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-
-                <div class="form-group">
-                    <label class="form-label" for="email">Email</label>
-                    <div class="input-icon-wrap">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" id="email" name="email" class="form-control"
-                               placeholder="email@example.com" required autocomplete="username"/>
-                    </div>
+            <div class="form-group-figma">
+                <div class="label-flex">
+                    <label for="password">Mật khẩu</label>
+                    <a href="#" class="forgot-pw">Quên mật khẩu?</a>
                 </div>
-
-                <div class="form-group">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;">
-                        <label class="form-label" for="password" style="margin:0;">Mật khẩu</label>
-                        <a href="#" style="font-size:.8rem;color:var(--green-700);">Quên mật khẩu?</a>
-                    </div>
-                    <div class="input-icon-wrap">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="password" name="password" class="form-control"
-                               placeholder="••••••••" required autocomplete="current-password"/>
-                    </div>
+                <div class="input-icon-wrap-figma">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" name="password" required placeholder="••••••••">
+                    <i class="far fa-eye-slash toggle-pw" id="togglePassword"></i>
                 </div>
-
-                <button type="submit" class="btn btn-primary w-full" style="justify-content:center;padding:.65rem;">
-                    Đăng nhập
-                </button>
-            </form>
-
-            <p class="login-footer-link mt-4">
-                Chưa có tài khoản? <a th:href="@{/}">Liên hệ Ban Quản Trị</a> để được cấp quyền
-            </p>
-
-            <!-- Demo credentials hint -->
-            <div style="margin-top:1.25rem;padding:.9rem;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border);font-size:.78rem;color:var(--text-500);">
-                <div style="font-weight:600;color:var(--text-700);margin-bottom:.4rem;">Tài khoản demo:</div>
-                <div>Admin: minh.nguyen@email.com / admin123</div>
-                <div style="margin-top:.2rem;">Member: minhanh.nguyen@email.com / member123</div>
             </div>
+
+            <button type="submit" class="btn-login-submit">Đăng nhập</button>
+        </form>
+
+        <div class="login-contact-admin">
+            Chưa có tài khoản? Liên hệ <a href="#"><strong>Ban Quản Trị</strong></a> để được cấp quyền
         </div>
     </div>
+</main>
 
-    <!-- Footer -->
-    <div style="text-align:center;padding:1rem;font-size:.78rem;color:var(--text-300);border-top:1px solid var(--border);">
-        © 2026 Gia Phả. Mọi quyền được bảo lưu.
-    </div>
-</div>
-<script th:src="@{/js/main.js}"></script>
+<th:block th:replace="~{fragments/footer :: footer}"/>
+
+<script th:inline="javascript">
+    // 1. Xử lý ẩn/hiện mật khẩu
+    const togglePassword = document.querySelector('#togglePassword');
+    const passwordInput = document.querySelector('#password');
+
+    if (togglePassword) {
+        togglePassword.addEventListener('click', function () {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('fa-eye-slash');
+            this.classList.toggle('fa-eye');
+        });
+    }
+
+    // 2. XỬ LÝ ĐĂNG NHẬP QUA API
+    const loginForm = document.querySelector('form');
+
+    loginForm.addEventListener('submit', function (e) {
+        e.preventDefault(); // Ngăn trang web tải lại theo kiểu truyền thống
+
+        const emailValue = document.querySelector('#email').value;
+        const passwordValue = passwordInput.value;
+        const btnSubmit = document.querySelector('.btn-login-submit');
+
+        // Hiệu ứng chờ
+        btnSubmit.innerText = "Đang xác thực...";
+        btnSubmit.disabled = true;
+
+        // Gọi API Đăng nhập
+        fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: emailValue,      // Đúng tên trường trong LoginRequest.java
+                password: passwordValue
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                return response.text().then(text => {
+                    throw new Error("Tài khoản hoặc mật khẩu không chính xác!");
+                });
+            }
+        })
+        .then(data => {
+            console.log("Dữ liệu nhận được:", data);
+
+            if (data.accessToken) {
+                // Lưu token và thông tin vào localStorage
+                localStorage.setItem('token', data.accessToken);
+                localStorage.setItem('full_name', data.fullName);
+                localStorage.setItem('user_id', data.userId);
+
+                // Chuyển status về kiểu Number để so sánh chính xác với số 1 trong DB
+                const userStatus = data.status !== null ? Number(data.status) : 0;
+
+                if (userStatus === 1) {
+                    // Nếu status là 1 (PENDING), chuyển sang trang active
+                    console.log("Tài khoản mới, chuyển hướng sang trang Active...");
+                    window.location.href = '/active';
+                } else {
+                    // Nếu status là 2 hoặc khác 1 (ACTIVE), vào thẳng Home
+                    console.log("Tài khoản đã kích hoạt, vào trang Home...");
+                    window.location.href = '/home';
+                }
+            }
+        })
+        .catch(error => {
+            // Hiển thị thông báo lỗi (bạn có thể tạo một thẻ div lỗi riêng)
+            alert(error.message);
+
+            // Trả lại trạng thái nút bấm
+            btnSubmit.innerText = "Đăng nhập";
+            btnSubmit.disabled = false;
+        });
+    });
+</script>
 </body>
 </html>

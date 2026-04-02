@@ -7,8 +7,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
+<th:block th:replace="~{fragments/navbar :: navbar}"/>
 
-<div class="news-detail-layout">
+<main class="news-detail-layout">
   <div class="news-content">
     <div class="breadcrumb" style="padding-top:.5rem;">
       <a href="/"><i class="fas fa-home"></i></a>
@@ -65,8 +66,9 @@
       <div class="card-body" style="padding:.75rem 1rem;" id="newsRelatedList"></div>
     </div>
   </div>
-</div>
+</main>
 
+<th:block th:replace="~{fragments/footer :: footer}"/>
 <script th:src="@{/js/main.js}"></script>
 </body>
 </html>

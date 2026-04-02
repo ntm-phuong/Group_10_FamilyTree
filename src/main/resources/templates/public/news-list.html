@@ -7,8 +7,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
+<th:block th:replace="~{fragments/navbar :: navbar}"/>
 
-<div class="news-page-wrap">
+<main class="news-page-wrap">
   <div class="breadcrumb">
     <a href="/"><i class="fas fa-home"></i></a>
     <span class="breadcrumb-sep">></span>
@@ -45,8 +46,9 @@
   </div>
 
   <div id="newsGrid" class="news-grid"></div>
-</div>
+</main>
 
+<th:block th:replace="~{fragments/footer :: footer}"/>
 <script th:src="@{/js/main.js}"></script>
 </body>
 </html>
