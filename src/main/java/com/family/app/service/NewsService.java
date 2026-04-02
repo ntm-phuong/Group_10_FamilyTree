@@ -1,5 +1,6 @@
 package com.family.app.service;
 
+import com.family.app.dto.NewsRequest;
 import com.family.app.dto.NewsResponse;
 import com.family.app.model.NewsEvent;
 import com.family.app.repository.NewsEventRepository;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class NewsService {
+public abstract class NewsService {
 
     @Autowired
     private NewsEventRepository newsRepository;
@@ -91,4 +92,12 @@ public class NewsService {
 
         return dto;
     }
+
+    public abstract List<NewsResponse> getNewsByFamily(String familyId);
+
+    public abstract NewsResponse createNews(NewsRequest request);
+
+    public abstract NewsResponse updateNews(String id, NewsRequest request);
+
+    public abstract void deleteNews(String id);
 }

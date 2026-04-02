@@ -16,6 +16,12 @@ public interface UserRepository extends JpaRepository<User, String> {
     List<User> findByFamily_FamilyIdOrderByOrderInFamilyAsc(String familyId);
 
     List<User> findByFullNameContainingIgnoreCase(String fullName);
+
+    boolean existsByParentId(String parentId);
+
+    List<User> findByParentId(String parentId);
+
+    List<User> findByFamily_FamilyIdAndGenerationOrderByOrderInFamilyAsc(String familyId, Integer generation);
     long countByFamily_FamilyId(String familyId);
 
     // 2. Đếm Nam (Lưu ý: "Nam" phải khớp với dữ liệu bạn lưu trong DB)

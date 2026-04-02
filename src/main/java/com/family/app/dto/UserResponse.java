@@ -18,4 +18,9 @@ public class UserResponse {
     private String avatar;
     private String familyName;
     private String roleName;
+
+
+    private String parentId;
+    private Integer generation;
+    private Integer orderInFamily;
 }

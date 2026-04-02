@@ -3,7 +3,10 @@ package com.family.app.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.Where;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -34,7 +37,7 @@ public class User {
     private String currentAddress; // Địa chỉ hiện tại
     private String occupation; // Nghề nghiệp
     private String phoneNumber;
-    private Integer generation; // <--- THÊM MỚI: Đời thứ mấy
+//    private Integer generation; // <--- THÊM MỚI: Đời thứ mấy
     private String branch;      // <--- THÊM MỚI: Chi nhánh nào
 
     @Column(columnDefinition = "TEXT")
@@ -44,14 +47,20 @@ public class User {
 
     private Integer status; // 0: Pending, 1: Active
 
+    @Column(name = "generation")
+    private Integer generation;
+
     @Column(name = "order_in_family")
     private Integer orderInFamily;
+
+    @Column(name = "parent_id")
+    private String parentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "family_id")
     private Family family;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Role role;
 
@@ -69,5 +78,4 @@ public class User {
             this.userId = UUID.randomUUID().toString();
         }
     }
-
 }
