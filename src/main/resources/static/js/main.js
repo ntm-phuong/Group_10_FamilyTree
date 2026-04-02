@@ -563,7 +563,6 @@ async function loadFamilyTree() {
     }
   };
 
-
   const closeCompareModal = () => {
   if (!compareModal) return;
   compareModal.classList.remove("open");
@@ -645,7 +644,7 @@ async function loadFamilyTree() {
     });
   };
   bindCompareCardClicks(treeContent);
-
+  
   if (detailClose && detailPanel) {
     detailClose.addEventListener("click", () => {
       setDetailPanelVisible(false);
@@ -754,8 +753,8 @@ async function loadFamilyTree() {
   attachSpacePan(treeFullscreenCanvas);
   requestAnimationFrame(() => centerOnFirstNode(treeCanvas, treeContent));
 
-  setDetailPanelVisible(true);
-  renderDetail(selectedMemberId);
+  // Do not show detail panel on initial load — only show when user selects a member
+  setDetailPanelVisible(false);
 
   let scale = 1;
   let fullscreenScale = 1;
