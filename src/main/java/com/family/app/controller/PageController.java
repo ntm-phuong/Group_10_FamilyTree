@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class PageController {
 
-    @GetMapping("/home")
+    @GetMapping({"/", "/home"})
     public String home() {
         return "public/home";
     }
@@ -29,6 +29,16 @@ public class PageController {
         model.addAttribute("activeMenu", "family-tree");
         return "public/family-tree";
     }
+    @GetMapping("/member-detail")
+    public String memberDetail() {
+        return "public/member-detail";
+    }
+
+    @GetMapping("/edit-member-detail")
+    public String editMemberDetail() {
+        return "public/edit-member-detail";
+    }
+
 
     @GetMapping("/news")
     public String newsList(@RequestParam(required = false) String category,

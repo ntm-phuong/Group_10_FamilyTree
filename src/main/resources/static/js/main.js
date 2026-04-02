@@ -365,7 +365,6 @@ async function loadFamilyTree() {
   const detailPopupSpouse = document.getElementById("detailPopupSpouse");
   const detailPopupChildren = document.getElementById("detailPopupChildren");
   const detailPopupProfileLink = document.getElementById("detailPopupProfileLink");
-
   const sidebarDetailEls = {
     initial: detailInitial,
     name: detailName,

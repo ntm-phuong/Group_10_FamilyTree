@@ -3,64 +3,64 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 <nav th:fragment="navbar" class="pub-nav">
-  <a th:href="@{/}" class="pub-nav-logo">
-    <i class="fas fa-leaf"></i>
-    <span>Gia Phả</span>
-  </a>
+    <a th:href="@{/}" class="pub-nav-logo">
+        <i class="fas fa-leaf"></i>
+        <span>Gia Phả</span>
+    </a>
 
-  <div id="navLinks" class="pub-nav-links">
-    <a th:href="@{/}" th:classappend="${activeMenu=='home'}?' active':''">
-      <i class="fas fa-home"></i> Trang Chủ
-    </a>
-    <a th:href="@{/family-tree}" th:classappend="${activeMenu=='family-tree'}?' active':''">
-      <i class="fas fa-sitemap"></i> Gia Phả
-    </a>
-    <a th:href="@{/news}" th:classappend="${activeMenu=='news'}?' active':''">
-      <i class="fas fa-newspaper"></i> Tin Tức
-    </a>
-    <sec:authorize access="hasRole('ADMIN')">
-      <a th:href="@{/admin}" th:classappend="${activeMenu=='admin'}?' active':''">
-        <i class="fas fa-th-large"></i> Quản Trị
-      </a>
-    </sec:authorize>
-  </div>
-
-  <div class="pub-nav-right">
-    <sec:authorize access="isAuthenticated()">
-      <div class="pub-nav-user" onclick="document.getElementById('userMenu').classList.toggle('open')">
-        <div class="avatar avatar-xs avatar-male" sec:authorize="hasRole('ADMIN')" style="font-size:.6rem;">
-          <span sec:authentication="name" th:each="n : ${#strings.listSplit(#authentication.name,'@')}" th:if="${nStat.first}" th:text="${n.substring(0,1).toUpperCase()}">A</span>
-        </div>
-        <div class="avatar avatar-xs" sec:authorize="!hasRole('ADMIN')" style="font-size:.6rem;">
-          <span>U</span>
-        </div>
-        <span sec:authentication="name" th:text="${#strings.substringBefore(#authentication.name,'@')}">User</span>
-        <i class="fas fa-chevron-down" style="font-size:.65rem;color:var(--text-300);"></i>
-      </div>
-      <div class="dropdown open" id="userMenu" style="display:none;" th:style="'display:none'">
-        <div class="dropdown-menu" style="position:fixed;right:1.5rem;">
-          <a th:href="@{/admin}" class="dropdown-item"><i class="fas fa-cog"></i> Quản trị</a>
-          <div class="dropdown-sep"></div>
-          <a th:href="@{/logout}" class="dropdown-item danger"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
-        </div>
-      </div>
-      <div class="pub-nav-user" style="cursor:default;border:none;padding:0;">
-        <div class="avatar avatar-xs avatar-male" style="font-size:.6rem;">
-          <sec:authentication property="name"/>
-        </div>
-        <sec:authentication property="name"/>
-        <a th:href="@{/logout}" class="btn btn-ghost btn-sm" style="margin-left:.25rem;padding:.3rem .6rem;">
-          <i class="fas fa-sign-out-alt"></i>
+    <div id="navLinks" class="pub-nav-links">
+        <a th:href="@{/}" th:classappend="${activeMenu=='home'}?' active':''">
+            <i class="fas fa-home"></i> Trang Chủ
         </a>
-      </div>
-    </sec:authorize>
-    <sec:authorize access="isAnonymous()">
-      <a th:href="@{/login}" class="btn btn-white btn-sm">
-        <i class="fas fa-sign-in-alt"></i> Đăng nhập
-      </a>
-    </sec:authorize>
-    <button id="navToggle" class="pub-nav-toggle"><i class="fas fa-bars"></i></button>
-  </div>
+        <a th:href="@{/family-tree}" th:classappend="${activeMenu=='family-tree'}?' active':''">
+            <i class="fas fa-sitemap"></i> Gia Phả
+        </a>
+        <a th:href="@{/news}" th:classappend="${activeMenu=='news'}?' active':''">
+            <i class="fas fa-newspaper"></i> Tin Tức
+        </a>
+        <sec:authorize access="hasRole('ADMIN')">
+            <a th:href="@{/admin}" th:classappend="${activeMenu=='admin'}?' active':''">
+                <i class="fas fa-th-large"></i> Quản Trị
+            </a>
+        </sec:authorize>
+    </div>
+
+    <div class="pub-nav-right">
+        <sec:authorize access="isAuthenticated()">
+            <div class="pub-nav-user" onclick="document.getElementById('userMenu').classList.toggle('open')">
+                <div class="avatar avatar-xs avatar-male" sec:authorize="hasRole('ADMIN')" style="font-size:.6rem;">
+                    <span sec:authentication="name" th:each="n : ${#strings.listSplit(#authentication.name,'@')}" th:if="${nStat.first}" th:text="${n.substring(0,1).toUpperCase()}">A</span>
+                </div>
+                <div class="avatar avatar-xs" sec:authorize="!hasRole('ADMIN')" style="font-size:.6rem;">
+                    <span>U</span>
+                </div>
+                <span sec:authentication="name" th:text="${#strings.substringBefore(#authentication.name,'@')}">User</span>
+                <i class="fas fa-chevron-down" style="font-size:.65rem;color:var(--text-300);"></i>
+            </div>
+            <div class="dropdown open" id="userMenu" style="display:none;" th:style="'display:none'">
+                <div class="dropdown-menu" style="position:fixed;right:1.5rem;">
+                    <a th:href="@{/admin}" class="dropdown-item"><i class="fas fa-cog"></i> Quản trị</a>
+                    <div class="dropdown-sep"></div>
+                    <a th:href="@{/logout}" class="dropdown-item danger"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+                </div>
+            </div>
+            <div class="pub-nav-user" style="cursor:default;border:none;padding:0;">
+                <div class="avatar avatar-xs avatar-male" style="font-size:.6rem;">
+                    <sec:authentication property="name"/>
+                </div>
+                <sec:authentication property="name"/>
+                <a th:href="@{/logout}" class="btn btn-ghost btn-sm" style="margin-left:.25rem;padding:.3rem .6rem;">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </sec:authorize>
+        <sec:authorize access="isAnonymous()">
+            <a th:href="@{/login}" class="btn btn-white btn-sm">
+                <i class="fas fa-sign-in-alt"></i> Đăng nhập
+            </a>
+        </sec:authorize>
+        <button id="navToggle" class="pub-nav-toggle"><i class="fas fa-bars"></i></button>
+    </div>
 </nav>
 </body>
 </html>

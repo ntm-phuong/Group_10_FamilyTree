@@ -1,0 +1,38 @@
+{
+  "fullName": "Nguyen Minh Anh",
+  "gender": "Nam",
+  "dateOfBirth": "1992-07-18",
+  "email": "minhanh.nguyen@example.com",
+  "phone": "0901234567",
+  "address": "25 Nguyen Hue, Quan 1, TP. Ho Chi Minh",
+  "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=320&q=80",
+  "description": "Minh Anh hien song va lam viec tai TP. Ho Chi Minh, phu trach ket noi cac thanh vien tre trong dong ho va thu thap thong tin de cap nhat gia pha dien tu.",
+  "familyRelations": {
+    "parents": [
+      {
+        "name": "Nguyen Van Hoa",
+        "relation": "Cha"
+      },
+      {
+        "name": "Tran Thi Lan",
+        "relation": "Me"
+      }
+    ],
+    "spouse": [
+      {
+        "name": "Le Thu Ha",
+        "relation": "Vo"
+      }
+    ],
+    "children": [
+      {
+        "name": "Nguyen Gia Bao",
+        "relation": "Con trai"
+      },
+      {
+        "name": "Nguyen Ngoc An",
+        "relation": "Con gai"
+      }
+    ]
+  }
+}

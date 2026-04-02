@@ -1,255 +1,379 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title th:text="${member.name + ' – Gia Phả'}">Thành viên</title>
-  <link rel="stylesheet" th:href="@{/css/style.css}"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Chinh sua thanh vien</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <style>
+        .member-profile-layout {
+            max-width: 1160px;
+        }
+
+        #editMemberForm {
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+        }
+
+        #editMemberForm .member-page-header-card,
+        #editMemberForm .member-section-card {
+            border-radius: 28px;
+            box-shadow: 0 22px 52px rgba(27, 67, 50, 0.10);
+        }
+
+        #editMemberForm .member-page-header-card {
+            padding: 2.2rem 2.35rem;
+        }
+
+        #editMemberForm .member-page-header-main {
+            align-items: center;
+            gap: 1.75rem;
+        }
+
+        #editMemberForm .member-avatar-wrap {
+            width: 132px;
+            height: 132px;
+        }
+
+        #editMemberForm .member-avatar-img,
+        #editMemberForm .member-avatar-fallback,
+        #editMemberForm .member-avatar-img-lg,
+        #editMemberForm .member-avatar-fallback-lg {
+            width: 132px;
+            height: 132px;
+            border-radius: 50%;
+        }
+
+        #editMemberForm .member-avatar-img {
+            border: 6px solid rgba(255, 255, 255, 0.96);
+            box-shadow: 0 16px 34px rgba(64, 145, 108, 0.18);
+        }
+
+        #editMemberForm .member-avatar-fallback {
+            box-shadow: 0 16px 34px rgba(64, 145, 108, 0.18);
+        }
+
+        #editMemberForm .member-avatar-upload-btn {
+            right: 6px;
+            bottom: 8px;
+            width: 34px;
+            height: 34px;
+            font-size: 0.86rem;
+            border: 3px solid rgba(255, 255, 255, 0.95);
+            box-shadow: 0 10px 22px rgba(27, 67, 50, 0.18);
+        }
+
+        #editMemberForm .member-header-copy h1 {
+            font-size: 2.1rem;
+            font-weight: 700;
+            margin: 0.65rem 0 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        #editMemberForm .member-header-meta {
+            font-size: 0.98rem;
+            color: #587065;
+        }
+
+        #editMemberForm .member-header-inline-meta {
+            gap: 0.9rem 1.4rem;
+            margin-top: 1rem;
+            font-size: 0.88rem;
+        }
+
+        #editMemberForm .member-header-actions {
+            gap: 0.85rem;
+        }
+
+        #editMemberForm .member-action-btn {
+            min-height: 46px;
+            padding: 0.8rem 1.3rem;
+            border-radius: 16px;
+            font-weight: 600;
+            box-shadow: 0 14px 28px rgba(64, 145, 108, 0.16);
+        }
+
+        #editMemberForm .member-action-btn.btn-primary {
+            background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%);
+            border-color: transparent;
+        }
+
+        #editMemberForm .member-action-btn.btn-primary:hover {
+            background: linear-gradient(135deg, #25563f 0%, #357a5c 100%);
+            transform: translateY(-1px);
+        }
+
+        #editMemberForm .member-action-btn.btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 8px 18px rgba(64, 145, 108, 0.18);
+        }
+
+        #editMemberForm .member-action-btn.btn-outline {
+            border-color: rgba(45, 106, 79, 0.22);
+            background: rgba(255, 255, 255, 0.9);
+            color: #2d6a4f;
+        }
+
+        #editMemberForm .member-action-btn.btn-outline:hover {
+            background: #f2f8f4;
+        }
+
+        #editMemberForm .member-edit-content-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1.75rem;
+            align-items: stretch;
+        }
+
+        #editMemberForm .member-content-main {
+            min-width: 0;
+        }
+
+        #editMemberForm .member-section-card {
+            height: 100%;
+        }
+
+        #editMemberForm .card-header {
+            padding: 1.4rem 1.6rem 0;
+        }
+
+        #editMemberForm .card-body {
+            padding: 1.2rem 1.6rem 1.6rem;
+        }
+
+        #editMemberForm .card-header h3 {
+            font-size: 1.08rem;
+            font-weight: 700;
+            color: #1f3d30;
+            letter-spacing: -0.01em;
+        }
+
+        #editMemberForm .member-info-grid {
+            gap: 1rem;
+        }
+
+        #editMemberForm .member-info-item {
+            padding: 1.05rem 1.1rem;
+            border: 1px solid #e3ece6;
+            border-radius: 20px;
+            background: #fbfdfb;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        #editMemberForm .member-info-item label {
+            margin-bottom: 0.55rem;
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: #6b7f75;
+            letter-spacing: 0.06em;
+        }
+
+        #editMemberForm .form-control {
+            min-height: 46px;
+            padding: 0.78rem 0.95rem;
+            border: 1px solid #d8e4dc;
+            border-radius: 14px;
+            background: #ffffff;
+            box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.02);
+            font-size: 0.95rem;
+            color: #163126;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+        }
+
+        #editMemberForm select.form-control {
+            appearance: none;
+            background-image:
+                linear-gradient(45deg, transparent 50%, #5f7368 50%),
+                linear-gradient(135deg, #5f7368 50%, transparent 50%);
+            background-position:
+                calc(100% - 18px) calc(50% - 3px),
+                calc(100% - 12px) calc(50% - 3px);
+            background-size: 6px 6px, 6px 6px;
+            background-repeat: no-repeat;
+            padding-right: 2.5rem;
+        }
+
+        #editMemberForm .form-control::placeholder {
+            color: #9aac9f;
+        }
+
+        #editMemberForm .form-control:focus {
+            outline: none;
+            border-color: #74c69d;
+            box-shadow: 0 0 0 4px rgba(116, 198, 157, 0.18);
+            background: #ffffff;
+        }
+
+        #editMemberForm .member-description-input {
+            min-height: 100%;
+            height: 100%;
+            line-height: 1.75;
+        }
+
+        #editMemberForm .member-info-item-plain {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #editMemberForm .member-info-item-plain .form-control {
+            flex: 1;
+        }
+
+        @media (max-width: 1024px) {
+            #editMemberForm .member-edit-content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            #editMemberForm {
+                gap: 1.2rem;
+            }
+
+            #editMemberForm .member-page-header-card {
+                padding: 1.35rem;
+            }
+
+            #editMemberForm .member-page-header-main {
+                gap: 1rem;
+            }
+
+            #editMemberForm .member-avatar-wrap {
+                width: 92px;
+                height: 92px;
+            }
+
+            #editMemberForm .member-avatar-img,
+            #editMemberForm .member-avatar-fallback,
+            #editMemberForm .member-avatar-img-lg,
+            #editMemberForm .member-avatar-fallback-lg {
+                width: 92px;
+                height: 92px;
+            }
+
+            #editMemberForm .member-avatar-upload-btn {
+                right: -2px;
+                bottom: -2px;
+                width: 30px;
+                height: 30px;
+                font-size: 0.78rem;
+            }
+
+            #editMemberForm .card-header {
+                padding: 1.15rem 1.15rem 0;
+            }
+
+            #editMemberForm .card-body {
+                padding: 1rem 1.15rem 1.2rem;
+            }
+        }
+    </style>
 </head>
 <body>
 <th:block th:replace="~{fragments/navbar :: navbar}"/>
 
-<div class="profile-wrap">
-  <!-- Breadcrumb -->
-  <div class="breadcrumb">
-    <a th:href="@{/}"><i class="fas fa-home"></i></a>
-    <span class="breadcrumb-sep">›</span>
-    <a th:href="@{/family-tree}">Gia Phả</a>
-    <span class="breadcrumb-sep">›</span>
-    <span th:text="${member.name}">Thành viên</span>
-  </div>
+<main class="member-page-shell">
+    <div class="member-profile-layout">
+        <form id="editMemberForm">
+            <section class="member-page-card member-page-header-card">
+                <div class="member-page-header-main">
+                    <div class="member-avatar-wrap member-avatar-wrap-lg">
+                        <img id="memberAvatar" class="member-avatar-img member-avatar-img-lg" src="" alt="Avatar thanh vien"/>
+                        <div id="memberAvatarFallback" class="member-avatar-fallback member-avatar-fallback-lg">M</div>
+                        <label for="avatarUpload" class="member-avatar-upload-btn" aria-label="Doi anh dai dien">
+                            <i class="fas fa-camera"></i>
+                        </label>
+                        <input id="avatarUpload" name="avatarUpload" type="file" accept="image/*" class="member-avatar-upload-input"/>
+                    </div>
+                    <div class="member-header-copy">
+                        <span class="badge badge-green">Cap nhat ho so</span>
+                        <h1 id="memberFullNameHeading">Dang tai du lieu...</h1>
+                        <p id="memberMeta" class="member-header-meta">Thong tin ca nhan</p>
+                        <div class="member-header-inline-meta">
+                            <span><i class="fas fa-venus-mars"></i> <span id="memberGenderBadge">-</span></span>
+                            <span><i class="fas fa-cake-candles"></i> <span id="memberDobBadge">-</span></span>
+                            <span><i class="fas fa-location-dot"></i> <span id="memberAddressMeta">-</span></span>
+                        </div>
+                    </div>
+                    <div class="member-header-actions">
+                        <a th:href="@{/member-detail}" class="btn btn-outline member-action-btn">
+                            <i class="fas fa-arrow-left"></i> Quay lai
+                        </a>
+                        <button type="submit" class="btn btn-primary member-action-btn">
+                            <i class="fas fa-floppy-disk"></i> Luu thong tin
+                        </button>
+                    </div>
+                </div>
+            </section>
 
-  <!-- Profile header card -->
-  <div class="profile-header-card">
-    <div class="avatar avatar-xl" th:classappend="${member.gender.name()=='MALE'}?' avatar-male':' avatar-female'">
-      <span th:text="${member.name.length() >= 2 ? member.name.substring(member.name.lastIndexOf(' ') > 0 ? member.name.lastIndexOf(' ')+1 : 0, member.name.length() >= member.name.lastIndexOf(' ')+3 ? member.name.lastIndexOf(' ')+3 : member.name.length()) : member.name.substring(0,1)}">HS</span>
-    </div>
-    <div class="profile-info">
-      <h2 th:text="${member.name}">Nguyễn Hồng Sơn</h2>
-      <div class="profile-meta">
-        Đời thứ <span th:text="${member.generation}">3</span>
-        | <span th:text="${member.age}">56</span> tuổi
-      </div>
-      <div class="profile-job" th:if="${member.occupation != null}" th:text="${member.occupation}">Giám đốc công ty CNTT</div>
-    </div>
-    <div style="margin-left:auto;">
-      <sec:authorize access="hasRole('ADMIN')">
-        <a th:href="@{/admin/members/{id}/edit(id=${member.id})}" class="btn btn-primary">
-          <i class="fas fa-pencil-alt"></i> Chỉnh sửa
-        </a>
-      </sec:authorize>
-      <a th:href="@{/family-tree}" class="btn btn-outline ml-2">
-        <i class="fas fa-sitemap"></i> Xem trong cây
-      </a>
-    </div>
-  </div>
+            <div class="member-content-grid member-edit-content-grid">
+                <section class="member-content-main">
+                    <div class="member-page-card member-section-card">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <h3>Thong tin ca nhan</h3>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="member-info-grid">
+                                <div class="member-info-item">
+                                    <label for="fullName"><i class="fas fa-user"></i> Ho va ten</label>
+                                    <input id="fullName" name="fullName" type="text" class="form-control" required/>
+                                </div>
+                                <div class="member-info-item">
+                                    <label for="gender"><i class="fas fa-venus-mars"></i> Gioi tinh</label>
+                                    <select id="gender" name="gender" class="form-control" required>
+                                        <option value="">Chon gioi tinh</option>
+                                        <option value="Nam">Nam</option>
+                                        <option value="Nu">Nu</option>
+                                        <option value="Khac">Khac</option>
+                                    </select>
+                                </div>
+                                <div class="member-info-item">
+                                    <label for="dateOfBirth"><i class="fas fa-cake-candles"></i> Ngay sinh</label>
+                                    <input id="dateOfBirth" name="dateOfBirth" type="date" class="form-control" required/>
+                                </div>
+                                <div class="member-info-item">
+                                    <label for="email"><i class="fas fa-envelope"></i> Email</label>
+                                    <input id="email" name="email" type="email" class="form-control" required/>
+                                </div>
+                                <div class="member-info-item">
+                                    <label for="phone"><i class="fas fa-phone"></i> So dien thoai</label>
+                                    <input id="phone" name="phone" type="tel" class="form-control" required/>
+                                </div>
+                                <div class="member-info-item member-info-item-wide">
+                                    <label for="address"><i class="fas fa-location-dot"></i> Dia chi</label>
+                                    <input id="address" name="address" type="text" class="form-control" required/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-  <!-- Profile body -->
-  <div class="profile-body">
-    <!-- Left: details -->
-    <div>
-      <!-- Personal info -->
-      <form th:action="@{/admin/members/{id}/edit(id=${member.id})}" method="post">
-  <div class="card mb-4">
-    <div class="card-header">
-      <div class="card-header-left">
-        <h3>Thông tin cá nhân</h3>
-      </div>
-
-      <div style="margin-left:auto; display:flex; gap:8px;">
-        <a th:href="@{/member/{id}(id=${member.id})}" class="btn btn-outline">
-          <i class="fas fa-times"></i> Hủy
-        </a>
-
-        <button type="submit" class="btn btn-primary">
-          <i class="fas fa-check"></i> Lưu
-        </button>
-      </div>
-    </div>
-
-    <div class="card-body">
-      <div class="profile-detail-grid">
-
-        <!-- Họ -->
-        <div class="profile-detail-item">
-          <label>Họ</label>
-          <input type="text" name="lastName"
-                 class="form-control"
-                 th:value="${member.name != null ? member.name.split(' ')[0] : ''}">
-        </div>
-
-        <!-- Tên -->
-        <div class="profile-detail-item">
-          <label>Tên</label>
-          <input type="text" name="firstName"
-                 class="form-control"
-                 th:value="${member.name != null ? member.name.substring(member.name.lastIndexOf(' ')+1) : ''}">
-        </div>
-
-        <!-- Nghề nghiệp -->
-        <div class="profile-detail-item">
-          <label>Nghề nghiệp</label>
-          <input type="text" name="occupation"
-                 class="form-control"
-                 th:value="${member.occupation}">
-        </div>
-
-        <!-- Điện thoại -->
-        <div class="profile-detail-item">
-          <label>Điện thoại</label>
-          <input type="text" name="phone"
-                 class="form-control"
-                 th:value="${member.phone}">
-        </div>
-
-        <!-- Địa chỉ -->
-        <div class="profile-detail-item" style="grid-column: span 2;">
-          <label>Quê quán, Địa chỉ</label>
-          <input type="text" name="address"
-                 class="form-control"
-                 th:value="${member.address}">
-        </div>
-
-        <!-- Tiểu sử -->
-        <div class="profile-detail-item" style="grid-column: span 2;">
-          <label>Tiểu sử</label>
-          <textarea name="bio" class="form-control" rows="5"
-                    th:text="${member.bio}"></textarea>
-        </div>
-
-      </div>
-    </div>
-  </div>
-</form>
-
-      <!-- Note -->
-      <div class="profile-note">
-        <i class="fas fa-lock" style="color:var(--text-300);flex-shrink:0;"></i>
-        <span>Thông tin quan hệ gia đình (Cha mẹ, vợ/chồng, con cái) chỉ có <strong>quản trị viên</strong> mới được phép chỉnh sửa.</span>
-      </div>
-    </div>
-
-    <!-- Right: relations -->
-    <div>
-      <!-- Parents -->
-      <div class="card mb-4">
-        <div class="card-header">
-          <h3><i class="fas fa-users" style="color:var(--text-300);"></i> Cha mẹ</h3>
-          <sec:authorize access="hasRole('ADMIN')">
-            <span class="text-xs text-muted"><i class="fas fa-lock"></i> Chỉ quản trị</span>
-          </sec:authorize>
-        </div>
-        <div class="card-body" style="padding:.75rem 1rem;">
-          <div th:if="${member.father == null and member.mother == null}" class="text-sm text-muted" style="padding:.5rem 0;">Không có thông tin</div>
-          <a th:if="${member.father != null}" th:href="@{/member/{id}(id=${member.father.id})}" class="relation-item">
-            <div class="relation-item-left">
-              <div class="avatar avatar-sm avatar-male"><span th:text="${member.father.name.substring(0,1)}">N</span></div>
-              <div>
-                <div class="relation-item-name" th:text="${member.father.name}">Tên cha</div>
-                <div class="relation-item-sub">Thành viên dòng họ</div>
-              </div>
+                <section class="member-content-main">
+                    <div class="member-page-card member-section-card">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <h3>Mo ta</h3>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="member-info-item member-info-item-plain">
+                                <label for="description"><i class="fas fa-note-sticky"></i> Gioi thieu</label>
+                                <textarea id="description" name="description" class="form-control member-description-input" rows="6" placeholder="Them mo ta ngan ve thanh vien"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
-            <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
-          </a>
-          <a th:if="${member.mother != null}" th:href="@{/member/{id}(id=${member.mother.id})}" class="relation-item">
-            <div class="relation-item-left">
-              <div class="avatar avatar-sm avatar-female"><span th:text="${member.mother.name.substring(0,1)}">N</span></div>
-              <div>
-                <div class="relation-item-name" th:text="${member.mother.name}">Tên mẹ</div>
-                <div class="relation-item-sub">Thành viên dòng họ</div>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
-          </a>
-        </div>
-      </div>
-
-      <!-- Spouse -->
-      <div class="card mb-4">
-        <div class="card-header">
-          <h3><i class="fas fa-heart" style="color:var(--text-300);"></i> Vợ chồng</h3>
-          <sec:authorize access="hasRole('ADMIN')">
-            <span class="text-xs text-muted"><i class="fas fa-lock"></i> Chỉ quản trị</span>
-          </sec:authorize>
-        </div>
-        <div class="card-body" style="padding:.75rem 1rem;">
-          <div th:if="${member.spouse == null}" class="text-sm text-muted" style="padding:.5rem 0;">Không có thông tin</div>
-          <a th:if="${member.spouse != null}" th:href="@{/member/{id}(id=${member.spouse.id})}" class="relation-item">
-            <div class="relation-item-left">
-              <div class="avatar avatar-sm"
-                   th:classappend="${member.spouse.gender.name()=='MALE'}?' avatar-male':' avatar-female'">
-                <span th:text="${member.spouse.name.substring(0,1)}">N</span>
-              </div>
-              <div>
-                <div class="relation-item-name" th:text="${member.spouse.name}">Tên</div>
-                <div class="relation-item-sub">Thành viên dòng họ</div>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
-          </a>
-        </div>
-      </div>
-
-      <!-- Children -->
-      <div class="card mb-4">
-        <div class="card-header">
-          <h3><i class="fas fa-child" style="color:var(--text-300);"></i>
-            Con cái (<span th:text="${children.size()}">0</span>)
-          </h3>
-          <sec:authorize access="hasRole('ADMIN')">
-            <span class="text-xs text-muted"><i class="fas fa-lock"></i> Chỉ quản trị</span>
-          </sec:authorize>
-        </div>
-        <div class="card-body" style="padding:.75rem 1rem;">
-          <div th:if="${children.isEmpty()}" class="text-sm text-muted" style="padding:.5rem 0;">Không có thông tin</div>
-          <a th:each="child : ${children}" th:href="@{/member/{id}(id=${child.id})}" class="relation-item">
-            <div class="relation-item-left">
-              <div class="avatar avatar-sm"
-                   th:classappend="${child.gender.name()=='MALE'}?' avatar-male':' avatar-female'">
-                <span th:text="${child.name.substring(0,1)}">N</span>
-              </div>
-              <div>
-                <div class="relation-item-name" th:text="${child.name}">Tên</div>
-                <div class="relation-item-sub">Thành viên dòng họ</div>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
-          </a>
-        </div>
-      </div>
-
-      <!-- Siblings -->
-      <div class="card" th:if="${siblings != null and !siblings.isEmpty()}">
-        <div class="card-header">
-          <h3><i class="fas fa-people-arrows" style="color:var(--text-300);"></i>
-            Anh Chị Em (<span th:text="${siblings.size()}">0</span>)
-          </h3>
-          <sec:authorize access="hasRole('ADMIN')">
-            <span class="text-xs text-muted"><i class="fas fa-lock"></i> Chỉ quản trị</span>
-          </sec:authorize>
-        </div>
-        <div class="card-body" style="padding:.75rem 1rem;">
-          <a th:each="s : ${siblings}" th:href="@{/member/{id}(id=${s.id})}" class="relation-item">
-            <div class="relation-item-left">
-              <div class="avatar avatar-sm"
-                   th:classappend="${s.gender.name()=='MALE'}?' avatar-male':' avatar-female'">
-                <span th:text="${s.name.substring(0,1)}">N</span>
-              </div>
-              <div>
-                <div class="relation-item-name" th:text="${s.name}">Tên</div>
-                <div class="relation-item-sub">Thành viên dòng họ</div>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
-          </a>
-        </div>
-      </div>
+        </form>
     </div>
-  </div>
-</div>
+</main>
 
 <th:block th:replace="~{fragments/footer :: footer}"/>
 <script th:src="@{/js/main.js}"></script>
+<script th:src="@{/js/edit-member-detail.js}"></script>
 </body>
 </html>

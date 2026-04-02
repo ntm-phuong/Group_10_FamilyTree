@@ -1,215 +1,116 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title th:text="${member.fullName + ' – Gia Phả'}">Thành viên</title>
-  <link rel="stylesheet" th:href="@{/css/style.css}"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Chi tiet thanh vien</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
 <th:block th:replace="~{fragments/navbar :: navbar}"/>
 
-<div class="profile-wrap">
-  <!-- Breadcrumb -->
-  <div class="breadcrumb">
-    <a th:href="@{/}"><i class="fas fa-home"></i></a>
-    <span class="breadcrumb-sep">›</span>
-    <a th:href="@{/family-tree}">Gia Phả</a>
-    <span class="breadcrumb-sep">›</span>
-    <span th:text="${member.fullName}">Thành viên</span>
-  </div>
+<main class="member-page-shell">
+    <div class="member-profile-layout">
+        <section class="member-page-card member-page-header-card">
+            <div class="member-page-header-main">
+                <div class="member-avatar-wrap member-avatar-wrap-lg">
+                    <img id="memberAvatar" class="member-avatar-img member-avatar-img-lg" src="" alt="Avatar thanh vien"/>
+                    <div id="memberAvatarFallback" class="member-avatar-fallback member-avatar-fallback-lg">M</div>
+                </div>
+                <div class="member-header-copy">
+                    <span class="badge badge-green">Ho so thanh vien</span>
+                    <h1 id="memberFullName">Dang tai du lieu...</h1>
+                    <p id="memberMeta" class="member-header-meta">Thong tin ca nhan</p>
+                    <div class="member-header-inline-meta">
+                        <span><i class="fas fa-venus-mars"></i> <span id="memberGenderBadge">-</span></span>
+                        <span><i class="fas fa-cake-candles"></i> <span id="memberDobBadge">-</span></span>
+                        <span><i class="fas fa-location-dot"></i> <span id="memberAddressMeta">-</span></span>
+                    </div>
+                </div>
+                <div class="member-header-actions">
+                    <a th:href="@{/edit-member-detail}" class="btn btn-primary member-action-btn">
+                        <i class="fas fa-pen"></i> Chinh sua thong tin
+                    </a>
+                </div>
+            </div>
+        </section>
 
-  <!-- Profile header card -->
-  <div class="profile-header-card">
-    <div class="avatar avatar-xl" th:classappend="${member.gender == 'MALE'}?' avatar-male':' avatar-female'">
-      <span th:text="${member.fullName.length() >= 2 ? member.fullName.substring(member.fullName.lastIndexOf(' ') > 0 ? member.fullName.lastIndexOf(' ')+1 : 0, member.fullName.length() >= member.fullName.lastIndexOf(' ')+3 ? member.fullName.lastIndexOf(' ')+3 : member.fullName.length()) : member.fullName.substring(0,1)}">HS</span>
+        <div class="member-content-grid">
+            <section class="member-content-main">
+                <div class="member-page-card member-section-card">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <h3>Thong tin ca nhan</h3>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="member-info-grid">
+                            <div class="member-info-item">
+                                <label><i class="fas fa-venus-mars"></i> Gioi tinh</label>
+                                <span id="memberGender">-</span>
+                            </div>
+                            <div class="member-info-item">
+                                <label><i class="fas fa-cake-candles"></i> Ngay sinh</label>
+                                <span id="memberDateOfBirth">-</span>
+                            </div>
+                            <div class="member-info-item">
+                                <label><i class="fas fa-envelope"></i> Email</label>
+                                <span id="memberEmail">-</span>
+                            </div>
+                            <div class="member-info-item">
+                                <label><i class="fas fa-phone"></i> So dien thoai</label>
+                                <span id="memberPhone">-</span>
+                            </div>
+                            <div class="member-info-item member-info-item-wide">
+                                <label><i class="fas fa-location-dot"></i> Dia chi</label>
+                                <span id="memberAddress">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="member-page-card member-section-card">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <h3>Mo ta</h3>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p id="memberDescription" class="member-description">-</p>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="member-content-side">
+                <div class="member-page-card member-section-card">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <h3>Quan he gia dinh</h3>
+                        </div>
+                    </div>
+                    <div class="card-body member-relations-stack">
+                        <div class="member-relation-group">
+                            <div class="member-relation-title">Cha me</div>
+                            <div id="memberParents" class="member-relations-list"></div>
+                        </div>
+                        <div class="member-relation-group">
+                            <div class="member-relation-title">Vo chong</div>
+                            <div id="memberSpouse" class="member-relations-list"></div>
+                        </div>
+                        <div class="member-relation-group">
+                            <div class="member-relation-title">Con cai</div>
+                            <div id="memberChildren" class="member-relations-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
     </div>
-    <div class="profile-info">
-      <h2 th:text="${member.fullName}">Nguyễn Hồng Sơn</h2>
-      <div class="profile-meta">
-        Đời thứ <span th:text="${member.generation}">3</span>
-        | <span th:text="${memberAge != null ? memberAge : '–'}">56</span> tuổi
-      </div>
-      <div class="profile-job" th:if="${member.occupation != null}" th:text="${member.occupation}">Giám đốc công ty CNTT</div>
-    </div>
-    <div style="margin-left:auto;">
-      <a th:href="@{/family-tree}" class="btn btn-outline ml-2">
-        <i class="fas fa-sitemap"></i> Xem trong cây
-      </a>
-    </div>
-  </div>
-
-  <!-- Profile body -->
-  <div class="profile-body">
-    <!-- Left: details -->
-    <div>
-      <!-- Personal info -->
-      <div class="card mb-4">
-        <div class="card-header">
-          <div class="card-header-left">
-            <h3>Thông tin cá nhân</h3>
-          </div>
-          <a th:href="@{/family-tree}" class="btn btn-ghost btn-sm text-muted">
-            <i class="fas fa-sitemap"></i> Quay lai cay
-          </a>
-        </div>
-        <div class="card-body">
-          <div class="profile-detail-grid">
-            <div class="profile-detail-item">
-              <label><i class="fas fa-birthday-cake"></i> Năm sinh</label>
-              <span th:text="${member.dob != null ? #temporals.format(member.dob, 'yyyy') : '–'}">1970</span>
-            </div>
-            <div class="profile-detail-item">
-              <label><i class="fas fa-map-marker-alt"></i> Quê quán</label>
-              <span th:text="${member.hometown != null ? member.hometown : '–'}">Hà Tây</span>
-            </div>
-            <div class="profile-detail-item">
-              <label><i class="fas fa-home"></i> Địa chỉ hiện tại</label>
-              <span th:text="${member.currentAddress != null ? member.currentAddress : '–'}">–</span>
-            </div>
-            <div class="profile-detail-item">
-              <label><i class="fas fa-briefcase"></i> Nghề nghiệp</label>
-              <span th:text="${member.occupation != null ? member.occupation : '–'}">–</span>
-            </div>
-            <div class="profile-detail-item">
-              <label><i class="fas fa-phone"></i> Điện thoại</label>
-              <span th:text="${member.phoneNumber != null ? member.phoneNumber : '–'}">–</span>
-            </div>
-            <div class="profile-detail-item">
-              <label><i class="fas fa-envelope"></i> Email</label>
-              <span th:text="${member.email != null ? member.email : '–'}">–</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Bio -->
-      <div class="card mb-4" th:if="${member.bio != null}">
-        <div class="card-header"><h3>Thông tin cá nhân</h3></div>
-        <div class="card-body">
-          <p class="profile-bio" th:text="${member.bio}"></p>
-        </div>
-      </div>
-
-      <!-- Note -->
-      <div class="profile-note">
-        <i class="fas fa-lock" style="color:var(--text-300);flex-shrink:0;"></i>
-        <span>Thông tin quan hệ gia đình (Cha mẹ, vợ/chồng, con cái) chỉ có <strong>quản trị viên</strong> mới được phép chỉnh sửa.</span>
-      </div>
-    </div>
-
-    <!-- Right: relations -->
-    <div>
-      <!-- Parents -->
-      <div class="card mb-4">
-        <div class="card-header">
-          <h3><i class="fas fa-users" style="color:var(--text-300);"></i> Cha mẹ</h3>
-          <span class="text-xs text-muted"><i class="fas fa-user"></i> Du lieu mock</span>
-        </div>
-        <div class="card-body" style="padding:.75rem 1rem;">
-          <div th:if="${father == null and mother == null}" class="text-sm text-muted" style="padding:.5rem 0;">Không có thông tin</div>
-          <a th:if="${father != null}" th:href="@{/member/{id}(id=${father.userId})}" class="relation-item">
-            <div class="relation-item-left">
-              <div class="avatar avatar-sm avatar-male"><span th:text="${father.fullName.substring(0,1)}">N</span></div>
-              <div>
-                <div class="relation-item-name" th:text="${father.fullName}">Tên cha</div>
-                <div class="relation-item-sub">Thành viên dòng họ</div>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
-          </a>
-          <a th:if="${mother != null}" th:href="@{/member/{id}(id=${mother.userId})}" class="relation-item">
-            <div class="relation-item-left">
-              <div class="avatar avatar-sm avatar-female"><span th:text="${mother.fullName.substring(0,1)}">N</span></div>
-              <div>
-                <div class="relation-item-name" th:text="${mother.fullName}">Tên mẹ</div>
-                <div class="relation-item-sub">Thành viên dòng họ</div>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
-          </a>
-        </div>
-      </div>
-
-      <!-- Spouse -->
-      <div class="card mb-4">
-        <div class="card-header">
-          <h3><i class="fas fa-heart" style="color:var(--text-300);"></i> Vợ chồng</h3>
-          <span class="text-xs text-muted"><i class="fas fa-user"></i> Du lieu mock</span>
-        </div>
-        <div class="card-body" style="padding:.75rem 1rem;">
-          <div th:if="${spouse == null}" class="text-sm text-muted" style="padding:.5rem 0;">Không có thông tin</div>
-          <a th:if="${spouse != null}" th:href="@{/member/{id}(id=${spouse.userId})}" class="relation-item">
-            <div class="relation-item-left">
-              <div class="avatar avatar-sm"
-                   th:classappend="${spouse.gender == 'MALE'}?' avatar-male':' avatar-female'">
-                <span th:text="${spouse.fullName.substring(0,1)}">N</span>
-              </div>
-              <div>
-                <div class="relation-item-name" th:text="${spouse.fullName}">Tên</div>
-                <div class="relation-item-sub">Thành viên dòng họ</div>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
-          </a>
-        </div>
-      </div>
-
-      <!-- Children -->
-      <div class="card mb-4">
-        <div class="card-header">
-          <h3><i class="fas fa-child" style="color:var(--text-300);"></i>
-            Con cái (<span th:text="${children.size()}">0</span>)
-          </h3>
-          <span class="text-xs text-muted"><i class="fas fa-user"></i> Du lieu mock</span>
-        </div>
-        <div class="card-body" style="padding:.75rem 1rem;">
-          <div th:if="${children.isEmpty()}" class="text-sm text-muted" style="padding:.5rem 0;">Không có thông tin</div>
-          <a th:each="child : ${children}" th:href="@{/member/{id}(id=${child.userId})}" class="relation-item">
-            <div class="relation-item-left">
-              <div class="avatar avatar-sm"
-                   th:classappend="${child.gender == 'MALE'}?' avatar-male':' avatar-female'">
-                <span th:text="${child.fullName.substring(0,1)}">N</span>
-              </div>
-              <div>
-                <div class="relation-item-name" th:text="${child.fullName}">Tên</div>
-                <div class="relation-item-sub">Thành viên dòng họ</div>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
-          </a>
-        </div>
-      </div>
-
-      <!-- Siblings -->
-      <div class="card" th:if="${siblings != null and !siblings.isEmpty()}">
-        <div class="card-header">
-          <h3><i class="fas fa-people-arrows" style="color:var(--text-300);"></i>
-            Anh Chị Em (<span th:text="${siblings.size()}">0</span>)
-          </h3>
-          <span class="text-xs text-muted"><i class="fas fa-user"></i> Du lieu mock</span>
-        </div>
-        <div class="card-body" style="padding:.75rem 1rem;">
-          <a th:each="s : ${siblings}" th:href="@{/member/{id}(id=${s.userId})}" class="relation-item">
-            <div class="relation-item-left">
-              <div class="avatar avatar-sm"
-                   th:classappend="${s.gender == 'MALE'}?' avatar-male':' avatar-female'">
-                <span th:text="${s.fullName.substring(0,1)}">N</span>
-              </div>
-              <div>
-                <div class="relation-item-name" th:text="${s.fullName}">Tên</div>
-                <div class="relation-item-sub">Thành viên dòng họ</div>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+</main>
 
 <th:block th:replace="~{fragments/footer :: footer}"/>
 <script th:src="@{/js/main.js}"></script>
+<script th:src="@{/js/member-detail.js}"></script>
 </body>
 </html>

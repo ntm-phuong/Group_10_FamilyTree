@@ -52,32 +52,32 @@ public class DataInitializer implements CommandLineRunner {
                 });
 
         // 2. Khởi tạo Family mẫu (Bắt buộc vì User cần Object Family)
-        Family defaultFamily = familyRepository.findById("fam-001")
+        Family defaultFamily = familyRepository.findById("fam-test-tree-100")
                 .orElseGet(() -> {
                     Family f = new Family();
-                    f.setFamilyId("fam-001");
+                    f.setFamilyId("fam-test-tree-100");
                     f.setFamilyName("Họ Nguyễn Đông Anh");
                     return familyRepository.saveAndFlush(f);
                 });
 
         // 3. Khởi tạo tài khoản TRƯỞNG HỌ mẫu để test Postman
-        if (userRepository.findByEmail("truongho@giapha.vn").isEmpty()) {
-            User head = User.builder()
-                    .userId(UUID.randomUUID().toString())
-                    .fullName("Nguyễn Văn Trưởng")
-                    .email("truongho@giapha.vn")
-                    .password(passwordEncoder.encode("123456"))
-                    .status(1) // Active
-                    .generation(1)
-                    .orderInFamily(1)
-                    .role(headRole)    // Gán Object Role
-                    .family(defaultFamily) // Gán Object Family
-                    .build();
-
-            userRepository.save(head);
-            System.out.println("----------------------------------------------------------");
-            System.out.println(">>> ĐÃ TẠO TÀI KHOẢN TEST: truongho@giapha.vn / 123456");
-            System.out.println("----------------------------------------------------------");
-        }
+//        if (userRepository.findByEmail("truongho@giapha.vn").isEmpty()) {
+//            User head = User.builder()
+//                    .userId(UUID.randomUUID().toString())
+//                    .fullName("Nguyễn Văn Trưởng")
+//                    .email("truongho@giapha.vn")
+//                    .password(passwordEncoder.encode("123456"))
+//                    .status(1) // Active
+//                    .generation(1)
+//                    .orderInFamily(1)
+//                    .role(headRole)    // Gán Object Role
+//                    .family(defaultFamily) // Gán Object Family
+//                    .build();
+//
+//            userRepository.save(head);
+//            System.out.println("----------------------------------------------------------");
+//            System.out.println(">>> ĐÃ TẠO TÀI KHOẢN TEST: truongho@giapha.vn / 123456");
+//            System.out.println("----------------------------------------------------------");
+//        }
     }
 }

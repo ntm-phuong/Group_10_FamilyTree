@@ -41,7 +41,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // Cho phép các tài nguyên tĩnh
-                        .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/", "/home", "/index.html", "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
 
                         // Cho phép các route của PageController (Các trang giao diện public)
                         .requestMatchers("/login", "/about", "/family-tree", "/news/**", "/member/**").permitAll()
