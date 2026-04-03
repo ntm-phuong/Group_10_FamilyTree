@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/home-guest.css}">
+    <link rel="stylesheet" th:href="@{/css/home.css?v=1}">
 </head>
 <body>
 
@@ -20,7 +21,7 @@
         <p class="hero-quote">"Mộc bản hồ thủy, vạn cổ tầm tông"</p>
         <p class="hero-desc">Cây có gốc mới nở cành xanh ngọn, nước có nguồn mới bể rộng sông sâu. Nơi lưu giữ truyền thống và kết nối các thế hệ con cháu họ Nguyễn.</p>
         <div class="hero-buttons">
-            <a href="#" class="btn btn-outline"><i class="fas fa-sitemap"></i> Xem Gia Phả</a>
+            <a href="/family-tree" class="btn btn-outline"><i class="fas fa-sitemap"></i> Xem Gia Phả</a>
             <a th:href="@{/news}" class="btn btn-outline"><i class="far fa-newspaper"></i> Tin Tức Dòng Họ</a>
         </div>
     </div>
@@ -49,12 +50,33 @@
     </div>
 </section>
 
-<section class="guest-about">
+<section class="home-about-section">
     <div class="container">
-        <h2>Về Dòng Họ</h2>
-        <p>Dòng họ Nguyễn có lịch sử lâu đời, bắt nguồn từ vùng đất Hà Tây, nay là Hà Nội. Qua nhiều thế hệ, con cháu đã lan tỏa khắp nơi và có nhiều đóng góp trong các lĩnh vực khác nhau.</p>
-        <p>Với mục tiêu bảo tồn và phát huy truyền thống gia đình, hệ thống gia phả trực tuyến được xây dựng để giúp các thành viên dễ dàng tra cứu thông tin, kết nối với nhau và lưu giữ những kỷ niệm quý báu.</p>
-        <a th:href="@{/about}" class="btn btn-outline-dark">Tìm hiểu lịch sử dòng họ <i class="fas fa-arrow-right"></i></a>
+        <div class="about-search-wrapper">
+            <div class="about-text-col">
+                <h2>Về Dòng Họ</h2>
+                <p>Dòng họ Nguyễn có lịch sử lâu đời, bắt nguồn từ vùng đất Hà Nội. Qua nhiều thế hệ, con cháu đã lan tỏa khắp nơi và có nhiều đóng góp trong các lĩnh vực khác nhau.</p>
+                <p>Với mục tiêu bảo tồn và phát huy truyền thống gia đình, hệ thống gia phả trực tuyến được xây dựng để giúp các thành viên dễ dàng tra cứu thông tin, kết nối với nhau và lưu giữ những kỷ niệm quý báu.</p>
+                <a th:href="@{/about}" class="btn-about-outline">Tìm hiểu lịch sử dòng họ <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="search-card-col">
+                <div class="search-card-figma">
+                    <div class="search-card-header">
+                        <i class="fas fa-search" style="font-size: 1.4rem; color: #4B5563;"></i> Tra cứu nhanh
+                    </div>
+                    <p class="search-card-desc">Tìm kiếm thành viên trong gia phả</p>
+
+                    <form action="/family-tree" method="get">
+                        <div class="search-input-wrap">
+                            <i class="fas fa-search"></i>
+                            <input type="text" name="keyword" placeholder="Tìm kiếm thành viên......" required>
+                        </div>
+                        <button type="submit" class="btn-search-submit">Xem cây gia phả</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -103,35 +125,37 @@
     </div>
 </section>
 
-<section class="guest-news container">
-    <div class="section-header">
-        <h2>Tin Tức Mới Nhất</h2>
-        <p>Cập nhật các hoạt động và sự kiện của dòng họ</p>
-    </div>
-    <div class="grid-4">
-        <div class="news-card">
-            <span class="badge badge-success">Sự kiện</span> <span class="news-time">5 ngày trước</span>
-            <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
-            <p>Thông báo về việc tổ chức Lễ Giỗ Tổ hàng năm của dòng họ Nguyễn. Sự kiện dự kiến diễn ra vào ngày 15 tháng 3 âm lịch...</p>
-            <a href="#" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+<section class="guest-news">
+    <div class="container">
+        <div class="section-header">
+            <h2>Tin Tức Mới Nhất</h2>
+            <p>Cập nhật các hoạt động và sự kiện của dòng họ</p>
         </div>
-        <div class="news-card">
-            <span class="badge badge-success">Sự kiện</span> <span class="news-time">5 ngày trước</span>
-            <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
-            <p>Thông báo về việc tổ chức Lễ Giỗ Tổ hàng năm của dòng họ Nguyễn. Sự kiện dự kiến diễn ra vào ngày 15 tháng 3 âm lịch...</p>
-            <a href="#" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-        </div>
-        <div class="news-card">
-            <span class="badge badge-success">Sự kiện</span> <span class="news-time">5 ngày trước</span>
-            <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
-            <p>Thông báo về việc tổ chức Lễ Giỗ Tổ hàng năm của dòng họ Nguyễn. Sự kiện dự kiến diễn ra vào ngày 15 tháng 3 âm lịch...</p>
-            <a href="#" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-        </div>
-        <div class="news-card">
-            <span class="badge badge-success">Sự kiện</span> <span class="news-time">5 ngày trước</span>
-            <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
-            <p>Thông báo về việc tổ chức Lễ Giỗ Tổ hàng năm của dòng họ Nguyễn. Sự kiện dự kiến diễn ra vào ngày 15 tháng 3 âm lịch...</p>
-            <a href="#" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+        <div class="grid-4">
+            <div class="news-card">
+                <span class="badge badge-success">Sự kiện</span> <span class="news-time">5 ngày trước</span>
+                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
+                <p>Thông báo về việc tổ chức Lễ Giỗ Tổ hàng năm của dòng họ Nguyễn. Sự kiện dự kiến diễn ra vào ngày 15 tháng 3 âm lịch...</p>
+                <a href="#" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="news-card">
+                <span class="badge badge-success">Sự kiện</span> <span class="news-time">5 ngày trước</span>
+                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
+                <p>Thông báo về việc tổ chức Lễ Giỗ Tổ hàng năm của dòng họ Nguyễn. Sự kiện dự kiến diễn ra vào ngày 15 tháng 3 âm lịch...</p>
+                <a href="#" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="news-card">
+                <span class="badge badge-success">Sự kiện</span> <span class="news-time">5 ngày trước</span>
+                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
+                <p>Thông báo về việc tổ chức Lễ Giỗ Tổ hàng năm của dòng họ Nguyễn. Sự kiện dự kiến diễn ra vào ngày 15 tháng 3 âm lịch...</p>
+                <a href="#" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="news-card">
+                <span class="badge badge-success">Sự kiện</span> <span class="news-time">5 ngày trước</span>
+                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
+                <p>Thông báo về việc tổ chức Lễ Giỗ Tổ hàng năm của dòng họ Nguyễn. Sự kiện dự kiến diễn ra vào ngày 15 tháng 3 âm lịch...</p>
+                <a href="#" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+            </div>
         </div>
     </div>
 </section>
@@ -140,7 +164,7 @@
     <div class="container text-center">
         <h2>Kết Nối Với Gia Đình</h2>
         <p>Hãy cùng nhau xây dựng và gìn giữ gia phả dòng họ. Mỗi thành viên đều là một phần quan trọng trong lịch sử gia đình.</p>
-        <a th:href="@{/login}" class="btn btn-light"><i class="fas fa-sign-in-alt"></i> Đăng Nhập</a>
+        <a th:href="@{/family-tree}" class="btn btn-light"><i class="fas fa-sitemap"></i> Xem sơ đồ gia phả</a>
     </div>
 </section>
 

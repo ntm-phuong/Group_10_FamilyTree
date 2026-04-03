@@ -1,21 +1,139 @@
 /* =========================================
-   STYLE CHO TRANG HOME (USER)
+   STYLE RIÊNG CHO TRANG HOME (USER)
    ========================================= */
-.about-search-wrapper { display: grid; grid-template-columns: 1.2fr 1fr; gap: 50px; align-items: center; }
-.about-text-col h2 { font-size: 1.8rem; color: #111; margin-bottom: 20px; }
 
-.search-card-figma { background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 12px; padding: 30px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04); }
-.search-card-header { display: flex; align-items: center; gap: 8px; font-size: 1.1rem; font-weight: 700; color: #111; margin-bottom: 5px; }
-.search-card-desc { color: #6B7280; font-size: 0.9rem; margin-bottom: 20px !important; }
+.home-about-section {
+    background-color: #F9FBF9; /* Nền be nhạt y hệt trong ảnh */
+    padding: 80px 0;
+}
 
-.search-input-wrap { position: relative; margin-bottom: 15px; }
-.search-input-wrap i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #9CA3AF; }
-.search-input-wrap input { width: 100%; padding: 12px 15px 12px 40px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
-.search-input-wrap input:focus { border-color: #2D6A4F; }
+.about-search-wrapper {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr; /* Tỉ lệ cân đối cột chữ và cột tìm kiếm */
+    gap: 60px;
+    align-items: center;
+}
 
-.btn-search-submit { width: 100%; background-color: #2D6A4F; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: background 0.2s; }
-.btn-search-submit:hover { background-color: #1B4332; }
+/* Cột Trái: Giới thiệu */
+.about-text-col h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 20px;
+}
 
+.about-text-col p {
+    font-size: 0.95rem;
+    color: #4B5563;
+    line-height: 1.8;
+    margin-bottom: 20px;
+}
+
+/* Nút "Tìm hiểu lịch sử dòng họ" có viền, mũi tên */
+.btn-about-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 12px 20px;
+    background-color: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #111;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    margin-top: 10px;
+}
+
+.btn-about-outline:hover {
+    background-color: #F9FAFB;
+    border-color: #D1D5DB;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.btn-about-outline i {
+    font-size: 1rem;
+    color: #111;
+}
+
+/* Cột Phải: Khung Tra Cứu Nhanh */
+.search-card-figma {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 35px 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.search-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 8px;
+}
+
+.search-card-desc {
+    color: #6B7280;
+    font-size: 0.9rem;
+    margin-bottom: 25px !important;
+}
+
+/* Ô nhập liệu tìm kiếm */
+.search-input-wrap {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.search-input-wrap i {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6B7280;
+    font-size: 1.1rem;
+}
+
+.search-input-wrap input {
+    width: 100%;
+    padding: 14px 15px 14px 45px;
+    border: 1px solid #D1D5DB;
+    border-radius: 25px; /* Bo góc dạng viên thuốc (Pill shape) giống ảnh */
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.search-input-wrap input:focus {
+    border-color: #337A4B;
+}
+
+/* Nút Submit Tìm kiếm */
+.btn-search-submit {
+    width: 100%;
+    background-color: #337A4B; /* Xanh lá cây sẫm */
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-search-submit:hover {
+    background-color: #245A36;
+}
+
+/* --- Responsive --- */
 @media (max-width: 992px) {
-    .about-search-wrapper { grid-template-columns: 1fr; gap: 30px; }
+    .about-search-wrapper {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
 }

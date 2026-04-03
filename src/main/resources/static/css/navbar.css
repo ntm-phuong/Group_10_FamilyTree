@@ -32,23 +32,46 @@
 
 /* --- DROPDOWN MENU --- */
 .dropdown { position: relative; display: inline-block; }
-.dropdown-menu { display: none; position: absolute; top: calc(100% + 10px); right: 0; background-color: #FFFFFF; min-width: 190px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); border-radius: 12px; padding: 8px 0; z-index: 1000; border: 1px solid #F3F4F6; animation: fadeInDown 0.2s ease-out; }
-.dropdown-menu::before { content: ""; position: absolute; top: -10px; left: 0; width: 100%; height: 10px; background-color: transparent; }
-.dropdown:hover .dropdown-menu { display: block; }
+
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + 10px); /* Cách Nút User 10px */
+    right: 0;
+    background-color: #FFFFFF;
+    min-width: 190px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 8px 0;
+    z-index: 1000;
+    border: 1px solid #F3F4F6;
+
+    /* DÙNG POINTER-EVENTS THAY CHO VISIBILITY ĐỂ TRÁNH LỖI MẤT HOVER */
+    opacity: 0;
+    pointer-events: none; /* Khi ẩn thì menu hoàn toàn tàng hình với con trỏ chuột */
+    transform: translateY(-8px);
+    transition: all 0.2s ease-out;
+}
+
+/* CÂY CẦU VÔ HÌNH (LÀM DÀY LÊN 20PX VÀ MỞ RỘNG SANG HAI BÊN ĐỂ BẮT CHUỘT DỄ HƠN) */
+.dropdown-menu::before {
+    content: "";
+    position: absolute;
+    top: -20px; /* Kéo cao lên 20px dư sức lấp đầy khoảng trống 10px */
+    left: -10%; /* Mở rộng sang hai bên một chút để chống lọt chuột khi rê chéo */
+    width: 120%;
+    height: 20px;
+    background-color: transparent;
+}
+
+/* Hiển thị khi hover */
+.dropdown:hover .dropdown-menu {
+    opacity: 1;
+    pointer-events: auto; /* Kích hoạt lại tương tác chuột khi hiện menu */
+    transform: translateY(0);
+}
+
+/* Các item bên trong */
 .dropdown-item { padding: 10px 20px; display: block; font-size: 0.95rem; color: #374151; text-decoration: none; transition: background 0.15s, color 0.15s; font-weight: 500; }
 .dropdown-item:hover { background-color: #F9FAFB; color: #111; }
 .dropdown-item.logout-btn { color: #DC2626; margin-top: 6px; border-top: 1px solid #F3F4F6; padding-top: 12px; }
 .dropdown-item.logout-btn:hover { background-color: #FEF2F2; color: #B91C1C; }
-
-@keyframes fadeInDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-
-@media (max-width: 768px) {
-    .pub-nav-figma { padding: 1rem 1.5rem; }
-    .nav-links-figma { display: none; }
-    .nav-toggle-btn { display: block; }
-}
-@media(max-width:640px) {
-    .pub-nav-links{display:none;}
-    .pub-nav-links.open{display:flex;flex-direction:column;position:absolute;top:var(--nav-h);left:0;right:0;background:var(--bg-white);border-bottom:1px solid var(--border);padding:.75rem 1rem;}
-    .pub-nav-toggle{display:block;}
-}
