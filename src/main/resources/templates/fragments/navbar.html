@@ -8,12 +8,15 @@
   <nav class="nav-links-figma">
     <a href="/" id="navHome"><i class="fas fa-home"></i> Trang Chủ</a>
 
+    <a th:href="@{/about}" id="navAbout"><i class="fas fa-info-circle"></i> Giới thiệu</a>
+
     <a href="/family-tree" id="navFamilyTree" style="display: none;"><i class="fas fa-sitemap"></i> Gia Phả</a>
 
     <a href="/news" id="navNews"><i class="far fa-newspaper"></i> Tin Tức</a>
 
-    <a href="@{/family-head}" th:classappend="${activeMenu=='dashboard'}?' active':''"
-        class="sidebar-link""><i class="fas fa-th-large"></i> Quản Trị</a>
+    <a href="@{/family-head}"
+       th:classappend="${activeMenu == 'dashboard' ? 'active' : ''}"
+        class="sidebar-link"><i class="fas fa-th-large"></i> Quản Trị</a>
   </nav>
 
   <div class="nav-right-actions">
