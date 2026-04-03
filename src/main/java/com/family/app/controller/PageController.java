@@ -8,14 +8,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class PageController {
+
+
     @GetMapping("/")
     public String root() {
-        return "redirect:/home";
+        return "public/home-guest"; // Mở file home-guest.html
     }
+
 
     @GetMapping("/home")
     public String home() {
-        return "public/home";
+        return "public/home"; // Mở file home.html
     }
 
     @GetMapping("/about")
