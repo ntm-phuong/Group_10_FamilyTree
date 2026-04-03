@@ -1,0 +1,56 @@
+/* =========================================
+   STYLE CHO TRANG ACTIVE (KÍCH HOẠT)
+   ========================================= */
+body.activation-page-bg {
+    background-image: url('../images/bg-activation.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.activation-page-bg .login-card {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(5px);
+}
+
+.input-icon-wrap-figma i.fa-user,
+.input-icon-wrap-figma i.fa-shield-alt {
+    color: var(--green-700);
+    font-size: 0.9rem;
+}
+/* CSS CHUYÊN DỤNG CHO REAL-TIME VALIDATION */
+        .input-icon-wrap-figma.error input {
+            border-color: #DC2626 !important;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+        .input-icon-wrap-figma.error i:first-child {
+            color: #DC2626 !important; /* Đổi màu icon ổ khóa thành đỏ */
+        }
+
+        .input-icon-wrap-figma.success input {
+            border-color: #16A34A !important;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+        }
+        .input-icon-wrap-figma.success i:first-child {
+            color: #16A34A !important; /* Đổi màu icon ổ khóa thành xanh */
+        }
+
+        .validation-msg {
+            font-size: 0.8rem;
+            margin-top: 6px;
+            display: block;
+            font-weight: 500;
+        }
+        .validation-msg.error { color: #DC2626; }
+        .validation-msg.success { color: #16A34A; }
+
+        /* Nút bị khóa sẽ mờ đi và đổi con trỏ chuột */
+        .btn-login-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
