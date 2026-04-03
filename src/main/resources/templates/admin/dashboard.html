@@ -26,9 +26,9 @@
             <li><a th:href="@{/admin/members}" class="nav-link">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
                 Thành viên</a></li>
-            <li><a th:href="@{/admin/news}" class="nav-link">
+            <li><a th:href="@{/family-head(tab=${'news'})}" class="nav-link">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                Tin tức</a></li>
+                Quản trị dòng họ</a></li>
             <li><a th:href="@{/admin/family-tree}" class="nav-link">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="6" cy="15" r="3"/><circle cx="18" cy="15" r="3"/><line x1="9" y1="12" x2="6" y2="12"/><line x1="15" y1="12" x2="18" y2="12"/></svg>
                 Gia phả</a></li>
@@ -222,7 +222,7 @@
                             <span class="badge badge-published">Đã đăng</span>
                         </div>
                     </div>
-                    <a th:href="@{/admin/news}" class="btn btn-outline btn-sm w-full" style="margin-top:16px;">Xem tất cả tin tức</a>
+                    <a th:href="@{/family-head(tab=${'news'})}" class="btn btn-outline btn-sm w-full" style="margin-top:16px;">Quản trị dòng họ</a>
                 </div>
             </div>
 

@@ -15,12 +15,12 @@
     <div class="breadcrumb" style="padding-top:.5rem;">
       <a th:href="@{/home}"><i class="fas fa-home"></i></a>
       <span class="breadcrumb-sep">&gt;</span>
-      <a th:href="@{/news}">Tin tức</a>
+      <a th:href="${article.family != null} ? @{/news(familyId=${article.family.familyId})} : @{/news}">Tin tức</a>
       <span class="breadcrumb-sep">&gt;</span>
       <span class="truncate" th:text="${article.title}">Bài viết</span>
     </div>
 
-    <a th:href="@{/news}" class="btn btn-ghost btn-sm mb-4" style="padding:.35rem .6rem;">
+    <a th:href="${article.family != null} ? @{/news(familyId=${article.family.familyId})} : @{/news}" class="btn btn-ghost btn-sm mb-4" style="padding:.35rem .6rem;">
       <i class="fas fa-arrow-left"></i> Quay lại
     </a>
   </div>
@@ -30,6 +30,7 @@
       <div class="card-body" style="padding:1.75rem;">
         <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;">
           <span class="badge badge-green" th:text="${article.publicCategory != null ? article.publicCategory.label : '—'}">Danh mục</span>
+          <span th:if="${article.visibility != null and article.visibility.name() == 'FAMILY_ONLY'}" class="badge badge-gray">Nội bộ dòng họ</span>
           <span th:if="${article.featured}" class="badge badge-orange"><i class="fas fa-star"></i> Nổi bật</span>
         </div>
 
@@ -67,9 +68,9 @@
         <div class="card-header"><h3>Danh mục</h3></div>
         <div class="card-body" style="padding:.75rem;">
           <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
-            <a th:href="@{/news}" class="news-cat-tab" style="font-size:.78rem;">Tất cả</a>
+            <a th:href="${article.family != null} ? @{/news(familyId=${article.family.familyId})} : @{/news}" class="news-cat-tab" style="font-size:.78rem;">Tất cả</a>
             <a th:each="c : ${categories}"
-               th:href="@{/news(category=${c.name()})}"
+               th:href="${article.family != null} ? @{/news(category=${c.name()},familyId=${article.family.familyId})} : @{/news(category=${c.name()})}"
                class="news-cat-tab"
                th:classappend="${article.publicCategory == c} ? ' active' : ''"
                style="font-size:.78rem;"
@@ -84,7 +85,7 @@
           <div th:if="${#lists.isEmpty(relatedArticles)}" class="text-sm text-muted">Chưa có bài liên quan.</div>
           <div th:each="r : ${relatedArticles}"
                style="margin-bottom:.75rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);">
-            <a th:href="@{/news/{slug}(slug=${r.slug})}"
+            <a th:href="${article.family != null} ? @{/news/{slug}(slug=${r.slug},familyId=${article.family.familyId})} : @{/news/{slug}(slug=${r.slug})}"
                style="font-size:.83rem;font-weight:600;color:var(--text-900);line-height:1.4;display:block;"
                th:text="${r.title}">Tiêu đề</a>
           </div>

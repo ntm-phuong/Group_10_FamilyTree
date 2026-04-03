@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quản lý tin công khai — Toàn site</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+  <link rel="stylesheet" th:href="@{/css/family-tree.css}">
+  <link rel="stylesheet" th:href="@{/css/family-head.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+<th:block th:replace="~{fragments/navbar :: navbar}"/>
+
+<div class="fh-page-wrap tree-page-wrap">
+  <div class="breadcrumb">
+    <a href="/"><i class="fas fa-home"></i></a>
+    <span class="breadcrumb-sep">&gt;</span>
+    <span>Tin công khai toàn site</span>
+  </div>
+
+  <h1 style="font-size:1.4rem;font-weight:700;margin-bottom:.3rem;">Tin công khai (/news)</h1>
+  <p style="font-size:.85rem;color:var(--text-500);margin-bottom:1.25rem;">
+    Chỉ tài khoản có quyền <strong>MANAGE_SITE_NEWS</strong> (thường là ADMIN). Tin không gắn một dòng họ cụ thể.
+  </p>
+
+  <div id="snAlert" class="fh-alert info" style="display:none;"></div>
+
+  <div class="tree-toolbar">
+    <div class="search-input" style="min-width:180px;max-width:240px;">
+      <i class="fas fa-search"></i>
+      <input id="snSearch" type="text" class="form-control" placeholder="Tìm theo tiêu đề..."/>
+    </div>
+    <select id="snCategory" class="form-control form-select" style="width:180px;">
+      <option value="">Tất cả tab</option>
+      <option value="EVENT">Sự kiện</option>
+      <option value="ANNOUNCEMENT">Thông báo</option>
+      <option value="HISTORY">Dòng họ</option>
+      <option value="GENERAL">Tin chung</option>
+    </select>
+    <select id="snStatus" class="form-control form-select" style="width:160px;">
+      <option value="">Mọi trạng thái</option>
+      <option value="published">Đã đăng</option>
+      <option value="draft">Nháp</option>
+    </select>
+    <button type="button" id="snReload" class="btn btn-white btn-sm" title="Tải lại"><i class="fas fa-sync-alt"></i></button>
+    <div style="margin-left:auto;display:flex;gap:.5rem;">
+      <button type="button" id="snAdd" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Thêm bài</button>
+    </div>
+  </div>
+
+  <div class="fh-table-wrap">
+    <table class="fh-news-table" aria-label="Danh sách tin site">
+      <thead>
+      <tr>
+        <th>Tiêu đề</th>
+        <th>Tab</th>
+        <th>Trạng thái</th>
+        <th>Nổi bật</th>
+        <th>Tạo lúc</th>
+        <th style="width:140px;">Thao tác</th>
+      </tr>
+      </thead>
+      <tbody id="snBody">
+      <tr><td colspan="6" class="fh-muted">Đang tải...</td></tr>
+      </tbody>
+    </table>
+    <div id="snEmpty" class="empty-state" style="display:none;padding:2rem;text-align:center;">
+      <i class="fas fa-newspaper"></i>
+      <h3>Chưa có bài</h3>
+      <p class="fh-muted">Thử đổi bộ lọc hoặc thêm mới.</p>
+    </div>
+  </div>
+</div>
+
+<div id="snModal" class="modal-overlay" aria-hidden="true">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h3 id="snModalTitle">Thêm bài</h3>
+      </div>
+      <button type="button" class="modal-close" id="snModalClose" aria-label="Đóng"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="snForm">
+      <input type="hidden" id="snEditId" value=""/>
+      <div class="fh-form-grid">
+        <div class="fh-span-2">
+          <label for="snTitle">Tiêu đề <span style="color:#b91c1c;">*</span></label>
+          <input type="text" id="snTitle" class="form-control" required maxlength="500"/>
+        </div>
+        <div>
+          <label for="snPubCat">Tab trang /news</label>
+          <select id="snPubCat" class="form-control form-select" required>
+            <option value="EVENT">Sự kiện</option>
+            <option value="ANNOUNCEMENT">Thông báo</option>
+            <option value="HISTORY">Dòng họ</option>
+            <option value="GENERAL">Tin chung</option>
+          </select>
+        </div>
+        <div>
+          <label for="snFeatured">Nổi bật</label>
+          <select id="snFeatured" class="form-control form-select">
+            <option value="false">Không</option>
+            <option value="true">Có</option>
+          </select>
+        </div>
+        <div class="fh-span-2">
+          <label for="snSummary">Tóm tắt</label>
+          <textarea id="snSummary" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="fh-span-2">
+          <label for="snContent">Nội dung (HTML)</label>
+          <textarea id="snContent" class="form-control" style="min-height:120px;"></textarea>
+        </div>
+        <div class="fh-span-2" id="snDraftRow">
+          <label><input type="checkbox" id="snDraft"/> Lưu nháp (DRAFT)</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-white" id="snCancel">Hủy</button>
+        <button type="submit" class="btn btn-primary">Lưu</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<th:block th:replace="~{fragments/footer :: footer}"/>
+<script th:src="@{/js/main.js}"></script>
+<script th:src="@{/js/site-news-admin.js}"></script>
+</body>
+</html>

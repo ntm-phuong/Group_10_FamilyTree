@@ -13,6 +13,13 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     Optional<User> findByEmail(String email);
 
+    @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.family WHERE u.email = :email")
+    Optional<User> findByEmailWithFamily(@Param("email") String email);
+
+    /** Dùng cho phạm vi quản trị — load luôn family để tránh lazy ngoài transaction. */
+    @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.family WHERE u.userId = :userId")
+    Optional<User> findByIdWithFamily(@Param("userId") String userId);
+
     List<User> findByFamily_FamilyIdOrderByOrderInFamilyAsc(String familyId);
 
     List<User> findByFullNameContainingIgnoreCase(String fullName);

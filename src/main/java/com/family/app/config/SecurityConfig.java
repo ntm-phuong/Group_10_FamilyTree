@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -18,6 +20,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Autowired
@@ -44,12 +47,15 @@ public class SecurityConfig {
                         .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
 
                         // Cho phép các route của PageController (Các trang giao diện public)
-                        .requestMatchers("/login", "/about", "/family-tree", "/news/**", "/member/**").permitAll()
+                        .requestMatchers("/login", "/about", "/family-tree", "/family-head", "/site-news-manage", "/news/**", "/member/**").permitAll()
 
-                        // Cho phép API login/register
-                        .requestMatchers("/api/auth/**").permitAll()
+                        // Cho phép API login/register (trừ /me — cần JWT)
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers("/api/auth/active").permitAll()
+                        .requestMatchers("/api/auth/forgot-password/**").permitAll()
 
-                        // Tất cả các request khác (thường là API nghiệp vụ) mới cần login
+                        .requestMatchers("/api/auth/me").authenticated()
+
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session

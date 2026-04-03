@@ -119,6 +119,13 @@
 <th:block th:replace="~{fragments/footer :: footer}"/>
 
 <script th:inline="javascript">
+    /** Cookie để trang server-render (/news, …) gửi JWT giống header Authorization. */
+    function setAccessTokenCookie(token) {
+        if (!token) return;
+        document.cookie = 'accessToken=' + encodeURIComponent(token)
+            + '; path=/; max-age=' + (86400 * 7) + '; SameSite=Lax';
+    }
+
     function showPopup(message, type = 'error', containerId = 'alertContainer') {
         const container = document.getElementById(containerId);
         const iconClass = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
@@ -168,8 +175,15 @@
         .then(data => {
             if (data.accessToken) {
                 localStorage.setItem('token', data.accessToken);
+                setAccessTokenCookie(data.accessToken);
                 localStorage.setItem('full_name', data.fullName);
                 localStorage.setItem('user_id', data.userId);
+                if (data.role) localStorage.setItem('role', data.role);
+                if (data.permissions) localStorage.setItem('permissions', JSON.stringify(data.permissions));
+                if (data.familyId) localStorage.setItem('my_family_id', data.familyId);
+                else localStorage.removeItem('my_family_id');
+                if (data.familyName) localStorage.setItem('my_family_name', data.familyName);
+                else localStorage.removeItem('my_family_name');
                 const userStatus = data.status !== null ? Number(data.status) : 0;
                 window.location.href = userStatus === 1 ? '/active' : '/home';
             }
@@ -328,8 +342,15 @@
 
             if (data.accessToken) {
                 localStorage.setItem('token', data.accessToken);
+                setAccessTokenCookie(data.accessToken);
                 localStorage.setItem('full_name', data.fullName);
                 localStorage.setItem('user_id', data.userId);
+                if (data.role) localStorage.setItem('role', data.role);
+                if (data.permissions) localStorage.setItem('permissions', JSON.stringify(data.permissions));
+                if (data.familyId) localStorage.setItem('my_family_id', data.familyId);
+                else localStorage.removeItem('my_family_id');
+                if (data.familyName) localStorage.setItem('my_family_name', data.familyName);
+                else localStorage.removeItem('my_family_name');
             }
 
             setTimeout(() => {

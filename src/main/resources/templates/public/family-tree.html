@@ -23,9 +23,11 @@
   </p>
 
   <div class="tree-toolbar">
-    <select id="familyFilter" class="form-control form-select" style="width:220px;">
-      <option value="">Chọn dòng họ</option>
-    </select>
+    <div id="familyFilterWrap" class="family-filter-wrap">
+      <select id="familyFilter" class="form-control form-select" style="width:220px;" aria-label="Chọn dòng họ">
+        <option value="">Chọn dòng họ</option>
+      </select>
+    </div>
     <div class="search-input" style="min-width:200px;max-width:260px;">
       <i class="fas fa-search"></i>
       <input id="treeSearch" type="text" class="form-control" placeholder="Tìm kiếm thành viên..."/>
