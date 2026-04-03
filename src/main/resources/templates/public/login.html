@@ -77,14 +77,20 @@
 
         <form id="step2Form" style="display: none;">
             <p style="color: #16A34A; font-weight: 500;">Mã OTP đã được gửi đến email của bạn!</p>
-
             <div class="form-group-figma">
                 <div class="input-icon-wrap-figma">
                     <i class="fas fa-keyboard"></i>
                     <input type="text" id="otpCode" required placeholder="Nhập mã OTP 6 số" maxlength="6">
                 </div>
             </div>
+            <button type="submit" class="btn-login-submit" id="btnVerifyOtp">Xác nhận mã OTP</button>
+            <div style="text-align: center; margin-top: 15px;">
+                <a href="#" style="color: #4B5563; font-size: 0.85rem; text-decoration: none;" onclick="document.getElementById('step2Form').style.display='none'; document.getElementById('step1Form').style.display='block'; return false;"><i class="fas fa-arrow-left"></i> Nhập lại email khác</a>
+            </div>
+        </form>
 
+        <form id="step3Form" style="display: none;">
+            <p>Mã xác thực chính xác. Vui lòng đặt mật khẩu mới.</p>
             <div class="form-group-figma">
                 <div class="input-icon-wrap-figma">
                     <i class="fas fa-lock"></i>
@@ -175,25 +181,31 @@
     });
 
     // ==========================================
-    // LOGIC MODAL QUÊN MẬT KHẨU
+    // ==========================================
+    // LOGIC MODAL QUÊN MẬT KHẨU (3 BƯỚC)
     // ==========================================
     const modal = document.getElementById('forgotPwModal');
     const openBtn = document.getElementById('openForgotModal');
     const closeBtn = document.getElementById('closeForgotModal');
     const step1Form = document.getElementById('step1Form');
     const step2Form = document.getElementById('step2Form');
+    const step3Form = document.getElementById('step3Form');
+
     let userEmailForReset = "";
+    let userOtpForReset = ""; // Biến lưu tạm OTP để gửi ở Bước 3
 
     // Mở / Đóng Modal
     openBtn.addEventListener('click', (e) => {
         e.preventDefault(); modal.style.display = 'flex';
-        step1Form.style.display = 'block'; step2Form.style.display = 'none';
+        step1Form.style.display = 'block';
+        step2Form.style.display = 'none';
+        step3Form.style.display = 'none';
         document.getElementById('forgotAlertContainer').innerHTML = '';
         document.getElementById('forgotEmail').value = '';
     });
     closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
 
-    // Submit B1: Xin OTP
+    // --- SUBMIT BƯỚC 1: XIN OTP ---
     step1Form.addEventListener('submit', function(e) {
         e.preventDefault();
         userEmailForReset = document.getElementById('forgotEmail').value;
@@ -207,14 +219,10 @@
         })
         .then(response => {
             if(response.ok) {
-                step1Form.style.display = 'none'; step2Form.style.display = 'block';
+                step1Form.style.display = 'none';
+                step2Form.style.display = 'block'; // Chuyển sang Bước 2
                 document.getElementById('forgotAlertContainer').innerHTML = '';
-
-                // Reset lại các trường của B2 cho sạch
                 document.getElementById('otpCode').value = '';
-                newForgotInput.value = '';
-                confirmForgotInput.value = '';
-                checkForgotMatch(); // Khóa nút submit lại
             } else {
                 throw new Error("Email không tồn tại trong hệ thống!");
             }
@@ -223,7 +231,37 @@
         .finally(() => { btnSendOtp.innerText = "Gửi mã xác thực"; btnSendOtp.disabled = false; });
     });
 
-    // --- LOGIC XÁC NHẬN MẬT KHẨU REAL-TIME CHO MODAL ---
+    // --- SUBMIT BƯỚC 2: KIỂM TRA OTP ---
+    step2Form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        userOtpForReset = document.getElementById('otpCode').value;
+        const btnVerifyOtp = document.getElementById('btnVerifyOtp');
+
+        btnVerifyOtp.innerText = "Đang kiểm tra..."; btnVerifyOtp.disabled = true;
+
+        fetch('/api/auth/forgot-password/verify-otp', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: userEmailForReset, otp: userOtpForReset })
+        })
+        .then(response => {
+            if(response.ok) {
+                step2Form.style.display = 'none';
+                step3Form.style.display = 'block'; // Chuyển sang Bước 3
+                document.getElementById('forgotAlertContainer').innerHTML = '';
+
+                // Xóa sạch dữ liệu cũ ở form đặt mật khẩu
+                newForgotInput.value = '';
+                confirmForgotInput.value = '';
+                checkForgotMatch();
+            } else {
+                throw new Error("Mã OTP không chính xác hoặc đã hết hạn!");
+            }
+        })
+        .catch(error => showPopup(error.message, 'error', 'forgotAlertContainer'))
+        .finally(() => { btnVerifyOtp.innerText = "Xác nhận mã OTP"; btnVerifyOtp.disabled = false; });
+    });
+
+    // --- LOGIC REAL-TIME CHO BƯỚC 3 ---
     const newForgotInput = document.getElementById('newForgotPass');
     const confirmForgotInput = document.getElementById('confirmForgotPass');
     const forgotConfirmWrap = document.getElementById('forgotConfirmWrap');
@@ -251,7 +289,7 @@
         } else {
             forgotConfirmWrap.classList.remove('error');
             forgotConfirmWrap.classList.add('success');
-            forgotMatchMsg.innerHTML = '<i class="fas fa-check"></i> Mật khẩu đã khớp!';
+            forgotMatchMsg.innerHTML = '';
             forgotMatchMsg.className = 'validation-msg success';
             btnResetPass.disabled = false;
         }
@@ -259,11 +297,9 @@
     newForgotInput.addEventListener('input', checkForgotMatch);
     confirmForgotInput.addEventListener('input', checkForgotMatch);
 
-    // Submit B2: Đổi Pass
-    // Submit B2: Đổi Pass trong Modal Quên mật khẩu
-    step2Form.addEventListener('submit', function(e) {
+    // --- SUBMIT BƯỚC 3: ĐỔI MẬT KHẨU ---
+    step3Form.addEventListener('submit', function(e) {
         e.preventDefault();
-        const otpCode = document.getElementById('otpCode').value;
         const newPassword = newForgotInput.value;
 
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -277,23 +313,25 @@
         fetch('/api/auth/forgot-password/reset', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: userEmailForReset, otp: otpCode, newPassword: newPassword })
+            body: JSON.stringify({
+                email: userEmailForReset,
+                otp: userOtpForReset,
+                newPassword: newPassword
+            })
         })
         .then(response => {
-            if(response.ok) return response.json(); // Nhận dữ liệu JSON từ Backend
-            throw new Error("Mã OTP không chính xác hoặc đã hết hạn!");
+            if(response.ok) return response.json();
+            throw new Error("Có lỗi xảy ra, vui lòng thử lại!");
         })
         .then(data => {
             showPopup("Đổi mật khẩu thành công! Đang vào Gia Phả...", 'success', 'forgotAlertContainer');
 
-            // LƯU THÔNG TIN ĐĂNG NHẬP MỚI VÀO LOCALSTORAGE
             if (data.accessToken) {
                 localStorage.setItem('token', data.accessToken);
                 localStorage.setItem('full_name', data.fullName);
                 localStorage.setItem('user_id', data.userId);
             }
 
-            // Đợi 1.5 giây để hiện thông báo rồi bay thẳng vào Home
             setTimeout(() => {
                 window.location.href = '/home';
             }, 1500);
