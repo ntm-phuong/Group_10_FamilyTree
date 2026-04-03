@@ -36,16 +36,40 @@ public class NewsEvent {
     @Column(nullable = false)
     private String title;
 
+    /** Slug cho URL /news/{slug} khi visibility = PUBLIC_SITE; duy nhất khi có giá trị. */
+    @Column(length = 500, unique = true)
+    private String slug;
+
     private String summary;
 
     @Column(columnDefinition = "LONGTEXT")
     private String content;
 
+    @Column(length = 1000)
+    private String coverImage;
+
+    /** Danh mục tab trên trang /news (EVENT, ANNOUNCEMENT, …). */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "public_category", length = 32)
+    private NewsCategory publicCategory;
+
     private LocalDateTime startAt;
     private LocalDateTime endAt;
     private String location;
     private Integer remindBefore;
-    private String visibility;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 32)
+    @Builder.Default
+    private NewsVisibility visibility = NewsVisibility.FAMILY_ONLY;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean featured = false;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private int viewCount = 0;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

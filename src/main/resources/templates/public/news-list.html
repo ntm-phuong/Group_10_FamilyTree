@@ -8,8 +8,15 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
+<th:block th:replace="~{fragments/navbar :: navbar}"/>
 
+<div class="section-inner" style="padding:2rem 1.25rem 3rem;">
 <div class="news-page-wrap">
+  <div th:if="${errorMessage}" class="alert alert-error mb-3">
+    <i class="fas fa-exclamation-circle"></i>
+    <span th:text="${errorMessage}"></span>
+  </div>
+
   <div class="breadcrumb">
     <a href="/home"><i class="fas fa-home"></i></a>
     <span class="breadcrumb-sep">></span>
@@ -21,33 +28,89 @@
     Cập nhật các hoạt động, sự kiện và tin tức mới nhất của dòng họ
   </p>
 
-  <!-- Search -->
   <div class="search-input mb-4" style="max-width:320px;">
     <i class="fas fa-search"></i>
     <form th:action="@{/news}" method="get">
-      <input type="text" name="q" class="form-control" placeholder="Tìm kiếm..."/>
+      <input type="hidden" name="category" th:if="${selectedCategory != null}" th:value="${selectedCategory.name()}"/>
+      <input type="text" name="q" class="form-control" placeholder="Tìm kiếm..." th:value="${q}"/>
     </form>
   </div>
 
   <div class="news-cat-tabs">
-    <a href="/news" class="news-cat-tab active">Tất cả</a>
-    <div id="newsCategoryTabs"></div>
+    <a th:href="@{/news(q=${q})}" class="news-cat-tab" th:classappend="${selectedCategory == null} ? ' active' : ''">Tất cả</a>
+    <a th:each="cat : ${categories}"
+       th:href="@{/news(category=${cat.name()},q=${q})}"
+       class="news-cat-tab"
+       th:classappend="${selectedCategory != null and selectedCategory.name() == cat.name()} ? ' active' : ''"
+       th:text="${cat.label}">Danh mục</a>
   </div>
 
-  <div id="featuredNewsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;"></div>
+  <div th:if="${showFeatured and !#lists.isEmpty(featuredArticles)}"
+       style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+    <div th:each="article : ${featuredArticles}" class="news-card">
+      <div class="news-card-img">
+        <img th:if="${article.coverImage != null and !article.coverImage.isEmpty()}"
+             th:src="${article.coverImage}" th:alt="${article.title}"/>
+        <div th:unless="${article.coverImage != null and !article.coverImage.isEmpty()}" class="ph-icon"><i class="fas fa-newspaper"></i></div>
+      </div>
+      <div class="news-card-body">
+        <div class="news-card-meta">
+          <span class="badge badge-gray" th:text="${article.publicCategory != null ? article.publicCategory.label : '—'}">Danh mục</span>
+          <span class="text-xs text-muted" th:text="${article.user != null ? article.user.fullName : 'Ban quản trị'}">Tác giả</span>
+          <span class="text-xs text-muted"
+                th:text="${article.createdAt != null ? #temporals.format(article.createdAt, 'dd/MM/yyyy') : '—'}">Ngày</span>
+        </div>
+        <div class="news-card-title">
+          <a th:href="@{/news/{slug}(slug=${article.slug})}" th:text="${article.title}">Tiêu đề</a>
+        </div>
+        <p class="news-card-excerpt" th:text="${article.summary}">Tóm tắt</p>
+        <div class="news-card-footer">
+          <span></span>
+          <a th:href="@{/news/{slug}(slug=${article.slug})}">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <p style="font-size:.82rem;color:var(--text-500);margin-bottom:1rem;">
-    Tìm thấy <strong id="newsCount">0</strong> bài viết
+    Tìm thấy <strong th:text="${#lists.size(articles)}">0</strong> bài viết
   </p>
 
-  <div id="newsEmptyState" class="empty-state" style="display:none;">
+  <div th:if="${#lists.isEmpty(articles)}" class="empty-state">
     <i class="fas fa-newspaper"></i>
     <h3>Chưa có bài viết</h3>
+    <p class="text-sm text-muted" style="margin-top:.5rem;">Tạo bài trong <strong>Quản trị → Tin tức</strong> (visibility <code>PUBLIC_SITE</code>, không gắn dòng họ) hoặc chèn vào bảng <code>news_events</code>.</p>
   </div>
 
-  <div id="newsGrid" class="news-grid"></div>
+  <div th:unless="${#lists.isEmpty(articles)}" class="news-grid">
+    <div th:each="article : ${articles}" class="news-card">
+      <div class="news-card-img">
+        <img th:if="${article.coverImage != null and !article.coverImage.isEmpty()}"
+             th:src="${article.coverImage}" th:alt="${article.title}"/>
+        <div th:unless="${article.coverImage != null and !article.coverImage.isEmpty()}" class="ph-icon"><i class="fas fa-newspaper"></i></div>
+      </div>
+      <div class="news-card-body">
+        <div class="news-card-meta">
+          <span class="badge badge-gray" th:text="${article.publicCategory != null ? article.publicCategory.label : '—'}">Danh mục</span>
+          <span class="text-xs text-muted" th:text="${article.user != null ? article.user.fullName : 'Ban quản trị'}">Tác giả</span>
+          <span class="text-xs text-muted"
+                th:text="${article.createdAt != null ? #temporals.format(article.createdAt, 'dd/MM/yyyy') : '—'}">Ngày</span>
+        </div>
+        <div class="news-card-title">
+          <a th:href="@{/news/{slug}(slug=${article.slug})}" th:text="${article.title}">Tiêu đề</a>
+        </div>
+        <p class="news-card-excerpt" th:text="${article.summary}">Tóm tắt</p>
+        <div class="news-card-footer">
+          <span></span>
+          <a th:href="@{/news/{slug}(slug=${article.slug})}">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 </div>
 
+<th:block th:replace="~{fragments/footer :: footer}"/>
 <script th:src="@{/js/main.js}"></script>
 </body>
 </html>
