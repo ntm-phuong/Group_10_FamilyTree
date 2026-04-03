@@ -1,59 +1,85 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Giới thiệu – Dòng Họ Nguyễn</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <meta charset="UTF-8">
+    <title>Lịch sử Dòng họ - Gia Phả</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" th:href="@{/css/about.css}">
 </head>
 <body>
+
 <th:block th:replace="~{fragments/navbar :: navbar}"/>
 
-<div style="max-width:900px;margin:0 auto;padding:2rem 1.5rem;">
-    <div class="breadcrumb"><a th:href="@{/}"><i class="fas fa-home"></i></a><span class="breadcrumb-sep">›</span><span>Giới thiệu</span></div>
+<header class="about-banner">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Hành Trình Dòng Họ Nguyễn</h1>
+        <p class="lead">"Mộc bản hồ thủy, vạn cổ tầm tông" - Cây có gốc mới nở cành xanh ngọn...</p>
+    </div>
+</header>
 
-    <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:1.5rem;">Giới thiệu Dòng Họ Nguyễn</h1>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="history-card">
+                <h3 class="section-title">Nguồn Gốc & Lịch Sử</h3>
+                <p>Dòng họ Nguyễn chúng ta có lịch sử lâu đời, bắt nguồn từ vùng đất Hà Tây cũ (nay thuộc Hà Nội). Trải qua bao thăng trầm của lịch sử dân tộc, các thế hệ con cháu đã lan tỏa khắp mọi miền đất nước và có nhiều đóng góp trong các lĩnh vực từ khoa bảng, quân sự đến kinh tế.</p>
 
-    <div th:if="${familyInfo == null}" class="empty-state"><i class="fas fa-info-circle"></i><h3>Chưa có thông tin</h3></div>
 
-    <div th:if="${familyInfo != null}" style="display:grid;gap:1.25rem;">
-        <div class="card">
-            <div class="card-header"><h3><i class="fas fa-info-circle" style="color:var(--green-700);"></i> Thông tin cơ bản</h3></div>
-            <div class="card-body">
-                <div class="profile-detail-grid">
-                    <div class="profile-detail-item"><label>Tên dòng họ</label><span th:text="${familyInfo.name}">–</span></div>
-                    <div class="profile-detail-item"><label>Nguồn gốc</label><span th:text="${familyInfo.origin != null ? familyInfo.origin : '–'}">–</span></div>
-                    <div class="profile-detail-item"><label>Nơi phát tích</label><span th:text="${familyInfo.originPlace != null ? familyInfo.originPlace : '–'}">–</span></div>
-                    <div class="profile-detail-item"><label>Năm khởi tổ</label><span th:text="${familyInfo.foundingYear != null ? familyInfo.foundingYear : '–'}">–</span></div>
-                    <div class="profile-detail-item"><label>Quê hương</label><span th:text="${familyInfo.ancestralHome != null ? familyInfo.ancestralHome : '–'}">–</span></div>
+
+                <div class="timeline mt-5">
+                    <div class="timeline-item">
+                        <div class="timeline-year">Năm 1890</div>
+                        <p class="fw-bold">Khởi thủy</p>
+                        <p>Cụ tổ đời thứ nhất định cư tại xã Đại Mỗ, xây dựng ngôi nhà thờ họ đầu tiên, đặt nền móng cho sự phát triển của dòng tộc.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">Năm 1945</div>
+                        <p class="fw-bold">Thời kỳ kháng chiến</p>
+                        <p>Nhiều người con dòng họ Nguyễn lên đường theo tiếng gọi của Tổ quốc, góp công sức vào sự nghiệp giải phóng dân tộc.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">Năm 2020</div>
+                        <p class="fw-bold">Thời kỳ công nghiệp hóa</p>
+                        <p>Con cháu thành đạt ở nhiều lĩnh vực, đóng góp xây dựng lại từ đường khang trang và lập ra Quỹ khuyến học dòng họ.</p>
+                    </div>
                 </div>
-                <div th:if="${familyInfo.motto != null}" style="margin-top:1rem;background:var(--green-50);border-left:3px solid var(--green-600);padding:.85rem 1rem;border-radius:0 var(--radius) var(--radius) 0;font-style:italic;color:var(--green-800);" th:text="${familyInfo.motto}"></div>
             </div>
         </div>
-        <div class="card" th:if="${familyInfo.description != null}">
-            <div class="card-header"><h3>Lịch sử</h3></div>
-            <div class="card-body"><p style="font-size:.9rem;color:var(--text-700);line-height:1.75;" th:text="${familyInfo.description}"></p></div>
-        </div>
-        <div class="card">
-            <div class="card-header"><h3>Liên hệ</h3></div>
-            <div class="card-body">
-                <div class="profile-detail-grid">
-                    <div class="profile-detail-item" th:if="${familyInfo.phone != null}"><label><i class="fas fa-phone"></i> Điện thoại</label><span th:text="${familyInfo.phone}">–</span></div>
-                    <div class="profile-detail-item" th:if="${familyInfo.contactEmail != null}"><label><i class="fas fa-envelope"></i> Email</label><span th:text="${familyInfo.contactEmail}">–</span></div>
-                    <div class="profile-detail-item" th:if="${familyInfo.address != null}"><label><i class="fas fa-map-marker-alt"></i> Địa chỉ</label><span th:text="${familyInfo.address}">–</span></div>
+
+        <div class="col-lg-4">
+            <div class="history-card bg-success text-white">
+                <h4 class="mb-4 text-white">Giá Trị Cốt Lõi</h4>
+                <ul class="list-unstyled">
+                    <li class="mb-3"><i class="fas fa-check-circle me-2"></i> <strong>Đoàn kết:</strong> Tương trợ, giúp đỡ lẫn nhau.</li>
+                    <li class="mb-3"><i class="fas fa-check-circle me-2"></i> <strong>Hiếu học:</strong> Khuyến khích con cháu học tập.</li>
+                    <li class="mb-3"><i class="fas fa-check-circle me-2"></i> <strong>Uống nước nhớ nguồn:</strong> Giữ gìn gia phả.</li>
+                </ul>
+            </div>
+
+            <div class="history-card">
+                <h4 class="section-title">Trưởng họ hiện tại</h4>
+                <div class="text-center">
+                    <div class="bg-light rounded-circle p-3 d-inline-block mb-3">
+                        <i class="fas fa-user-tie fa-4x text-success"></i>
+                    </div>
+                    <h5>Ông Nguyễn Hồng Sơn</h5>
+                    <p class="text-muted">Đời thứ 2</p>
+                    <hr>
+                    <p class="small italic">"Trách nhiệm của chúng ta là gìn giữ ngọn lửa truyền thống cho muôn đời sau."</p>
                 </div>
             </div>
-        </div>
-        <div class="stat-grid">
-            <div class="stat-card"><div class="stat-label">Tổng thành viên</div><div class="stat-value" th:text="${stats.totalMembers}">0</div></div>
-            <div class="stat-card"><div class="stat-label">Thế hệ</div><div class="stat-value" th:text="${stats.totalGenerations}">0</div></div>
-            <div class="stat-card"><div class="stat-label">Còn sống</div><div class="stat-value" th:text="${stats.livingCount}">0</div></div>
-            <div class="stat-card"><div class="stat-label">Đã mất</div><div class="stat-value" th:text="${stats.deceasedCount}">0</div></div>
         </div>
     </div>
+
 </div>
 
 <th:block th:replace="~{fragments/footer :: footer}"/>
+
+<script th:src="@{/js/about.js}"></script>
 <script th:src="@{/js/main.js}"></script>
 </body>
 </html>

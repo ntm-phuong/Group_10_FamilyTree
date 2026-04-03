@@ -1,0 +1,96 @@
+/* Variables */
+:root {
+    --primary-green: #2d6a4f;
+    --light-green: #d8f3dc;
+    --bg-body: #f8f9fa;
+    --transition-speed: 0.3s;
+}
+
+body {
+    background-color: var(--bg-body);
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+}
+
+/* Banner Section */
+.about-banner {
+    background: linear-gradient(rgba(45, 106, 79, 0.8), rgba(45, 106, 79, 0.8)),
+                url('https://images.unsplash.com/photo-1599940824399-b87987cb5733?auto=format&fit=crop&q=80&w=1600') center/cover;
+    color: white;
+    padding: 100px 0;
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+/* Content Card */
+.history-card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    margin-bottom: 40px;
+    transition: transform var(--transition-speed);
+}
+
+.history-card:hover {
+    transform: translateY(-5px);
+}
+
+.section-title {
+    color: var(--primary-green);
+    font-weight: 700;
+    position: relative;
+    padding-bottom: 15px;
+    margin-bottom: 30px;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: var(--primary-green);
+    border-radius: 2px;
+}
+
+/* Timeline Style */
+.timeline {
+    border-left: 3px solid var(--light-green);
+    padding-left: 30px;
+    position: relative;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 40px;
+    opacity: 0; /* Cho hiệu ứng scroll */
+    transform: translateX(-20px);
+    transition: all 0.6s ease-out;
+}
+
+.timeline-item.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -39px;
+    top: 0;
+    width: 15px;
+    height: 15px;
+    background: var(--primary-green);
+    border-radius: 50%;
+    border: 3px solid white;
+}
+
+.timeline-year {
+    font-weight: 800;
+    color: var(--primary-green);
+    font-size: 1.2rem;
+}
+
+/* Custom Utilities */
+.italic { font-style: italic; }
