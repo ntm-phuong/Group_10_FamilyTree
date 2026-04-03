@@ -18,11 +18,11 @@
     <a th:href="@{/news}" th:classappend="${activeMenu=='news'}?' active':''">
       <i class="fas fa-newspaper"></i> Tin Tức
     </a>
-    <sec:authorize access="hasRole('ADMIN')">
-      <a th:href="@{/admin}" th:classappend="${activeMenu=='admin'}?' active':''">
-        <i class="fas fa-th-large"></i> Quản Trị
-      </a>
-    </sec:authorize>
+    <<a th:href="@{/family-head}"
+        th:classappend="${activeMenu=='dashboard'}?' active':''"
+        class="sidebar-link">
+    <i class="fas fa-th-large"></i> Tổng quan
+  </a>
   </div>
 
   <div class="pub-nav-right">
