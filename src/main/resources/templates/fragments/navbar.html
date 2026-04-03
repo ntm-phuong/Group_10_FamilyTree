@@ -14,9 +14,10 @@
 
     <a href="/news" id="navNews"><i class="far fa-newspaper"></i> Tin Tức</a>
 
-    <a href="@{/family-head}"
+    <a th:href="@{/family-head}"
+       id="navAdmin"
        th:classappend="${activeMenu == 'dashboard' ? 'active' : ''}"
-        class="sidebar-link"><i class="fas fa-th-large"></i> Quản Trị</a>
+       class="sidebar-link"><i class="fas fa-th-large"></i> Quản Trị</a>
   </nav>
 
   <div class="nav-right-actions">
