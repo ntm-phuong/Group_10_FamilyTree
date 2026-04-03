@@ -44,9 +44,4 @@ public class PageController {
     public String newsDetail(@PathVariable String slug) {
         return "public/news-detail";
     }
-
-    @GetMapping("/family-head")
-    public String showDashboard() {
-        return "familyhead/dashboard";
-    }
 }
