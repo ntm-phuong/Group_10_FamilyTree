@@ -1,0 +1,58 @@
+/* =========================================
+   STYLE CHO TRANG QUẢN TRỊ (ADMIN)
+   ========================================= */
+.admin-wrap{display:flex;min-height:100vh;}
+.sidebar{width:var(--sidebar-w);min-height:100vh;position:fixed;left:0;top:0;background:var(--green-900);display:flex;flex-direction:column;z-index:200;transition:transform .25s;}
+.sidebar-brand{padding:1.1rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:.65rem;}
+.sidebar-brand-logo{width:32px;height:32px;background:var(--green-700);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.sidebar-brand-text{font-weight:700;font-size:.9rem;color:#fff;line-height:1.2;}
+.sidebar-brand-sub{font-size:.68rem;color:rgba(255,255,255,.45);font-weight:400;}
+.sidebar-nav{flex:1;padding:.75rem 0;overflow-y:auto;}
+.sidebar-label{padding:.5rem 1.2rem .25rem;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.35);}
+.sidebar-link{display:flex;align-items:center;gap:.65rem;padding:.6rem 1.2rem;font-size:.875rem;font-weight:500;color:rgba(255,255,255,.7);transition:all .15s;border-left:3px solid transparent;}
+.sidebar-link i{width:16px;text-align:center;font-size:.85rem;flex-shrink:0;}
+.sidebar-link:hover{background:rgba(255,255,255,.08);color:#fff;}
+.sidebar-link.active{background:rgba(255,255,255,.12);color:#fff;border-left-color:var(--green-500);}
+.sidebar-footer{padding:1rem 1.2rem;border-top:1px solid rgba(255,255,255,.1);}
+.sidebar-user{display:flex;align-items:center;gap:.65rem;margin-bottom:.65rem;}
+.sidebar-user-name{font-size:.83rem;font-weight:600;color:#fff;}
+.sidebar-user-email{font-size:.68rem;color:rgba(255,255,255,.45);}
+.sidebar-logout{display:flex;align-items:center;gap:.5rem;width:100%;padding:.5rem .8rem;font-size:.8rem;font-weight:500;color:rgba(255,255,255,.65);background:none;border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);cursor:pointer;transition:all .15s;}
+.sidebar-logout:hover{background:rgba(255,255,255,.1);color:#fff;}
+
+.admin-main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.admin-topbar{height:var(--nav-h);background:var(--bg-white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 1.5rem;gap:1rem;position:sticky;top:0;z-index:100;}
+.admin-topbar-toggle{display:none;background:none;border:none;font-size:1.2rem;color:var(--text-700);cursor:pointer;}
+.admin-topbar-right{margin-left:auto;display:flex;align-items:center;gap:.75rem;}
+.admin-content{padding:1.5rem;flex:1;}
+.page-heading{margin-bottom:1.4rem;}
+.page-heading h1{font-size:1.4rem;font-weight:700;}
+.page-heading p{font-size:.85rem;color:var(--text-500);margin-top:.2rem;}
+.page-top-row{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.4rem;}
+
+/* Tiến trình & Hoạt động (Dùng trong Admin Dashboard) */
+.progress-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem;}
+.progress-label{font-size:.82rem;color:var(--text-700);min-width:72px;}
+.progress-track{flex:1;height:8px;background:#E5E7EB;border-radius:var(--radius-full);overflow:hidden;}
+.progress-fill{height:100%;background:var(--green-700);border-radius:var(--radius-full);}
+.progress-count{font-size:.82rem;color:var(--text-500);min-width:55px;text-align:right;}
+
+.activity-item{display:flex;align-items:flex-start;gap:.75rem;padding:.65rem 0;border-bottom:1px solid var(--border);}
+.activity-item:last-child{border-bottom:none;}
+.activity-icon{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.8rem;}
+.ai-green{background:var(--green-100);color:var(--green-700);}
+.ai-blue{background:var(--blue-bg);color:var(--blue-text);}
+.ai-orange{background:var(--orange-bg);color:var(--orange);}
+.activity-text{flex:1;min-width:0;}
+.activity-action{font-size:.83rem;font-weight:500;color:var(--text-900);}
+.activity-target{font-size:.78rem;color:var(--text-500);margin-top:.1rem;}
+.activity-time{font-size:.75rem;color:var(--text-300);flex-shrink:0;}
+
+.tree-dark{background:#1A1A2E;border-radius:0;min-height:calc(100vh - 120px);padding:2.5rem;overflow:auto;}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .admin-main{margin-left:0;}
+  .admin-topbar-toggle{display:flex;}
+}

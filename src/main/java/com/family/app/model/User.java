@@ -24,6 +24,14 @@ public class User {
     @Column(name = "user_id", length = 36)
     private String userId;
 
+    @Column(name = "otp_code")
+    private String otpCode;
+
+    @Column(name = "otp_expiry")
+    private LocalDateTime otpExpiry;
+
+    // Nhớ tạo Getter và Setter cho 2 biến này nhé!
+
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
@@ -77,8 +85,5 @@ public class User {
         if (this.userId == null) {
             this.userId = UUID.randomUUID().toString();
         }
-    }
-    public boolean isAlive() {
-        return this.dod == null;
     }
 }
