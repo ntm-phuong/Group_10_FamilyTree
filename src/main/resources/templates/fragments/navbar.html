@@ -1,66 +1,99 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<body>
-<nav th:fragment="navbar" class="pub-nav">
-  <a th:href="@{/home}" class="pub-nav-logo">
-    <i class="fas fa-leaf"></i>
-    <span>Gia Phả</span>
+<header class="pub-nav-figma" th:fragment="navbar" xmlns:th="http://www.thymeleaf.org">
+  <link rel="stylesheet" th:href="@{/css/navbar.css}">
+  <a href="/" class="nav-logo-figma" id="navLogo">
+    <img th:src="@{/images/logo-2.png}" alt="Logo" class="logo-img">
+    Gia Phả
   </a>
 
-  <div id="navLinks" class="pub-nav-links">
-    <a th:href="@{/home}" th:classappend="${activeMenu=='home'}?' active':''">
-      <i class="fas fa-home"></i> Trang Chủ
+  <nav class="nav-links-figma">
+    <a href="/" id="navHome"><i class="fas fa-home"></i> Trang Chủ</a>
+
+    <a href="/family-tree" id="navFamilyTree" style="display: none;"><i class="fas fa-sitemap"></i> Gia Phả</a>
+
+    <a href="/news" id="navNews"><i class="far fa-newspaper"></i> Tin Tức</a>
+
+    <a href="@{/family-head}" th:classappend="${activeMenu=='dashboard'}?' active':''"
+        class="sidebar-link""><i class="fas fa-th-large"></i> Quản Trị</a>
+  </nav>
+
+  <div class="nav-right-actions">
+    <a href="/login" class="btn btn-outline" id="navLoginBtn">
+      <i class="fas fa-sign-in-alt"></i> Đăng nhập
     </a>
-    <a th:href="@{/family-tree}" th:classappend="${activeMenu=='family-tree'}?' active':''">
-      <i class="fas fa-sitemap"></i> Gia Phả
-    </a>
-    <a th:href="@{/news}" th:classappend="${activeMenu=='news'}?' active':''">
-      <i class="fas fa-newspaper"></i> Tin Tức
-    </a>
-    <<a th:href="@{/family-head}"
-        th:classappend="${activeMenu=='dashboard'}?' active':''"
-        class="sidebar-link">
-    <i class="fas fa-th-large"></i> Quản Trị
-  </a>
+
+    <div class="dropdown" id="navUserDropdown" style="display: none;">
+      <div class="pub-nav-user">
+        <span class="avatar" id="navAvatarInitials">G</span>
+        <span id="navFullName">Guest</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+
+      <div class="dropdown-menu">
+        <a href="/profile" class="dropdown-item">Hồ sơ cá nhân</a>
+        <a href="/admin" class="dropdown-item">Trang quản trị</a>
+        <a href="#" class="dropdown-item logout-btn" id="navLogoutBtn">Đăng xuất</a>
+      </div>
+    </div>
   </div>
 
-  <div class="pub-nav-right">
-    <sec:authorize access="isAuthenticated()">
-      <div class="pub-nav-user" onclick="document.getElementById('userMenu').classList.toggle('open')">
-        <div class="avatar avatar-xs avatar-male" sec:authorize="hasRole('ADMIN')" style="font-size:.6rem;">
-          <span sec:authentication="name" th:each="n : ${#strings.listSplit(#authentication.name,'@')}" th:if="${nStat.first}" th:text="${n.substring(0,1).toUpperCase()}">A</span>
-        </div>
-        <div class="avatar avatar-xs" sec:authorize="!hasRole('ADMIN')" style="font-size:.6rem;">
-          <span>U</span>
-        </div>
-        <span sec:authentication="name" th:text="${#strings.substringBefore(#authentication.name,'@')}">User</span>
-        <i class="fas fa-chevron-down" style="font-size:.65rem;color:var(--text-300);"></i>
-      </div>
-      <div class="dropdown open" id="userMenu" style="display:none;" th:style="'display:none'">
-        <div class="dropdown-menu" style="position:fixed;right:1.5rem;">
-          <a th:href="@{/admin}" class="dropdown-item"><i class="fas fa-cog"></i> Quản trị</a>
-          <div class="dropdown-sep"></div>
-          <a th:href="@{/logout}" class="dropdown-item danger"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
-        </div>
-      </div>
-      <div class="pub-nav-user" style="cursor:default;border:none;padding:0;">
-        <div class="avatar avatar-xs avatar-male" style="font-size:.6rem;">
-          <sec:authentication property="name"/>
-        </div>
-        <sec:authentication property="name"/>
-        <a th:href="@{/logout}" class="btn btn-ghost btn-sm" style="margin-left:.25rem;padding:.3rem .6rem;">
-          <i class="fas fa-sign-out-alt"></i>
-        </a>
-      </div>
-    </sec:authorize>
-    <sec:authorize access="isAnonymous()">
-      <a th:href="@{/login}" class="btn btn-white btn-sm">
-        <i class="fas fa-sign-in-alt"></i> Đăng nhập
-      </a>
-    </sec:authorize>
-    <button id="navToggle" class="pub-nav-toggle"><i class="fas fa-bars"></i></button>
-  </div>
-</nav>
-</body>
-</html>
+  <button class="nav-toggle-btn"><i class="fas fa-bars"></i></button>
+
+  <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Lấy thông tin từ trình duyệt
+            const token = localStorage.getItem('token');
+            const fullName = localStorage.getItem('full_name');
+
+            // Lấy các phần tử DOM
+            const navLogo = document.getElementById('navLogo');
+            const navHome = document.getElementById('navHome');
+            const navFamilyTree = document.getElementById('navFamilyTree');
+            const navAdmin = document.getElementById('navAdmin');
+            const navLoginBtn = document.getElementById('navLoginBtn');
+            const navUserDropdown = document.getElementById('navUserDropdown');
+            const navFullName = document.getElementById('navFullName');
+            const navAvatarInitials = document.getElementById('navAvatarInitials');
+            const navLogoutBtn = document.getElementById('navLogoutBtn');
+
+            // NẾU ĐÃ ĐĂNG NHẬP (Có Token)
+            if (token && fullName) {
+                // 1. Đổi link Logo và Trang chủ sang /home
+                navLogo.href = '/home';
+                navHome.href = '/home';
+
+                // 2. Hiện menu Gia Phả và Quản Trị
+                navFamilyTree.style.display = 'flex';
+                navAdmin.style.display = 'flex';
+
+                // 3. Ẩn nút Đăng nhập, hiện Dropdown Profile
+                navLoginBtn.style.display = 'none';
+                navUserDropdown.style.display = 'inline-block';
+
+                // 4. Hiển thị Tên
+                navFullName.innerText = fullName;
+
+                // 5. Logic tạo Avatar chữ (VD: Nguyễn Hồng Sơn -> HS)
+                const nameParts = fullName.trim().split(' ');
+                let initials = '';
+                if (nameParts.length >= 2) {
+                    // Lấy chữ cái đầu của 2 từ cuối cùng
+                    initials = nameParts[nameParts.length - 2].charAt(0) + nameParts[nameParts.length - 1].charAt(0);
+                } else {
+                    initials = fullName.charAt(0);
+                }
+                navAvatarInitials.innerText = initials.toUpperCase();
+            }
+
+            // XỬ LÝ NÚT ĐĂNG XUẤT
+            if (navLogoutBtn) {
+                navLogoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // Xóa sạch bộ nhớ
+                    localStorage.clear();
+                    // Đá về trang chủ của khách
+                    window.location.href = '/';
+                });
+            }
+        });
+    </script>
+</header>

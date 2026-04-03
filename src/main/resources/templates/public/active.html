@@ -1,54 +1,194 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Kích hoạt tài khoản</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thiết lập mật khẩu – Gia Phả</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/active.css}">
+
 </head>
-<body style="background: #F4F1EA; display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+<body class="login-page-bg">
 
-<div class="login-card" style="max-width: 450px; width: 100%; background: #fff; padding: 2.5rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
-    <div class="text-center" style="margin-bottom: 2rem;">
-        <div style="color: #2D6A4F; font-size: 3rem; margin-bottom: 1rem;">
-            <i class="fas fa-check-circle"></i>
+<th:block th:replace="~{fragments/navbar :: navbar(hideExtraMenu=true)}"/>
+
+<main class="login-wrapper">
+    <div class="login-card-figma">
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+            <div style="width: 60px; height: 60px; background-color: var(--green-50); color: var(--green-700);
+                            border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem;">
+                <i class="fas fa-shield-alt"></i> </div>
         </div>
-        <h2 style="color: #1B4332; font-weight: 700;">Kích hoạt tài khoản</h2>
-        <p style="color: #6B7280; font-size: 0.9rem; margin-top: 0.5rem;">Lần đầu đăng nhập, vui lòng cập nhật thông tin và đổi mật khẩu để bảo mật.</p>
+
+        <div class="login-header-figma">
+            <h2>Thiết lập mật khẩu</h2>
+            <p style="font-size: 0.9rem; line-height: 1.5; color: var(--text-700);">
+                Để đảm bảo an toàn cho Gia phả,<br>vui lòng tạo một mật khẩu bảo mật mới.
+            </p>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <form id="activeForm">
+            <div class="form-group-figma">
+                <label for="password">Mật khẩu mới</label>
+                <div class="input-icon-wrap-figma">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" name="password" required placeholder="Nhập mật khẩu mới">
+                    <i class="far fa-eye-slash toggle-pw" onclick="togglePw('password', this)"></i>
+                </div>
+                <span style="font-size: 0.75rem; color: #6B7280; display: block; margin-top: 5px;">
+                    Ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số & ký tự đặc biệt.
+                </span>
+            </div>
+
+            <div class="form-group-figma" style="margin-bottom: 1.5rem;">
+                <label for="confirmPassword">Xác nhận mật khẩu</label>
+                <div class="input-icon-wrap-figma" id="confirmWrap">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Nhập lại mật khẩu">
+                    <i class="far fa-eye-slash toggle-pw" onclick="togglePw('confirmPassword', this)"></i>
+                </div>
+                <span id="matchMessage" class="validation-msg"></span>
+            </div>
+
+            <button type="submit" class="btn-login-submit" id="submitBtn" disabled>Xác nhận & Vào Gia Phả</button>
+        </form>
     </div>
+</main>
 
-    <form th:action="@{/activate-account}" method="post">
-        <div class="form-group mb-4">
-            <label class="form-label">Họ Và Tên</label>
-            <input type="text" name="name" class="form-control" placeholder="Nhập họ tên đầy đủ" required>
-        </div>
+<th:block th:replace="~{fragments/footer :: footer}"/>
 
-        <div class="form-group mb-4">
-            <label class="form-label">Mật Khẩu Mới</label>
-            <div class="input-icon-wrap">
-                <input type="password" name="password" id="pass" class="form-control" required>
-                <i class="fas fa-eye-slash" onclick="togglePass('pass')"></i>
+<script th:inline="javascript">
+    // HÀM TẠO POPUP THÔNG BÁO
+    function showPopup(message, type = 'error') {
+        const container = document.getElementById('alertContainer');
+        const iconClass = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+
+        container.innerHTML = `
+            <div class="alert-popup ${type}">
+                <i class="${iconClass}"></i>
+                <span>${message}</span>
             </div>
-        </div>
-
-        <div class="form-group mb-4">
-            <label class="form-label">Xác Nhận Mật Khẩu</label>
-            <div class="input-icon-wrap">
-                <input type="password" name="confirmPassword" id="confirm" class="form-control" required>
-                <i class="fas fa-eye-slash" onclick="togglePass('confirm')"></i>
-            </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary w-full" style="background: #2D6A4F; padding: 0.8rem; font-weight: 600;">
-            Kích Hoạt & Vào Gia Phả
-        </button>
-    </form>
-</div>
-
-<script>
-    function togglePass(id) {
-        const input = document.getElementById(id);
-        input.type = input.type === 'password' ? 'text' : 'password';
+        `;
     }
+
+    // ẨN / HIỆN MẬT KHẨU
+    function togglePw(id, el) {
+        const input = document.getElementById(id);
+        if (input.type === "password") {
+            input.type = "text";
+            el.classList.replace('fa-eye-slash', 'fa-eye');
+        } else {
+            input.type = "password";
+            el.classList.replace('fa-eye', 'fa-eye-slash');
+        }
+    }
+
+    // ==========================================
+    // LOGIC REAL-TIME VALIDATION
+    // ==========================================
+    const passwordInput = document.getElementById('password');
+    const confirmInput = document.getElementById('confirmPassword');
+    const confirmWrap = document.getElementById('confirmWrap');
+    const matchMessage = document.getElementById('matchMessage');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function checkPasswordMatch() {
+        const pwd = passwordInput.value;
+        const confirmPwd = confirmInput.value;
+
+        // Reset trạng thái nếu ô xác nhận trống
+        if (confirmPwd.length === 0) {
+            confirmWrap.classList.remove('error', 'success');
+            matchMessage.textContent = '';
+            matchMessage.className = 'validation-msg';
+            submitBtn.disabled = true; // Rỗng thì khóa nút
+            return;
+        }
+
+        // Bắt đầu gõ là kiểm tra
+        if (pwd !== confirmPwd) {
+            // Lỗi: Chữ và viền đỏ, thông báo lỗi, khóa nút
+            confirmWrap.classList.remove('success');
+            confirmWrap.classList.add('error');
+            matchMessage.textContent = 'Mật khẩu chưa khớp!';
+            matchMessage.className = 'validation-msg error';
+            submitBtn.disabled = true;
+        } else {
+            // Thành công: Chữ và viền xanh, thông báo ok, mở khóa nút
+            confirmWrap.classList.remove('error');
+            confirmWrap.classList.add('success');
+            matchMessage.innerHTML = '<i class="fas fa-check"></i> Mật khẩu đã khớp!';
+            matchMessage.className = 'validation-msg success';
+            submitBtn.disabled = false;
+        }
+    }
+
+    // Lắng nghe sự kiện 'input' (mỗi khi gõ một phím bất kỳ) trên cả 2 ô
+    passwordInput.addEventListener('input', checkPasswordMatch);
+    confirmInput.addEventListener('input', checkPasswordMatch);
+
+
+    // ==========================================
+    // SUBMIT FORM
+    // ==========================================
+    const activeForm = document.getElementById('activeForm');
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    activeForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const password = passwordInput.value;
+
+        // Chỉ cần check Regex thôi, vì nút Submit đã bị khóa nếu 2 pass không khớp
+        if (!passwordRegex.test(password)) {
+            showPopup("Mật khẩu yếu! Phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt (@$!%*?&).", 'error');
+            return;
+        }
+
+        submitBtn.innerText = "Đang xử lý...";
+        submitBtn.disabled = true;
+
+        fetch('/api/auth/active', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            },
+            body: JSON.stringify({
+                userId: localStorage.getItem('user_id'),
+                password: password
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                // CHÚ Ý: Đổi thành response.json() để lấy Token mới từ Backend
+                return response.json();
+            } else {
+                throw new Error("Lỗi cập nhật dữ liệu từ Server!");
+            }
+        })
+        .then(data => {
+            showPopup("Cập nhật mật khẩu thành công! Đang vào Gia Phả...", 'success');
+
+            // LƯU LẠI TOKEN MỚI VÀO BỘ NHỚ
+            if(data.accessToken) {
+                localStorage.setItem('token', data.accessToken);
+            }
+
+            // CHUYỂN HƯỚNG VÀO HOME SAU 1.5 GIÂY
+            setTimeout(() => {
+                window.location.href = '/home';
+            }, 1500);
+        })
+        .catch(err => {
+            showPopup(err.message, 'error');
+            submitBtn.innerText = "Xác nhận & Vào Gia Phả";
+            submitBtn.disabled = false;
+        });
+    });
 </script>
 </body>
 </html>
