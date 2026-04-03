@@ -10,6 +10,11 @@
 .tree-container.space-pan-ready{cursor:grab;}
 .tree-container.space-panning{cursor:grabbing;user-select:none;}
 .tree-detail-panel{background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem;display:flex;flex-direction:column;gap:.65rem;min-width:0;}
+.tree-detail-manage-btns{display:flex;flex-wrap:wrap;gap:.5rem;}
+.tree-detail-manage .btn-danger{background:var(--red);color:#fff;border-color:var(--red);}
+.tree-detail-manage .btn-danger:hover{filter:brightness(0.95);}
+#treeMemberEditModal,#treeSpouseLinkModal{z-index:1250;}
+.tree-detail-manage .btn:disabled{opacity:.55;cursor:not-allowed;}
 .tree-layout.detail-closed .tree-detail-panel{display:none;}
 .tree-detail-header{display:flex;align-items:center;justify-content:space-between;}
 .tree-detail-header h3{font-size:1.6rem;font-weight:700;}

@@ -1,3 +1,19 @@
+(function syncJwtCookieFromLocalStorage() {
+  try {
+    const t = localStorage.getItem("token");
+    if (!t) return;
+    if (document.cookie.split(";").some((c) => c.trim().startsWith("accessToken="))) return;
+    document.cookie =
+      "accessToken=" +
+      encodeURIComponent(t) +
+      "; path=/; max-age=" +
+      86400 * 7 +
+      "; SameSite=Lax";
+  } catch (e) {
+    /* ignore */
+  }
+})();
+
 document.addEventListener('DOMContentLoaded', function() {
   // Logic chung cho tất cả dropdown trong navbar
   const dropdowns = document.querySelectorAll('.pub-nav-right .dropdown');
@@ -24,6 +40,590 @@ document.addEventListener('DOMContentLoaded', function() {
 
 const pagePath = window.location.pathname;
 
+/** Đọc thông báo lỗi từ response API (JSON Spring { message } / { detail } hoặc text thuần). */
+async function readFetchErrorMessage(res, fallback) {
+  const raw = await res.text();
+  if (!raw || !String(raw).trim()) return fallback || "Lỗi.";
+  try {
+    const j = JSON.parse(raw);
+    if (j && typeof j.message === "string" && j.message.trim()) return j.message.trim();
+    if (j && typeof j.detail === "string" && j.detail.trim()) return j.detail.trim();
+  } catch (e) {
+    /* không phải JSON */
+  }
+  return String(raw).trim() || fallback || "Lỗi.";
+}
+
+function canManageFamilyMembersGlobal() {
+  try {
+    const perms = JSON.parse(localStorage.getItem("permissions") || "[]");
+    return (
+      localStorage.getItem("role") === "FAMILY_HEAD" ||
+      (Array.isArray(perms) && perms.indexOf("MANAGE_FAMILY_MEMBERS") >= 0)
+    );
+  } catch (e) {
+    return false;
+  }
+}
+
+function syncTreeCanvasFamilyId(familyId) {
+  const el = document.getElementById("treeCanvas");
+  if (el) el.dataset.familyId = familyId || "";
+}
+
+function syncTreeToolbarAddMember(familyId) {
+  const btn = document.getElementById("treeMemberAddBtn");
+  if (!btn) return;
+  const token = localStorage.getItem("token");
+  btn.hidden = !(canManageFamilyMembersGlobal() && token && familyId);
+}
+
+function updateTreePanelManageVisibility() {
+  const manage = document.getElementById("treeDetailManageActions");
+  const layout = document.getElementById("treeLayout");
+  if (!layout) return;
+  const sid = layout.dataset.selectedMemberId || "";
+  const spouseSid = layout.dataset.selectedMemberSpouseId || "";
+  const token = localStorage.getItem("token");
+  const can = canManageFamilyMembersGlobal() && token;
+  if (manage) manage.hidden = !(can && sid);
+
+  const addChildBtn = document.getElementById("treeMemberAddChildBtn");
+  const linkSpouseBtn = document.getElementById("treeMemberLinkSpouseBtn");
+  const addChildHint = document.getElementById("treeAddChildHint");
+  const hasSpouse = !!spouseSid;
+  if (addChildBtn) {
+    addChildBtn.disabled = !!(can && sid && !hasSpouse);
+    addChildBtn.title =
+      can && sid && !hasSpouse
+        ? 'Cần dùng "Thêm vợ/chồng" tạo hồ sơ vợ/chồng trước khi thêm con.'
+        : "";
+  }
+  if (linkSpouseBtn) {
+    linkSpouseBtn.hidden = !sid || hasSpouse;
+    linkSpouseBtn.disabled = false;
+  }
+  if (addChildHint) {
+    addChildHint.hidden = !(can && sid && !hasSpouse);
+  }
+  const deleteBtn = document.getElementById("treeMemberDeleteBtn");
+  const selGen = (layout.dataset.selectedMemberGender || "").trim();
+  if (deleteBtn) {
+    const blockHusbandDelete = !!(can && sid && hasSpouse && selGen !== "FEMALE");
+    deleteBtn.disabled = blockHusbandDelete;
+    deleteBtn.title = blockHusbandDelete
+      ? "Không xóa được chồng khi còn vợ. Chỉ xóa vợ (nữ) để gỡ liên kết; hoặc xóa vợ trước."
+      : "";
+  }
+}
+
+function ensureTreeMemberModalBindings() {
+  if (window.__treeMemberBindingsDone) return;
+  window.__treeMemberBindingsDone = true;
+
+  function treeAuthHeaders() {
+    const token = localStorage.getItem("token");
+    const h = { "Content-Type": "application/json" };
+    if (token) h["Authorization"] = "Bearer " + token;
+    return h;
+  }
+
+  let tmMembersCache = [];
+  let tmDefaultMemberRoleId = "";
+
+  function tmEscAttr(s) {
+    return String(s || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  }
+
+  function tmEscText(s) {
+    return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  }
+
+  async function ensureTreeMemberRolesLoaded() {
+    const sel = document.getElementById("tmMemRoleId");
+    if (!sel) return;
+    if (sel.dataset.loaded === "1") return;
+    const res = await fetch("/api/family-head/member-roles", { headers: treeAuthHeaders() });
+    if (res.status === 403 || !res.ok) {
+      sel.innerHTML = '<option value="">— Không tải được danh sách vai trò —</option>';
+      sel.dataset.loaded = "1";
+      tmDefaultMemberRoleId = "";
+      return;
+    }
+    const roles = await res.json();
+    sel.innerHTML = (roles || [])
+      .map(function (r) {
+        return (
+          '<option value="' +
+          tmEscAttr(r.roleId) +
+          '">' +
+          tmEscText(r.label || r.roleName || "") +
+          "</option>"
+        );
+      })
+      .join("");
+    const mem = (roles || []).find(function (x) {
+      return x.roleName === "MEMBER";
+    });
+    tmDefaultMemberRoleId = mem ? mem.roleId : (roles && roles[0] && roles[0].roleId) || "";
+    sel.dataset.loaded = "1";
+  }
+
+  async function loadTreeManagedFamilies(selectEl) {
+    const res = await fetch("/api/family-head/families", { headers: treeAuthHeaders() });
+    if (!res.ok) throw new Error("Không tải được danh sách dòng họ.");
+    const families = await res.json();
+    selectEl.innerHTML = families
+      .map(
+        (f) =>
+          `<option value="${String(f.familyId || "").replace(/"/g, "&quot;")}">${(f.familyName || "").replace(/</g, "&lt;")}</option>`
+      )
+      .join("");
+    return families;
+  }
+
+  function normParentId(p) {
+    const s = (p == null ? "" : String(p)).trim();
+    return s || null;
+  }
+
+  function syncGenerationOrderFromParent() {
+    const famSel = document.getElementById("tmMemFamilyId");
+    const parSel = document.getElementById("tmMemParentId");
+    const genEl = document.getElementById("tmMemGeneration");
+    const ordEl = document.getElementById("tmMemOrder");
+    const editId = document.getElementById("tmMemberEditId").value.trim();
+    if (!famSel || !parSel || !genEl || !ordEl) return;
+    const familyId = famSel.value;
+    const parentId = normParentId(parSel.value);
+    const self = editId ? tmMembersCache.find((m) => m.userId === editId) : null;
+    const sameParent = !!(self && normParentId(self.parentId) === parentId);
+    if (!familyId) {
+      genEl.value = "";
+      ordEl.value = "";
+      return;
+    }
+    if (!parentId) {
+      genEl.value = "1";
+      if (sameParent && self.orderInFamily != null) {
+        ordEl.value = String(self.orderInFamily);
+      } else {
+        const roots = tmMembersCache.filter((m) => !normParentId(m.parentId) && m.userId !== editId);
+        const maxO = roots.reduce((a, m) => Math.max(a, m.orderInFamily != null ? m.orderInFamily : 0), 0);
+        ordEl.value = String(maxO + 1);
+      }
+      return;
+    }
+    const parent = tmMembersCache.find((m) => m.userId === parentId);
+    const pgen = parent && parent.generation != null ? parent.generation : 1;
+    genEl.value = String(pgen + 1);
+    if (sameParent && self.orderInFamily != null) {
+      ordEl.value = String(self.orderInFamily);
+    } else {
+      const sibs = tmMembersCache.filter((m) => normParentId(m.parentId) === parentId && m.userId !== editId);
+      const maxO = sibs.reduce((a, m) => Math.max(a, m.orderInFamily != null ? m.orderInFamily : 0), 0);
+      ordEl.value = String(maxO + 1);
+    }
+  }
+
+  async function refreshMembersAndParentSelect(familyId, excludeUserId, preferredParentId) {
+    const parSel = document.getElementById("tmMemParentId");
+    if (!parSel) return;
+    parSel.innerHTML = "";
+    const o0 = document.createElement("option");
+    o0.value = "";
+    o0.textContent = "— Không (đời đầu) —";
+    parSel.appendChild(o0);
+    if (!familyId) {
+      tmMembersCache = [];
+      syncGenerationOrderFromParent();
+      return;
+    }
+    const res = await fetch(
+      "/api/family-head/members?familyId=" + encodeURIComponent(familyId),
+      { headers: treeAuthHeaders() }
+    );
+    if (!res.ok) throw new Error("Không tải danh sách thành viên.");
+    tmMembersCache = await res.json();
+    tmMembersCache.forEach((m) => {
+      if (!m.userId || m.userId === excludeUserId) return;
+      const o = document.createElement("option");
+      o.value = m.userId;
+      const g = m.generation != null ? m.generation : "?";
+      o.textContent = (m.fullName || m.userId) + " (thế hệ " + g + ")";
+      parSel.appendChild(o);
+    });
+    if (preferredParentId && tmMembersCache.some((x) => x.userId === preferredParentId)) {
+      parSel.value = preferredParentId;
+    } else {
+      parSel.value = "";
+    }
+    syncGenerationOrderFromParent();
+  }
+
+  function resetTreeMemberForm() {
+    document.getElementById("tmMemberEditId").value = "";
+    document.getElementById("tmMemFullName").value = "";
+    document.getElementById("tmMemEmail").value = "";
+    document.getElementById("tmMemGender").value = "";
+    document.getElementById("tmMemDob").value = "";
+    document.getElementById("tmMemPhone").value = "";
+    const parSel = document.getElementById("tmMemParentId");
+    if (parSel) {
+      parSel.innerHTML = "";
+      const o0 = document.createElement("option");
+      o0.value = "";
+      o0.textContent = "— Không (đời đầu) —";
+      parSel.appendChild(o0);
+    }
+    tmMembersCache = [];
+    document.getElementById("tmMemGeneration").value = "";
+    document.getElementById("tmMemOrder").value = "";
+    document.getElementById("tmMemHometown").value = "";
+    document.getElementById("tmMemCurrentAddress").value = "";
+    document.getElementById("tmMemOccupation").value = "";
+    document.getElementById("tmMemBio").value = "";
+    const rSel = document.getElementById("tmMemRoleId");
+    if (rSel && tmDefaultMemberRoleId) rSel.value = tmDefaultMemberRoleId;
+  }
+
+  function openTreeMemberModal() {
+    const m = document.getElementById("treeMemberEditModal");
+    if (!m) return;
+    m.classList.add("open");
+    m.setAttribute("aria-hidden", "false");
+  }
+
+  function closeTreeMemberModal() {
+    const m = document.getElementById("treeMemberEditModal");
+    if (!m) return;
+    m.classList.remove("open");
+    m.setAttribute("aria-hidden", "true");
+  }
+
+  async function openAddMemberModal(parentUserId) {
+    const canvas = document.getElementById("treeCanvas");
+    const fid =
+      (canvas?.dataset.familyId || canvas?.dataset.clanFamilyId || "").trim();
+    if (!fid) {
+      alert("Chưa xác định dòng họ. Tải lại trang gia phả hoặc kiểm tra cấu hình app.clan.family-id.");
+      return;
+    }
+    if (!localStorage.getItem("token")) {
+      window.location.href = "/login?redirect=" + encodeURIComponent(window.location.pathname + window.location.search);
+      return;
+    }
+    const famSel = document.getElementById("tmMemFamilyId");
+    if (!famSel) return;
+    try {
+      await loadTreeManagedFamilies(famSel);
+      await ensureTreeMemberRolesLoaded();
+      resetTreeMemberForm();
+      famSel.value = fid;
+      await refreshMembersAndParentSelect(fid, "", parentUserId || null);
+      document.getElementById("treeMemberModalTitle").textContent = parentUserId
+        ? "Thêm thành viên (con)"
+        : "Thêm thành viên";
+      openTreeMemberModal();
+    } catch (err) {
+      alert(err.message || "Lỗi.");
+    }
+  }
+
+  document.getElementById("treeMemberAddBtn")?.addEventListener("click", () => openAddMemberModal(""));
+
+  function openTreeSpouseModal() {
+    const m = document.getElementById("treeSpouseLinkModal");
+    if (!m) return;
+    m.classList.add("open");
+    m.setAttribute("aria-hidden", "false");
+  }
+
+  function closeTreeSpouseModal() {
+    const m = document.getElementById("treeSpouseLinkModal");
+    if (!m) return;
+    m.classList.remove("open");
+    m.setAttribute("aria-hidden", "true");
+  }
+
+  document.getElementById("treeMemberLinkSpouseBtn")?.addEventListener("click", async () => {
+    const layout = document.getElementById("treeLayout");
+    const memberId = layout?.dataset.selectedMemberId || "";
+    if (!memberId) return;
+    if (!localStorage.getItem("token")) {
+      window.location.href = "/login?redirect=" + encodeURIComponent(window.location.pathname + window.location.search);
+      return;
+    }
+    try {
+      const res = await fetch("/api/family-head/members/" + encodeURIComponent(memberId), {
+        headers: treeAuthHeaders(),
+      });
+      if (res.status === 403) {
+        alert("Không có quyền.");
+        return;
+      }
+      if (!res.ok) throw new Error("Không tải được hồ sơ thành viên.");
+      const u = await res.json();
+      const g = (u.gender || "").trim();
+      if (g !== "MALE" && g !== "FEMALE") {
+        alert(
+          "Cần cập nhật giới tính Nam hoặc Nữ cho thành viên này trước (dùng Sửa hồ sơ). Chỉ hỗ trợ vợ chồng nam–nữ."
+        );
+        return;
+      }
+      const spouseG = g === "MALE" ? "FEMALE" : "MALE";
+      const hid = document.getElementById("tsSpouseGenderHidden");
+      const lab = document.getElementById("tsSpouseGenderLabel");
+      const titleEl = document.getElementById("treeSpouseLinkModalTitle");
+      const intro = document.getElementById("tsSpouseIntro");
+      if (hid) hid.value = spouseG;
+      if (lab) lab.value = spouseG === "FEMALE" ? "Nữ" : "Nam";
+      if (titleEl) titleEl.textContent = g === "MALE" ? "Thêm vợ" : "Thêm chồng";
+      if (intro) {
+        intro.textContent =
+          "Tạo hồ sơ mới cho " +
+          (spouseG === "FEMALE" ? "vợ" : "chồng") +
+          " của " +
+          (u.fullName || "thành viên") +
+          " — cùng thế hệ, tự gắn quan hệ vợ chồng (chỉ nam với nữ).";
+      }
+      ["tsSpouseFullName", "tsSpouseEmail", "tsSpousePhone", "tsSpouseDob", "tsSpouseHometown", "tsSpouseAddress", "tsSpouseOccupation", "tsSpouseBio"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+      });
+      openTreeSpouseModal();
+    } catch (err) {
+      alert(err.message || "Lỗi.");
+    }
+  });
+
+  document.getElementById("treeMemberAddChildBtn")?.addEventListener("click", () => {
+    const layout = document.getElementById("treeLayout");
+    const sid = layout?.dataset.selectedMemberId || "";
+    const sp = layout?.dataset.selectedMemberSpouseId || "";
+    if (!sid) {
+      alert("Chọn một thành viên trên cây làm cha/mẹ trước.");
+      return;
+    }
+    if (!sp) {
+      alert('Cần dùng "Thêm vợ/chồng" để tạo hồ sơ vợ/chồng trước khi thêm con.');
+      return;
+    }
+    openAddMemberModal(sid);
+  });
+
+  document.getElementById("treeSpouseLinkModalClose")?.addEventListener("click", closeTreeSpouseModal);
+  document.getElementById("treeSpouseLinkCancel")?.addEventListener("click", closeTreeSpouseModal);
+  document.getElementById("treeSpouseLinkModal")?.addEventListener("click", (e) => {
+    if (e.target === document.getElementById("treeSpouseLinkModal")) closeTreeSpouseModal();
+  });
+
+  document.getElementById("treeSpouseLinkForm")?.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const layout = document.getElementById("treeLayout");
+    const memberId = layout?.dataset.selectedMemberId || "";
+    const gender = (document.getElementById("tsSpouseGenderHidden")?.value || "").trim();
+    const fullName = document.getElementById("tsSpouseFullName")?.value.trim() || "";
+    if (!memberId || !gender) return;
+    if (!fullName) {
+      alert("Nhập họ tên vợ/chồng.");
+      return;
+    }
+    const body = {
+      fullName,
+      email: document.getElementById("tsSpouseEmail")?.value.trim() || null,
+      gender,
+      dob: document.getElementById("tsSpouseDob")?.value || null,
+      phoneNumber: document.getElementById("tsSpousePhone")?.value.trim() || null,
+      hometown: document.getElementById("tsSpouseHometown")?.value.trim() || null,
+      currentAddress: document.getElementById("tsSpouseAddress")?.value.trim() || null,
+      occupation: document.getElementById("tsSpouseOccupation")?.value.trim() || null,
+      bio: document.getElementById("tsSpouseBio")?.value.trim() || null,
+    };
+    try {
+      const res = await fetch(
+        "/api/family-head/members/" + encodeURIComponent(memberId) + "/spouse",
+        {
+          method: "POST",
+          headers: treeAuthHeaders(),
+          body: JSON.stringify(body),
+        }
+      );
+      if (!res.ok) {
+        alert(await readFetchErrorMessage(res, "Không tạo được vợ/chồng."));
+        return;
+      }
+      closeTreeSpouseModal();
+      if (typeof window.reloadFamilyTree === "function") await window.reloadFamilyTree();
+    } catch (err) {
+      alert(err.message || "Lỗi.");
+    }
+  });
+
+  document.getElementById("treeMemberEditBtn")?.addEventListener("click", async () => {
+    const selectedMemberId = document.getElementById("treeLayout")?.dataset.selectedMemberId || "";
+    if (!selectedMemberId) return;
+    if (!localStorage.getItem("token")) {
+      window.location.href = "/login?redirect=" + encodeURIComponent(window.location.pathname + window.location.search);
+      return;
+    }
+    const famSel = document.getElementById("tmMemFamilyId");
+    if (!famSel) return;
+    try {
+      const res = await fetch("/api/family-head/members/" + encodeURIComponent(selectedMemberId), {
+        headers: treeAuthHeaders(),
+      });
+      if (res.status === 403) {
+        alert("Không có quyền xem/sửa thành viên này.");
+        return;
+      }
+      if (!res.ok) throw new Error("Không tải được hồ sơ.");
+      const u = await res.json();
+      await loadTreeManagedFamilies(famSel);
+      document.getElementById("tmMemberEditId").value = u.userId || "";
+      document.getElementById("tmMemFullName").value = u.fullName || "";
+      document.getElementById("tmMemEmail").value = u.email || "";
+      document.getElementById("tmMemGender").value = u.gender || "";
+      (function () {
+        const d = u.dob;
+        const el = document.getElementById("tmMemDob");
+        if (!el) return;
+        if (Array.isArray(d) && d.length >= 3) {
+          el.value = d[0] + "-" + String(d[1]).padStart(2, "0") + "-" + String(d[2]).padStart(2, "0");
+        } else if (typeof d === "string") {
+          el.value = d.length >= 10 ? d.slice(0, 10) : "";
+        } else {
+          el.value = "";
+        }
+      })();
+      document.getElementById("tmMemPhone").value = u.phoneNumber || "";
+      document.getElementById("tmMemHometown").value = u.hometown || "";
+      document.getElementById("tmMemCurrentAddress").value = u.currentAddress || "";
+      document.getElementById("tmMemOccupation").value = u.occupation || "";
+      document.getElementById("tmMemBio").value = u.bio || "";
+      if (u.familyId) famSel.value = u.familyId;
+      await refreshMembersAndParentSelect(u.familyId || "", u.userId || "", u.parentId || null);
+      await ensureTreeMemberRolesLoaded();
+      const rSel = document.getElementById("tmMemRoleId");
+      if (rSel) {
+        if (u.roleId) rSel.value = u.roleId;
+        else if (tmDefaultMemberRoleId) rSel.value = tmDefaultMemberRoleId;
+      }
+      document.getElementById("treeMemberModalTitle").textContent = "Sửa thành viên";
+      openTreeMemberModal();
+    } catch (err) {
+      alert(err.message || "Lỗi.");
+    }
+  });
+
+  document.getElementById("treeMemberDeleteBtn")?.addEventListener("click", async () => {
+    const selectedMemberId = document.getElementById("treeLayout")?.dataset.selectedMemberId || "";
+    if (!selectedMemberId) return;
+    if (!localStorage.getItem("token")) {
+      window.location.href = "/login?redirect=" + encodeURIComponent(window.location.pathname + window.location.search);
+      return;
+    }
+    if (
+      !confirm(
+        "Xóa thành viên này? Không xóa được khi còn con trực tiếp. Nếu còn vợ/chồng: chỉ xóa được vợ (nữ) để gỡ liên kết; không xóa được chồng (nam) khi còn vợ — cần xóa vợ trước."
+      )
+    )
+      return;
+    try {
+      const res = await fetch("/api/family-head/members/" + encodeURIComponent(selectedMemberId), {
+        method: "DELETE",
+        headers: treeAuthHeaders(),
+      });
+      if (!res.ok) {
+        alert(await readFetchErrorMessage(res, "Xóa thất bại."));
+        return;
+      }
+      closeTreeMemberModal();
+      const treeLayout = document.getElementById("treeLayout");
+      if (treeLayout) {
+        treeLayout.dataset.selectedMemberId = "";
+        treeLayout.dataset.selectedMemberSpouseId = "";
+        treeLayout.dataset.selectedMemberGender = "";
+        treeLayout.classList.remove("detail-open");
+        treeLayout.classList.add("detail-closed");
+      }
+      updateTreePanelManageVisibility();
+      if (typeof window.reloadFamilyTree === "function") await window.reloadFamilyTree();
+    } catch (err) {
+      alert(err.message || "Lỗi xóa.");
+    }
+  });
+
+  document.getElementById("treeMemberModalClose")?.addEventListener("click", closeTreeMemberModal);
+  document.getElementById("treeMemberModalCancel")?.addEventListener("click", closeTreeMemberModal);
+  document.getElementById("treeMemberEditModal")?.addEventListener("click", (e) => {
+    if (e.target === document.getElementById("treeMemberEditModal")) closeTreeMemberModal();
+  });
+
+  document.getElementById("tmMemFamilyId")?.addEventListener("change", async function () {
+    const editId = document.getElementById("tmMemberEditId").value.trim();
+    try {
+      await refreshMembersAndParentSelect(this.value, editId, "");
+    } catch (e) {
+      alert(e.message || "Lỗi tải thành viên.");
+    }
+  });
+  document.getElementById("tmMemParentId")?.addEventListener("change", syncGenerationOrderFromParent);
+
+  document.getElementById("treeMemberForm")?.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const editId = document.getElementById("tmMemberEditId").value.trim();
+    const body = {
+      fullName: document.getElementById("tmMemFullName").value.trim(),
+      email: document.getElementById("tmMemEmail").value.trim() || null,
+      familyId: document.getElementById("tmMemFamilyId").value,
+      gender: document.getElementById("tmMemGender").value || null,
+      dob: document.getElementById("tmMemDob").value || null,
+      phoneNumber: document.getElementById("tmMemPhone").value.trim() || null,
+      parentId: (document.getElementById("tmMemParentId")?.value || "").trim() || null,
+      generation: document.getElementById("tmMemGeneration").value
+        ? parseInt(document.getElementById("tmMemGeneration").value, 10)
+        : null,
+      orderInFamily: document.getElementById("tmMemOrder").value
+        ? parseInt(document.getElementById("tmMemOrder").value, 10)
+        : null,
+      hometown: document.getElementById("tmMemHometown").value.trim() || null,
+      currentAddress: document.getElementById("tmMemCurrentAddress").value.trim() || null,
+      occupation: document.getElementById("tmMemOccupation").value.trim() || null,
+      bio: document.getElementById("tmMemBio").value.trim() || null,
+    };
+    const rid = (document.getElementById("tmMemRoleId")?.value || "").trim();
+    if (rid) body.roleId = rid;
+    if (!body.fullName) {
+      alert("Nhập họ tên.");
+      return;
+    }
+    if (!body.familyId) {
+      alert("Chọn dòng họ.");
+      return;
+    }
+    try {
+      const url = editId
+        ? "/api/family-head/members/" + encodeURIComponent(editId)
+        : "/api/family-head/members";
+      const method = editId ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
+        headers: treeAuthHeaders(),
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        alert(await readFetchErrorMessage(res, "Lưu thất bại."));
+        return;
+      }
+      closeTreeMemberModal();
+      if (typeof window.reloadFamilyTree === "function") await window.reloadFamilyTree();
+    } catch (err) {
+      alert(err.message || "Lỗi lưu.");
+    }
+  });
+}
+
 function cardMemberHtml(member) {
   const femaleCls = member.gender === "FEMALE" ? " female" : "";
   const initials = (member.name || "U").slice(0, 2).toUpperCase();
@@ -40,38 +640,52 @@ function cardMemberHtml(member) {
 
 function getChildrenCount(parentIds, members) {
   const parentSet = new Set(parentIds.filter(Boolean));
-  return members.filter((m) => parentSet.has(m.fatherId) || parentSet.has(m.motherId)).length;
+  return members.filter((m) =>
+    parentSet.has(m.fatherId) || parentSet.has(m.motherId) || parentSet.has(m.parentId)
+  ).length;
 }
 
 async function loadFamilyTree() {
   const treeContent = document.getElementById("treeContent");
   if (!treeContent) return;
+  ensureTreeMemberModalBindings();
 
   const query = new URLSearchParams(window.location.search);
   const familyFilter = document.getElementById("familyFilter");
+  const familyFilterWrap = document.getElementById("familyFilterWrap");
   const queryFamilyId = query.get("familyId");
   const savedFamilyId = localStorage.getItem("selectedFamilyId");
-  let familyId = queryFamilyId || savedFamilyId || "";
+  const myFamilyId = localStorage.getItem("my_family_id");
+  const canvas = document.getElementById("treeCanvas");
+  const serverClanId = (canvas?.dataset?.clanFamilyId || "").trim();
 
-  if (familyFilter) {
-    try {
-      const familyRes = await fetch("/api/public/families");
-      if (familyRes.ok) {
-        const families = await familyRes.json();
-        familyFilter.innerHTML = '<option value="">Chọn dòng họ</option>' +
-          families.map((f) => `<option value="${f.id}">${f.name}</option>`).join("");
+  /* Một dòng họ: ưu tiên id từ server (Thymeleaf), sau đó URL / localStorage */
+  let familyId =
+    serverClanId || queryFamilyId || savedFamilyId || myFamilyId || "";
 
-        if (!familyId && families.length) {
-          familyId = families[0].id;
-        }
-        if (familyId) {
-          familyFilter.value = familyId;
-        }
-      }
-    } catch (e) {
-      // ignore and continue with current familyId fallback
+  let familiesList = [];
+  try {
+    const familyRes = await fetch("/api/public/families");
+    if (familyRes.ok) {
+      familiesList = await familyRes.json();
     }
+  } catch (e) {
+    /* ignore */
+  }
 
+  if (familyFilterWrap) {
+    familyFilterWrap.style.display = serverClanId ? "none" : "";
+  }
+  if (!serverClanId && familyFilter) {
+    familyFilter.innerHTML =
+      '<option value="">Chọn dòng họ</option>' +
+      familiesList.map((f) => `<option value="${f.id}">${f.name}</option>`).join("");
+    if (!familyId && familiesList.length) {
+      familyId = familiesList[0].id;
+    }
+    if (familyId) {
+      familyFilter.value = familyId;
+    }
     familyFilter.addEventListener("change", function onFamilyChange() {
       const selected = this.value || "";
       if (selected) {
@@ -84,6 +698,13 @@ async function loadFamilyTree() {
     });
   }
 
+  if (!familyId && familiesList.length) {
+    familyId = familiesList[0].id;
+  }
+
+  syncTreeCanvasFamilyId(familyId);
+  syncTreeToolbarAddMember(familyId);
+
   const apiUrl = familyId
     ? `/api/public/family-tree?familyId=${encodeURIComponent(familyId)}`
     : "/api/public/family-tree";
@@ -92,6 +713,8 @@ async function loadFamilyTree() {
   if (!res.ok) {
     document.getElementById("treeEmptyState")?.style.setProperty("display", "block");
     treeContent.innerHTML = "";
+    syncTreeCanvasFamilyId(familyId);
+    syncTreeToolbarAddMember(familyId);
     return;
   }
 
@@ -99,7 +722,9 @@ async function loadFamilyTree() {
   const rawMembers = data.members || [];
   const members = rawMembers.map((m) => ({
     ...m,
-    id: m.id || m.user_id
+    id: m.id || m.user_id,
+    parentId: m.parentId != null && String(m.parentId).trim() ? String(m.parentId).trim() : null,
+    spouseId: m.spouseId != null && String(m.spouseId).trim() ? String(m.spouseId).trim() : null,
   }));
   const maxGen = data.totalGenerations || 1;
 
@@ -117,21 +742,23 @@ async function loadFamilyTree() {
   if (!members.length) {
     document.getElementById("treeEmptyState")?.style.setProperty("display", "block");
     treeContent.innerHTML = "";
+    syncTreeCanvasFamilyId(familyId);
+    syncTreeToolbarAddMember(familyId);
     return;
   }
 
   const byId = new Map(members.map((m) => [m.id, m]));
 
-  const parentIdsOf = (member) => [member.fatherId, member.motherId].filter(Boolean);
+  const parentIdsOf = (member) =>
+    Array.from(new Set([member.fatherId, member.motherId, member.parentId].filter(Boolean)));
   const areBloodSiblings = (a, b) => {
     if (!a || !b || a.id === b.id) return false;
-    const aFather = a.fatherId || null;
-    const aMother = a.motherId || null;
-    const bFather = b.fatherId || null;
-    const bMother = b.motherId || null;
-    const sameFather = !!aFather && aFather === bFather;
-    const sameMother = !!aMother && aMother === bMother;
-    return sameFather || sameMother;
+    const aPs = new Set(parentIdsOf(a));
+    const bPs = new Set(parentIdsOf(b));
+    for (const p of aPs) {
+      if (bPs.has(p)) return true;
+    }
+    return false;
   };
 
   const coParentsByMember = new Map();
@@ -302,7 +929,9 @@ async function loadFamilyTree() {
   treeContent.innerHTML = `<div class="tree-level tree-root-level">${forest.map((unit) => renderUnit(unit)).join("")}</div>`;
   bindTreeExpandButtons(treeContent);
 
-  let selectedMemberId = members[0]?.id || null;
+  const prevSelectedId = document.getElementById("treeLayout")?.dataset.selectedMemberId || "";
+  let selectedMemberId =
+    (prevSelectedId && byId.has(prevSelectedId) ? prevSelectedId : null) || members[0]?.id || null;
   const detailName = document.getElementById("detailName");
   const detailInitial = document.getElementById("detailInitial");
   const detailYears = document.getElementById("detailYears");
@@ -476,7 +1105,9 @@ async function loadFamilyTree() {
   const fillDetailElements = (els, member) => {
     if (!member || !els?.initial) return;
     const spouse = member.spouseId ? byId.get(member.spouseId) : null;
-    const children = members.filter((m) => m.fatherId === member.id || m.motherId === member.id);
+    const children = members.filter(
+      (m) => m.fatherId === member.id || m.motherId === member.id || m.parentId === member.id
+    );
 
     els.initial.textContent = (member.name || "--").slice(0, 2).toUpperCase();
     els.name.textContent = member.name || "Không rõ";
@@ -580,6 +1211,13 @@ async function loadFamilyTree() {
     if (!member) return;
     selectedMemberId = member.id;
 
+    const layoutEl = document.getElementById("treeLayout");
+    if (layoutEl) {
+      layoutEl.dataset.selectedMemberId = member.id;
+      layoutEl.dataset.selectedMemberSpouseId = member.spouseId || "";
+      layoutEl.dataset.selectedMemberGender = member.gender || "";
+    }
+
     fillDetailElements(sidebarDetailEls, member);
     fillDetailElements(popupDetailEls, member);
 
@@ -594,6 +1232,7 @@ async function loadFamilyTree() {
       closeDetailPopup();
       setDetailPanelVisible(true);
     }
+    updateTreePanelManageVisibility();
   };
 
   const bindCompareCardClicks = (rootEl) => {
@@ -731,8 +1370,11 @@ async function loadFamilyTree() {
   attachSpacePan(treeFullscreenCanvas);
   requestAnimationFrame(() => centerOnFirstNode(treeCanvas, treeContent));
 
-  // Do not show detail panel on initial load — only show when user selects a member
-  setDetailPanelVisible(false);
+  if (prevSelectedId && byId.has(prevSelectedId)) {
+    renderDetail(prevSelectedId);
+  } else {
+    setDetailPanelVisible(false);
+  }
 
   let scale = 1;
   let fullscreenScale = 1;
@@ -805,4 +1447,5 @@ async function loadFamilyTree() {
   });
 }
 
+window.reloadFamilyTree = loadFamilyTree;
 if (pagePath.startsWith("/family-tree")) loadFamilyTree();

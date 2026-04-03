@@ -84,8 +84,10 @@ public abstract class NewsService {
         dto.setContent(news.getContent());
         dto.setCreatedAt(news.getCreatedAt());
 
-        // --- BỔ SUNG 2 DÒNG NÀY ĐỂ HIỆN TRANG HOME ---
-        dto.setStartAt(news.getStartAt());      // Lấy ngày để hiện khối "Sự kiện sắp tới"
+        dto.setStartAt(news.getStartAt());
+        dto.setEndAt(news.getEndAt());
+        dto.setLocation(news.getLocation());
+        dto.setRemindBefore(news.getRemindBefore());
 
         if (news.getCategory() != null) {
             dto.setCategoryId(news.getCategory().getCategoryId());
@@ -106,6 +108,11 @@ public abstract class NewsService {
         dto.setCoverImage(news.getCoverImage());
         if (news.getPublicCategory() != null) {
             dto.setPublicCategory(news.getPublicCategory().name());
+        }
+
+        if (news.getFamily() != null) {
+            dto.setFamilyId(news.getFamily().getFamilyId());
+            dto.setFamilyName(news.getFamily().getFamilyName());
         }
 
         return dto;

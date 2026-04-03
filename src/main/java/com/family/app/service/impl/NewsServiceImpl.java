@@ -2,13 +2,18 @@ package com.family.app.service.impl;
 
 import com.family.app.dto.NewsRequest;
 import com.family.app.dto.NewsResponse;
+import com.family.app.model.Category;
+import com.family.app.model.Family;
+import com.family.app.model.NewsCategory;
 import com.family.app.model.NewsEvent;
 import com.family.app.model.NewsVisibility;
+import com.family.app.model.User;
 import com.family.app.repository.CategoryRepository;
 import com.family.app.repository.FamilyRepository;
 import com.family.app.repository.NewsEventRepository;
 import com.family.app.repository.UserRepository;
 import com.family.app.service.NewsService;
+import com.family.app.util.NewsSlugUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,13 +31,24 @@ public class NewsServiceImpl extends NewsService {
 
     @Override
     public List<NewsResponse> getNewsByFamily(String familyId) {
-        return newsRepository.findByFamily_FamilyIdOrderByCreatedAtDesc(familyId)
+        return newsRepository.findByFamilyIdForAdminOrderByCreatedAtDesc(familyId)
                 .stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public NewsResponse createNews(NewsRequest request) {
-        NewsEvent news = NewsEvent.builder()
+        Family family = familyRepository.findById(request.getFamilyId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy dòng họ"));
+        User author = userRepository.findById(request.getAuthorId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tác giả"));
+
+        NewsVisibility vis = parseVisibility(request.getVisibility());
+        Category internalCat = request.getCategoryId() != null
+                ? categoryRepository.findById(request.getCategoryId()).orElse(null)
+                : null;
+
+        NewsEvent.NewsEventBuilder b = NewsEvent.builder()
                 .title(request.getTitle())
                 .summary(request.getSummary())
                 .content(request.getContent())
@@ -40,13 +56,34 @@ public class NewsServiceImpl extends NewsService {
                 .endAt(request.getEndAt())
                 .location(request.getLocation())
                 .remindBefore(request.getRemindBefore())
-                .visibility(parseVisibility(request.getVisibility()))
-                .family(familyRepository.findById(request.getFamilyId()).orElse(null))
-                .category(categoryRepository.findById(request.getCategoryId()).orElse(null))
-                .user(userRepository.findById(request.getAuthorId()).orElse(null))
-                .build();
+                .visibility(vis)
+                .family(family)
+                .category(internalCat)
+                .user(author);
 
-        return mapToResponse(newsRepository.save(news));
+        if (vis == NewsVisibility.PUBLIC_SITE || vis == NewsVisibility.DRAFT) {
+            NewsCategory pub = parsePublicCategory(request.getPublicCategory());
+            if (vis == NewsVisibility.PUBLIC_SITE && pub == null) {
+                throw new RuntimeException("Tin công khai (PUBLIC_SITE) cần publicCategory (tab trang /news)");
+            }
+            b.publicCategory(pub);
+            b.featured(Boolean.TRUE.equals(request.getFeatured()));
+            b.viewCount(0);
+            if (vis == NewsVisibility.PUBLIC_SITE) {
+                b.slug(NewsSlugUtil.uniqueSlug(request.getTitle(), newsRepository::existsBySlug));
+            } else if (vis == NewsVisibility.DRAFT && pub != null) {
+                b.slug(NewsSlugUtil.uniqueSlug(request.getTitle(), newsRepository::existsBySlug));
+            }
+        } else if (vis == NewsVisibility.FAMILY_ONLY) {
+            b.featured(false);
+            b.viewCount(0);
+            b.slug(NewsSlugUtil.uniqueSlug(request.getTitle(), newsRepository::existsBySlug));
+        } else {
+            b.featured(false);
+            b.viewCount(0);
+        }
+
+        return mapToResponse(newsRepository.save(b.build()));
     }
 
     @Override
@@ -70,6 +107,22 @@ public class NewsServiceImpl extends NewsService {
             news.setCategory(categoryRepository.findById(request.getCategoryId()).orElse(null));
         }
 
+        NewsVisibility vis = news.getVisibility();
+        if (vis == NewsVisibility.PUBLIC_SITE || vis == NewsVisibility.DRAFT) {
+            NewsCategory pub = parsePublicCategory(request.getPublicCategory());
+            if (pub != null) {
+                news.setPublicCategory(pub);
+            }
+            if (request.getFeatured() != null) {
+                news.setFeatured(request.getFeatured());
+            }
+            if (vis == NewsVisibility.PUBLIC_SITE && (news.getSlug() == null || news.getSlug().isBlank())) {
+                news.setSlug(NewsSlugUtil.uniqueSlug(news.getTitle(), newsRepository::existsBySlug));
+            }
+        } else if (vis == NewsVisibility.FAMILY_ONLY && (news.getSlug() == null || news.getSlug().isBlank())) {
+            news.setSlug(NewsSlugUtil.uniqueSlug(news.getTitle(), newsRepository::existsBySlug));
+        }
+
         return mapToResponse(newsRepository.save(news));
     }
 
@@ -86,6 +139,9 @@ public class NewsServiceImpl extends NewsService {
         response.setContent(news.getContent());
         response.setCreatedAt(news.getCreatedAt());
         response.setStartAt(news.getStartAt());
+        response.setEndAt(news.getEndAt());
+        response.setLocation(news.getLocation());
+        response.setRemindBefore(news.getRemindBefore());
 
         if (news.getCategory() != null) {
             response.setCategoryId(news.getCategory().getCategoryId());
@@ -108,6 +164,11 @@ public class NewsServiceImpl extends NewsService {
             response.setPublicCategory(news.getPublicCategory().name());
         }
 
+        if (news.getFamily() != null) {
+            response.setFamilyId(news.getFamily().getFamilyId());
+            response.setFamilyName(news.getFamily().getFamilyName());
+        }
+
         return response;
     }
 
@@ -119,6 +180,17 @@ public class NewsServiceImpl extends NewsService {
             return NewsVisibility.valueOf(raw.trim().toUpperCase());
         } catch (IllegalArgumentException e) {
             return NewsVisibility.FAMILY_ONLY;
+        }
+    }
+
+    private static NewsCategory parsePublicCategory(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return null;
+        }
+        try {
+            return NewsCategory.valueOf(raw.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return null;
         }
     }
 }

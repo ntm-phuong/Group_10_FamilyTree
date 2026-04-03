@@ -11,7 +11,7 @@
 <th:block th:replace="~{fragments/navbar :: navbar}"/>
 
 <div class="section-inner" style="padding:2rem 1.25rem 3rem;">
-<div class="news-page-wrap">
+<div class="news-page-wrap" th:attr="data-page-family-id=${filterFamilyId}">
   <div th:if="${errorMessage}" class="alert alert-error mb-3">
     <i class="fas fa-exclamation-circle"></i>
     <span th:text="${errorMessage}"></span>
@@ -23,23 +23,51 @@
     <span>Tin tức</span>
   </div>
 
-  <h1 style="font-size:1.4rem;font-weight:700;margin-bottom:.3rem;">Tin tức dòng họ</h1>
-  <p style="font-size:.85rem;color:var(--text-500);margin-bottom:1.25rem;">
-    Cập nhật các hoạt động, sự kiện và tin tức mới nhất của dòng họ
+  <h1 style="font-size:1.4rem;font-weight:700;margin-bottom:.3rem;">Tin tức</h1>
+  <p style="font-size:.85rem;color:var(--text-500);margin-bottom:.5rem;">
+    Tin công khai và nội bộ của <strong th:text="${clanDisplayName}">dòng họ</strong>
   </p>
+  <p style="font-size:.82rem;color:var(--text-700);margin-bottom:.75rem;">
+    Phạm vi: <strong th:text="${filterFamilyName}">—</strong> — lọc <strong>Công khai / Nội bộ</strong> bên dưới (nội bộ cần đăng nhập thành viên dòng họ).
+  </p>
+
+  <div id="newsManageToolbar" class="news-manage-toolbar" hidden>
+    <span class="news-all-toolbar-scope-label">Quản trị tin</span>
+    <button type="button" id="npCreateNews" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Tạo tin</button>
+    <button type="button" id="npModeEdit" class="btn btn-white btn-sm"><i class="fas fa-pen"></i> Chế độ sửa</button>
+    <button type="button" id="npModeDelete" class="btn btn-white btn-sm"><i class="fas fa-trash-alt"></i> Chế độ xóa</button>
+    <button type="button" id="npDeleteSelected" class="btn btn-danger btn-sm"><i class="fas fa-check-double"></i> Xóa đã chọn</button>
+    <span id="npModeHint" class="news-manage-hint text-xs text-muted"></span>
+  </div>
+
+  <div class="news-all-toolbar" style="margin-bottom:1rem;">
+    <div class="news-all-toolbar-scope">
+      <span class="news-all-toolbar-scope-label">Phạm vi hiển thị</span>
+      <div class="news-cat-tabs news-vis-tabs">
+        <a th:href="${selectedCategory != null} ? @{/news(q=${q},category=${selectedCategory.name()})} : @{/news(q=${q})}"
+           class="news-cat-tab" th:classappend="${visibilityParam == null} ? ' active' : ''">Tất cả</a>
+        <a th:href="${selectedCategory != null} ? @{/news(q=${q},category=${selectedCategory.name()},visibility=public)} : @{/news(q=${q},visibility=public)}"
+           class="news-cat-tab" th:classappend="${visibilityParam == 'public'} ? ' active' : ''">Công khai</a>
+        <a th:href="${selectedCategory != null} ? @{/news(q=${q},category=${selectedCategory.name()},visibility=internal)} : @{/news(q=${q},visibility=internal)}"
+           class="news-cat-tab" th:classappend="${visibilityParam == 'internal'} ? ' active' : ''">Nội bộ</a>
+      </div>
+    </div>
+  </div>
 
   <div class="search-input mb-4" style="max-width:320px;">
     <i class="fas fa-search"></i>
     <form th:action="@{/news}" method="get">
       <input type="hidden" name="category" th:if="${selectedCategory != null}" th:value="${selectedCategory.name()}"/>
+      <input type="hidden" name="visibility" th:if="${visibilityParam != null}" th:value="${visibilityParam}"/>
       <input type="text" name="q" class="form-control" placeholder="Tìm kiếm..." th:value="${q}"/>
     </form>
   </div>
 
   <div class="news-cat-tabs">
-    <a th:href="@{/news(q=${q})}" class="news-cat-tab" th:classappend="${selectedCategory == null} ? ' active' : ''">Tất cả</a>
+    <a th:href="${visibilityParam != null} ? @{/news(q=${q},visibility=${visibilityParam})} : @{/news(q=${q})}"
+       class="news-cat-tab" th:classappend="${selectedCategory == null} ? ' active' : ''">Tất cả</a>
     <a th:each="cat : ${categories}"
-       th:href="@{/news(category=${cat.name()},q=${q})}"
+       th:href="${visibilityParam != null} ? @{/news(category=${cat.name()},q=${q},visibility=${visibilityParam})} : @{/news(category=${cat.name()},q=${q})}"
        class="news-cat-tab"
        th:classappend="${selectedCategory != null and selectedCategory.name() == cat.name()} ? ' active' : ''"
        th:text="${cat.label}">Danh mục</a>
@@ -47,7 +75,9 @@
 
   <div th:if="${showFeatured and !#lists.isEmpty(featuredArticles)}"
        style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
-    <div th:each="article : ${featuredArticles}" class="news-card">
+    <div th:each="article : ${featuredArticles}" class="news-card"
+         th:attr="data-news-id=${article.id},data-news-family-id=${article.family != null ? article.family.familyId : ''}">
+      <label class="np-news-cb-wrap"><input type="checkbox" class="np-news-cb" th:attr="data-news-id=${article.id}"/></label>
       <div class="news-card-img">
         <img th:if="${article.coverImage != null and !article.coverImage.isEmpty()}"
              th:src="${article.coverImage}" th:alt="${article.title}"/>
@@ -56,6 +86,7 @@
       <div class="news-card-body">
         <div class="news-card-meta">
           <span class="badge badge-gray" th:text="${article.publicCategory != null ? article.publicCategory.label : '—'}">Danh mục</span>
+          <span th:if="${article.visibility != null and article.visibility.name() == 'FAMILY_ONLY'}" class="badge badge-orange" title="Chỉ thành viên đã đăng nhập thuộc nhánh dòng họ mới xem được">Nội bộ</span>
           <span class="text-xs text-muted" th:text="${article.user != null ? article.user.fullName : 'Ban quản trị'}">Tác giả</span>
           <span class="text-xs text-muted"
                 th:text="${article.createdAt != null ? #temporals.format(article.createdAt, 'dd/MM/yyyy') : '—'}">Ngày</span>
@@ -79,11 +110,15 @@
   <div th:if="${#lists.isEmpty(articles)}" class="empty-state">
     <i class="fas fa-newspaper"></i>
     <h3>Chưa có bài viết</h3>
-    <p class="text-sm text-muted" style="margin-top:.5rem;">Tạo bài trong <strong>Quản trị → Tin tức</strong> (visibility <code>PUBLIC_SITE</code>, không gắn dòng họ) hoặc chèn vào bảng <code>news_events</code>.</p>
+    <p class="text-sm text-muted" style="margin-top:.5rem;">
+      (Nếu có quyền) dùng <strong>Tạo tin</strong> ngay trên trang này; có thể <strong>sửa / xóa</strong> bằng chế độ trên thanh công cụ. <strong>Công khai</strong> — ai cũng xem được; <strong>Nội bộ</strong> — cần đăng nhập thành viên cùng dòng họ cấu hình ứng dụng.
+    </p>
   </div>
 
   <div th:unless="${#lists.isEmpty(articles)}" class="news-grid">
-    <div th:each="article : ${articles}" class="news-card">
+    <div th:each="article : ${articles}" class="news-card"
+         th:attr="data-news-id=${article.id},data-news-family-id=${article.family != null ? article.family.familyId : ''}">
+      <label class="np-news-cb-wrap"><input type="checkbox" class="np-news-cb" th:attr="data-news-id=${article.id}"/></label>
       <div class="news-card-img">
         <img th:if="${article.coverImage != null and !article.coverImage.isEmpty()}"
              th:src="${article.coverImage}" th:alt="${article.title}"/>
@@ -92,6 +127,7 @@
       <div class="news-card-body">
         <div class="news-card-meta">
           <span class="badge badge-gray" th:text="${article.publicCategory != null ? article.publicCategory.label : '—'}">Danh mục</span>
+          <span th:if="${article.visibility != null and article.visibility.name() == 'FAMILY_ONLY'}" class="badge badge-orange" title="Chỉ thành viên đã đăng nhập thuộc nhánh dòng họ mới xem được">Nội bộ</span>
           <span class="text-xs text-muted" th:text="${article.user != null ? article.user.fullName : 'Ban quản trị'}">Tác giả</span>
           <span class="text-xs text-muted"
                 th:text="${article.createdAt != null ? #temporals.format(article.createdAt, 'dd/MM/yyyy') : '—'}">Ngày</span>
@@ -110,7 +146,89 @@
 </div>
 </div>
 
+<div id="npNewsFormModal" class="modal-overlay" aria-hidden="true">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-header">
+      <div>
+        <h3 id="npNewsModalTitle">Sửa tin / sự kiện</h3>
+        <p style="font-size:.82rem;color:var(--text-500);margin-top:.2rem;">Lưu qua API quản trị — cần quyền trưởng họ.</p>
+      </div>
+      <button type="button" class="modal-close" id="npNewsModalClose" aria-label="Đóng"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="npNewsForm">
+      <input type="hidden" id="npNewsEditId" value=""/>
+      <input type="hidden" id="npNewsFamilyId" value=""/>
+      <div class="fh-form-grid">
+        <div class="fh-span-2">
+          <label for="npNewsTitle">Tiêu đề <span style="color:#b91c1c;">*</span></label>
+          <input type="text" id="npNewsTitle" class="form-control" required maxlength="500"/>
+        </div>
+        <div class="fh-span-2">
+          <label for="npNewsSummary">Tóm tắt</label>
+          <textarea id="npNewsSummary" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="fh-span-2">
+          <label for="npNewsContent">Nội dung</label>
+          <textarea id="npNewsContent" class="form-control"></textarea>
+        </div>
+        <div>
+          <label for="npNewsCategoryId">Danh mục nội bộ</label>
+          <select id="npNewsCategoryId" class="form-control form-select"></select>
+        </div>
+        <div>
+          <label for="npNewsVisibility">Phạm vi hiển thị</label>
+          <select id="npNewsVisibility" class="form-control form-select">
+            <option value="FAMILY_ONLY">Nội bộ</option>
+            <option value="PUBLIC_SITE">Công khai</option>
+            <option value="DRAFT">Nháp</option>
+          </select>
+        </div>
+        <div id="npPublicFields" class="fh-span-2" style="display:none;padding:.5rem;background:#f8faf8;border-radius:var(--radius);border:1px solid var(--border);">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;align-items:end;">
+            <div>
+              <label for="npNewsPublicCategory">Tab trang tin (/news)</label>
+              <select id="npNewsPublicCategory" class="form-control form-select">
+                <option value="">— Chọn —</option>
+                <option value="ANNOUNCEMENT">Thông báo</option>
+                <option value="HISTORY">Dòng họ</option>
+                <option value="GENERAL">Tin chung</option>
+                <option value="EVENT">Sự kiện</option>
+              </select>
+            </div>
+            <div>
+              <label for="npNewsFeatured" style="display:flex;align-items:center;gap:.5rem;cursor:pointer;">
+                <input type="checkbox" id="npNewsFeatured"/> Nổi bật
+              </label>
+            </div>
+          </div>
+        </div>
+        <div>
+          <label for="npNewsLocation">Địa điểm</label>
+          <input type="text" id="npNewsLocation" class="form-control"/>
+        </div>
+        <div>
+          <label for="npNewsRemindBefore">Nhắc trước (phút)</label>
+          <input type="number" id="npNewsRemindBefore" class="form-control" min="0" step="1"/>
+        </div>
+        <div>
+          <label for="npNewsStartAt">Bắt đầu</label>
+          <input type="datetime-local" id="npNewsStartAt" class="form-control"/>
+        </div>
+        <div>
+          <label for="npNewsEndAt">Kết thúc</label>
+          <input type="datetime-local" id="npNewsEndAt" class="form-control"/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-white" id="npNewsModalCancel">Hủy</button>
+        <button type="submit" class="btn btn-primary">Lưu</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <th:block th:replace="~{fragments/footer :: footer}"/>
 <script th:src="@{/js/main.js}"></script>
+<script th:src="@{/js/news-page-manage.js}"></script>
 </body>
 </html>

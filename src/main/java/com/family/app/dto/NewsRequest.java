@@ -19,4 +19,7 @@ public class NewsRequest {
     private String location;
     private Integer remindBefore;
     private String visibility;
+    /** Khi visibility = PUBLIC_SITE hoặc DRAFT (chuẩn bị đăng tab /news): EVENT, ANNOUNCEMENT, … */
+    private String publicCategory;
+    private Boolean featured;
 }

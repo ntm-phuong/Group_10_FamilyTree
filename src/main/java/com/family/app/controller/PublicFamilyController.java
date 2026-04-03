@@ -1,6 +1,7 @@
 package com.family.app.controller;
 
-import com.family.app.model.Family;
+import com.family.app.config.AppClanProperties;
+import com.family.app.repository.CategoryRepository;
 import com.family.app.repository.FamilyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,14 +17,27 @@ import java.util.Map;
 public class PublicFamilyController {
 
     private final FamilyRepository familyRepository;
+    private final CategoryRepository categoryRepository;
+    private final AppClanProperties clanProperties;
 
+    /** Một bản ghi — dòng họ cấu hình ứng dụng. */
     @GetMapping("/families")
     public List<Map<String, String>> getFamilies() {
-        return familyRepository.findAll()
+        String id = clanProperties.getFamilyId();
+        String name = familyRepository.findById(id)
+                .map(f -> f.getFamilyName())
+                .orElse(clanProperties.getDisplayName());
+        return List.of(Map.of("id", id, "name", name));
+    }
+
+    /** Danh mục tin nội bộ (dropdown CRUD tin / sự kiện dòng họ). */
+    @GetMapping("/categories")
+    public List<Map<String, String>> getCategories() {
+        return categoryRepository.findAll()
                 .stream()
-                .map(family -> Map.of(
-                        "id", family.getFamilyId(),
-                        "name", family.getFamilyName()
+                .map(c -> Map.of(
+                        "id", c.getCategoryId(),
+                        "name", c.getName()
                 ))
                 .toList();
     }

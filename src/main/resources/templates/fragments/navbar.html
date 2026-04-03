@@ -13,11 +13,6 @@
     <a href="/family-tree" id="navFamilyTree" style="display: none;"><i class="fas fa-sitemap"></i> Gia Phả</a>
 
     <a href="/news" id="navNews"><i class="far fa-newspaper"></i> Tin Tức</a>
-
-    <a th:href="@{/family-head}"
-       id="navAdmin"
-       th:classappend="${activeMenu == 'dashboard' ? 'active' : ''}"
-       class="sidebar-link"><i class="fas fa-th-large"></i> Quản Trị</a>
   </nav>
 
   <div class="nav-right-actions">
@@ -34,7 +29,7 @@
 
       <div class="dropdown-menu">
         <a href="/profile" class="dropdown-item">Hồ sơ cá nhân</a>
-        <a href="/admin" class="dropdown-item">Trang quản trị</a>
+        <a href="/admin" class="dropdown-item">Trang quản trị (legacy)</a>
         <a href="#" class="dropdown-item logout-btn" id="navLogoutBtn">Đăng xuất</a>
       </div>
     </div>
@@ -52,7 +47,6 @@
             const navLogo = document.getElementById('navLogo');
             const navHome = document.getElementById('navHome');
             const navFamilyTree = document.getElementById('navFamilyTree');
-            const navAdmin = document.getElementById('navAdmin');
             const navLoginBtn = document.getElementById('navLoginBtn');
             const navUserDropdown = document.getElementById('navUserDropdown');
             const navFullName = document.getElementById('navFullName');
@@ -65,10 +59,8 @@
                 navLogo.href = '/home';
                 navHome.href = '/home';
 
-                // 2. Hiện menu Gia Phả và Quản Trị
+                // 2. Hiện menu Gia Phả
                 navFamilyTree.style.display = 'flex';
-                navAdmin.style.display = 'flex';
-
                 // 3. Ẩn nút Đăng nhập, hiện Dropdown Profile
                 navLoginBtn.style.display = 'none';
                 navUserDropdown.style.display = 'inline-block';
@@ -86,12 +78,18 @@
                     initials = fullName.charAt(0);
                 }
                 navAvatarInitials.innerText = initials.toUpperCase();
+
+                var navNews = document.getElementById('navNews');
+                if (navNews) {
+                    navNews.href = '/news';
+                }
             }
 
             // XỬ LÝ NÚT ĐĂNG XUẤT
             if (navLogoutBtn) {
                 navLogoutBtn.addEventListener('click', function(e) {
                     e.preventDefault();
+                    document.cookie = 'accessToken=; path=/; max-age=0';
                     // Xóa sạch bộ nhớ
                     localStorage.clear();
                     // Đá về trang chủ của khách
