@@ -22,10 +22,10 @@
        class="sidebar-link">
       <i class="fas fa-users"></i> Thành viên
     </a>
-    <a th:href="@{/admin/news}"
+    <a th:href="@{/family-head(tab=${'news'})}"
        th:classappend="${activeMenu=='news'}?' active':''"
        class="sidebar-link">
-      <i class="fas fa-newspaper"></i> Tin tức
+      <i class="fas fa-newspaper"></i> Quản trị dòng họ
     </a>
     <a th:href="@{/admin/family-info}"
        th:classappend="${activeMenu=='family-info'}?' active':''"

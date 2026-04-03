@@ -1,3 +1,19 @@
+(function syncJwtCookieFromLocalStorage() {
+  try {
+    const t = localStorage.getItem("token");
+    if (!t) return;
+    if (document.cookie.split(";").some((c) => c.trim().startsWith("accessToken="))) return;
+    document.cookie =
+      "accessToken=" +
+      encodeURIComponent(t) +
+      "; path=/; max-age=" +
+      86400 * 7 +
+      "; SameSite=Lax";
+  } catch (e) {
+    /* ignore */
+  }
+})();
+
 document.addEventListener('DOMContentLoaded', function() {
   // Logic chung cho tất cả dropdown trong navbar
   const dropdowns = document.querySelectorAll('.pub-nav-right .dropdown');
@@ -49,29 +65,37 @@ async function loadFamilyTree() {
 
   const query = new URLSearchParams(window.location.search);
   const familyFilter = document.getElementById("familyFilter");
+  const familyFilterWrap = document.getElementById("familyFilterWrap");
   const queryFamilyId = query.get("familyId");
   const savedFamilyId = localStorage.getItem("selectedFamilyId");
-  let familyId = queryFamilyId || savedFamilyId || "";
+  const myFamilyId = localStorage.getItem("my_family_id");
+  const token = localStorage.getItem("token");
 
-  if (familyFilter) {
-    try {
-      const familyRes = await fetch("/api/public/families");
-      if (familyRes.ok) {
-        const families = await familyRes.json();
-        familyFilter.innerHTML = '<option value="">Chọn dòng họ</option>' +
-          families.map((f) => `<option value="${f.id}">${f.name}</option>`).join("");
+  /* URL > lần xem trước > dòng họ tài khoản > mặc định đầu danh sách */
+  let familyId = queryFamilyId || savedFamilyId || myFamilyId || "";
 
-        if (!familyId && families.length) {
-          familyId = families[0].id;
-        }
-        if (familyId) {
-          familyFilter.value = familyId;
-        }
-      }
-    } catch (e) {
-      // ignore and continue with current familyId fallback
+  let familiesList = [];
+  try {
+    const familyRes = await fetch("/api/public/families");
+    if (familyRes.ok) {
+      familiesList = await familyRes.json();
     }
+  } catch (e) {
+    /* ignore */
+  }
 
+  if (token) {
+    if (familyFilterWrap) familyFilterWrap.style.display = "none";
+  } else if (familyFilter) {
+    familyFilter.innerHTML =
+      '<option value="">Chọn dòng họ</option>' +
+      familiesList.map((f) => `<option value="${f.id}">${f.name}</option>`).join("");
+    if (!familyId && familiesList.length) {
+      familyId = familiesList[0].id;
+    }
+    if (familyId) {
+      familyFilter.value = familyId;
+    }
     familyFilter.addEventListener("change", function onFamilyChange() {
       const selected = this.value || "";
       if (selected) {
@@ -82,6 +106,10 @@ async function loadFamilyTree() {
       const nextUrl = selected ? `/family-tree?familyId=${encodeURIComponent(selected)}` : "/family-tree";
       window.location.href = nextUrl;
     });
+  }
+
+  if (!familyId && familiesList.length) {
+    familyId = familiesList[0].id;
   }
 
   const apiUrl = familyId

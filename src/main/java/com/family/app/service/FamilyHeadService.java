@@ -1,18 +1,25 @@
 package com.family.app.service;
 
+import com.family.app.dto.FamilyResponse;
+import com.family.app.dto.FamilyWriteRequest;
 import com.family.app.dto.UserRequest;
 import com.family.app.dto.UserResponse;
 import com.family.app.model.Family;
 import com.family.app.model.Role;
 import com.family.app.model.User;
+import com.family.app.repository.FamilyRepository;
 import com.family.app.repository.RoleRepository;
 import com.family.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,78 +27,157 @@ public class FamilyHeadService {
 
     @Autowired
     private UserRepository userRepository;
-    @Autowired private RoleRepository roleRepository;
-    @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired
+    private RoleRepository roleRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private FamilyRepository familyRepository;
+    @Autowired
+    private FamilyScopeService familyScopeService;
 
-    // 1. Trưởng họ xem danh sách tất cả thành viên
-    public List<UserResponse> getAllMembers() {
-        return userRepository.findAll().stream()
+    /** Chi của tài khoản và mọi chi con (cho dropdown / lọc). */
+    @Transactional(readOnly = true)
+    public List<FamilyResponse> listFamiliesInScope(String managerUserId) {
+        return familyScopeService.manageableFamilyIds(managerUserId).stream()
+                .map(id -> familyRepository.findByIdWithParentFamily(id).orElse(null))
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(Family::getFamilyName, Comparator.nullsLast(String::compareToIgnoreCase)))
+                .map(this::mapFamily)
+                .collect(Collectors.toList());
+    }
+
+    public FamilyResponse createFamily(FamilyWriteRequest req) {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Trưởng họ không thể tạo dòng họ mới.");
+    }
+
+    /**
+     * Sửa tên / mô tả / quyền riêng tư của một chi trong phạm vi nhánh.
+     */
+    @Transactional
+    public FamilyResponse updateFamily(String id, FamilyWriteRequest req, String managerUserId) {
+        familyScopeService.assertCanManageFamily(managerUserId, id);
+        Family f = familyRepository.findByIdWithParentFamily(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy dòng họ: " + id));
+        if (req.getFamilyName() != null && !req.getFamilyName().isBlank()) {
+            f.setFamilyName(req.getFamilyName().trim());
+        }
+        if (req.getDescription() != null) {
+            f.setDescription(req.getDescription());
+        }
+        if (req.getPrivacySetting() != null) {
+            f.setPrivacySetting(req.getPrivacySetting().isBlank() ? "PUBLIC" : req.getPrivacySetting().trim());
+        }
+        return mapFamily(familyRepository.save(f));
+    }
+
+    public void deleteFamily(String id, String managerUserId) {
+        familyScopeService.assertCanManageFamily(managerUserId, id);
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Không thể xóa dòng họ từ tài khoản trưởng họ.");
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserResponse> getMembersForManagedFamily(String familyId) {
+        return userRepository.findByFamily_FamilyIdOrderByOrderInFamilyAsc(familyId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
-    // 2. Trưởng họ thêm thành viên mới (Tự động tạo tài khoản đăng nhập)
+    @Transactional(readOnly = true)
+    public UserResponse getMember(String id, String managerUserId) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thành viên có ID: " + id));
+        if (user.getFamily() == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Thành viên không gắn dòng họ.");
+        }
+        familyScopeService.assertCanManageFamily(managerUserId, user.getFamily().getFamilyId());
+        return mapToResponse(user);
+    }
+
     @Transactional
-    public UserResponse saveMember(UserRequest request) {
+    public UserResponse saveMember(UserRequest request, String managerUserId) {
+        if (request.getFamilyId() == null || request.getFamilyId().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Thiếu familyId.");
+        }
+        familyScopeService.assertCanManageFamily(managerUserId, request.getFamilyId().trim());
+
+        String managedFamilyId = request.getFamilyId().trim();
         User user = new User();
         mapRequestToEntity(user, request);
 
-        // 1. Mã hóa mật khẩu (Bắt buộc để Spring Security check lúc login)
-        // Nếu request không gửi password, ta để mặc định 123456
         user.setPassword(passwordEncoder.encode("123456"));
-
-        // 2. Set trạng thái Active (1) để đăng nhập được ngay
         user.setStatus(1);
 
-        // 3. Xử lý logic Thế hệ (Generation)
-        // Nếu có parentId, thế hệ con = thế hệ cha + 1
         if (request.getParentId() != null) {
             userRepository.findById(request.getParentId()).ifPresent(parent -> {
+                if (parent.getFamily() == null
+                        || !managedFamilyId.equals(parent.getFamily().getFamilyId())) {
+                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cha/mẹ phải cùng dòng họ đang thêm.");
+                }
                 user.setGeneration(parent.getGeneration() + 1);
             });
         } else if (user.getGeneration() == null) {
-            user.setGeneration(1); // Mặc định là đời thứ nhất nếu không rõ
+            user.setGeneration(1);
         }
 
-        // 4. Gán Role (Dùng findByRoleName từ Repo Phú vừa viết)
         Role memberRole = roleRepository.findByRoleName("MEMBER")
                 .orElseThrow(() -> new RuntimeException("Chưa cấu hình Role MEMBER trong DB!"));
         user.setRole(memberRole);
 
-        // 5. Lưu (Lúc này @PrePersist trong Entity sẽ tự sinh UUID cho userId)
         User savedUser = userRepository.save(user);
-
         return mapToResponse(savedUser);
     }
-    // 3. Trưởng họ cập nhật thông tin thành viên
+
     @Transactional
-    public UserResponse updateMember(String id, UserRequest request) {
+    public UserResponse updateMember(String id, UserRequest request, String managerUserId) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thành viên có ID: " + id));
-
+        if (user.getFamily() == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Không thể sửa thành viên ngoài dòng họ.");
+        }
+        familyScopeService.assertCanManageFamily(managerUserId, user.getFamily().getFamilyId());
+        if (request.getFamilyId() != null && !request.getFamilyId().isBlank()) {
+            familyScopeService.assertCanManageFamily(managerUserId, request.getFamilyId().trim());
+        }
+        request.setFamilyId(request.getFamilyId() != null && !request.getFamilyId().isBlank()
+                ? request.getFamilyId().trim()
+                : user.getFamily().getFamilyId());
         mapRequestToEntity(user, request);
 
         User updatedUser = userRepository.save(user);
         return mapToResponse(updatedUser);
     }
 
-    // 4. Trưởng họ xóa thành viên
     @Transactional
-    public void deleteMember(String id) {
+    public void deleteMember(String id, String managerUserId) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Thành viên không tồn tại có ID: " + id));
+        if (user.getFamily() == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Không thể xóa thành viên ngoài dòng họ.");
+        }
+        familyScopeService.assertCanManageFamily(managerUserId, user.getFamily().getFamilyId());
 
-        // Kiểm tra xem ID này có đang là parentId của ai không
         boolean hasDescendants = userRepository.existsByParentId(id);
         if (hasDescendants) {
-            // Thêm tên thành viên vào thông báo cho chuyên nghiệp
-            throw new RuntimeException("Không thể xóa '" + user.getFullName() + "' vì người này đã có con cháu. Vui lòng xóa hoặc cập nhật lại cha mẹ cho các con trước khi xóa thành viên này!");
+            throw new RuntimeException("Không thể xóa '" + user.getFullName()
+                    + "' vì người này đã có con cháu. Vui lòng xóa hoặc cập nhật lại cha mẹ cho các con trước.");
         }
 
         userRepository.delete(user);
     }
 
-    // --- Helper Methods để xử lý Mapping (Sửa lỗi đỏ trong ảnh) ---
+    private FamilyResponse mapFamily(Family f) {
+        FamilyResponse r = new FamilyResponse();
+        r.setFamilyId(f.getFamilyId());
+        r.setFamilyName(f.getFamilyName());
+        r.setDescription(f.getDescription());
+        r.setPrivacySetting(f.getPrivacySetting());
+        if (f.getParentFamily() != null) {
+            r.setParentFamilyId(f.getParentFamily().getFamilyId());
+            r.setParentFamilyName(f.getParentFamily().getFamilyName());
+        }
+        return r;
+    }
 
     private void mapRequestToEntity(User user, UserRequest request) {
         user.setFullName(request.getFullName());
@@ -107,11 +193,10 @@ public class FamilyHeadService {
         user.setOrderInFamily(request.getOrderInFamily());
         user.setParentId(request.getParentId());
 
-        // Sửa lỗi setFamilyId: Chuyển từ String sang Object Family
         if (request.getFamilyId() != null) {
-            Family f = new Family();
-            f.setFamilyId(request.getFamilyId());
-            user.setFamily(f);
+            Family fam = familyRepository.findById(request.getFamilyId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy dòng họ"));
+            user.setFamily(fam);
         }
     }
 
@@ -129,12 +214,11 @@ public class FamilyHeadService {
         response.setBio(user.getBio());
         response.setAvatar(user.getAvatar());
 
-        // Sửa lỗi getFamilyId: Lấy ID từ Object Family
         if (user.getFamily() != null) {
-            response.setFamilyName("Dòng họ ID: " + user.getFamily().getFamilyId());
+            response.setFamilyId(user.getFamily().getFamilyId());
+            response.setFamilyName(user.getFamily().getFamilyName());
         }
 
-        // Sửa lỗi getRoleId: Lấy Name từ Object Role
         if (user.getRole() != null) {
             response.setRoleName(user.getRole().getRoleName());
         }

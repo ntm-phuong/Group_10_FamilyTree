@@ -1,14 +1,18 @@
 package com.family.app.service;
 
+import com.family.app.model.Permission;
 import com.family.app.model.User;
 import com.family.app.repository.UserRepository;
 import com.family.app.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthService {
@@ -83,8 +87,9 @@ public class AuthService {
         userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
     public Map<String, Object> authenticate(String email, String password) {
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailWithFamily(email)
                 .orElseThrow(() -> new RuntimeException("Email không tồn tại"));
 
         if (passwordEncoder.matches(password, user.getPassword())) {
@@ -95,8 +100,20 @@ public class AuthService {
             authData.put("userId", user.getUserId());
             authData.put("fullName", user.getFullName());
 
+            if (user.getFamily() != null) {
+                authData.put("familyId", user.getFamily().getFamilyId());
+                authData.put("familyName", user.getFamily().getFamilyName());
+            }
+
             if (user.getRole() != null) {
                 authData.put("role", user.getRole().getRoleName());
+                if (user.getRole().getPermissions() != null) {
+                    List<String> permNames = user.getRole().getPermissions().stream()
+                            .map(Permission::getName)
+                            .filter(n -> n != null && !n.isBlank())
+                            .collect(Collectors.toList());
+                    authData.put("permissions", permNames);
+                }
             }
 
             return authData;
@@ -121,5 +138,30 @@ public class AuthService {
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+    }
+
+    /** Hồ sơ tối giản cho FE (sau khi đã xác thực JWT). */
+    @Transactional(readOnly = true)
+    public Map<String, Object> buildSessionProfile(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+        Map<String, Object> m = new HashMap<>();
+        m.put("userId", user.getUserId());
+        m.put("fullName", user.getFullName());
+        m.put("email", user.getEmail());
+        if (user.getRole() != null) {
+            m.put("role", user.getRole().getRoleName());
+            if (user.getRole().getPermissions() != null) {
+                m.put("permissions", user.getRole().getPermissions().stream()
+                        .map(Permission::getName)
+                        .filter(n -> n != null && !n.isBlank())
+                        .collect(Collectors.toList()));
+            }
+        }
+        if (user.getFamily() != null) {
+            m.put("familyId", user.getFamily().getFamilyId());
+            m.put("familyName", user.getFamily().getFamilyName());
+        }
+        return m;
     }
 }

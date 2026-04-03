@@ -16,6 +16,10 @@
     <i class="fas fa-exclamation-circle"></i>
     <span th:text="${errorMessage}"></span>
   </div>
+  <div th:if="${unknownFamilyId != null}" class="alert alert-error mb-3">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>Không tìm thấy dòng họ <code th:text="${unknownFamilyId}">—</code>. Hiển thị tin toàn site hoặc chọn lại.</span>
+  </div>
 
   <div class="breadcrumb">
     <a href="/home"><i class="fas fa-home"></i></a>
@@ -24,25 +28,75 @@
   </div>
 
   <h1 style="font-size:1.4rem;font-weight:700;margin-bottom:.3rem;">Tin tức dòng họ</h1>
-  <p style="font-size:.85rem;color:var(--text-500);margin-bottom:1.25rem;">
+  <p style="font-size:.85rem;color:var(--text-500);margin-bottom:.5rem;">
     Cập nhật các hoạt động, sự kiện và tin tức mới nhất của dòng họ
   </p>
+  <p th:if="${filterFamilyName != null}" style="font-size:.82rem;color:var(--text-700);margin-bottom:.75rem;">
+    Đang lọc: <strong th:text="${filterFamilyName}">—</strong>
+    <a href="/news?all=1" style="margin-left:.5rem;color:var(--green-700);">Xem tin tất cả dòng họ</a>
+  </p>
+
+  <div th:if="${showAllNews}" class="news-all-toolbar">
+    <a id="news-back-my-family" href="#" class="btn btn-outline btn-sm news-back-my-family" style="display:none;">
+      <i class="fas fa-users"></i> Tin theo dòng họ của tôi
+    </a>
+    <form method="get" th:action="@{/news}" class="news-all-toolbar-filters">
+      <input type="hidden" name="all" value="1"/>
+      <input type="hidden" name="q" th:value="${q}"/>
+      <input type="hidden" name="category" th:if="${selectedCategory != null}" th:value="${selectedCategory.name()}"/>
+      <input type="hidden" name="visibility" th:if="${visibilityParam != null}" th:value="${visibilityParam}"/>
+      <label class="news-all-toolbar-label">
+        <span class="news-all-toolbar-scope-label">Dòng họ</span>
+        <select name="familyId" onchange="this.form.submit()">
+          <option value="">Tất cả dòng họ</option>
+          <option th:each="f : ${filterFamilies}" th:value="${f.familyId}" th:text="${f.familyName}"
+                  th:selected="${filterFamilyId != null and filterFamilyId == f.familyId}"></option>
+        </select>
+      </label>
+    </form>
+    <div class="news-all-toolbar-scope">
+      <span class="news-all-toolbar-scope-label">Phạm vi</span>
+      <div class="news-cat-tabs news-vis-tabs">
+        <a th:href="@{/news(all=1,q=${q},familyId=${filterFamilyId})}"
+           class="news-cat-tab" th:classappend="${visibilityParam == null} ? ' active' : ''">Tất cả</a>
+        <a th:href="@{/news(all=1,q=${q},familyId=${filterFamilyId},visibility=${'public'})}"
+           class="news-cat-tab" th:classappend="${visibilityParam == 'public'} ? ' active' : ''">Công khai</a>
+        <a th:href="@{/news(all=1,q=${q},familyId=${filterFamilyId},visibility=${'internal'})}"
+           class="news-cat-tab" th:classappend="${visibilityParam == 'internal'} ? ' active' : ''">Nội bộ</a>
+      </div>
+    </div>
+  </div>
 
   <div class="search-input mb-4" style="max-width:320px;">
     <i class="fas fa-search"></i>
     <form th:action="@{/news}" method="get">
       <input type="hidden" name="category" th:if="${selectedCategory != null}" th:value="${selectedCategory.name()}"/>
+      <input type="hidden" name="familyId" th:if="${filterFamilyId != null}" th:value="${filterFamilyId}"/>
+      <input type="hidden" name="all" value="1" th:if="${showAllNews}"/>
+      <input type="hidden" name="visibility" th:if="${visibilityParam != null}" th:value="${visibilityParam}"/>
       <input type="text" name="q" class="form-control" placeholder="Tìm kiếm..." th:value="${q}"/>
     </form>
   </div>
 
   <div class="news-cat-tabs">
-    <a th:href="@{/news(q=${q})}" class="news-cat-tab" th:classappend="${selectedCategory == null} ? ' active' : ''">Tất cả</a>
-    <a th:each="cat : ${categories}"
-       th:href="@{/news(category=${cat.name()},q=${q})}"
-       class="news-cat-tab"
-       th:classappend="${selectedCategory != null and selectedCategory.name() == cat.name()} ? ' active' : ''"
-       th:text="${cat.label}">Danh mục</a>
+    <th:block th:if="${showAllNews}">
+      <a th:href="@{/news(all=1,q=${q},familyId=${filterFamilyId},visibility=${visibilityParam})}"
+         class="news-cat-tab" th:classappend="${selectedCategory == null} ? ' active' : ''">Tất cả</a>
+      <a th:each="cat : ${categories}"
+         th:href="@{/news(all=1,q=${q},familyId=${filterFamilyId},visibility=${visibilityParam},category=${cat.name()})}"
+         class="news-cat-tab"
+         th:classappend="${selectedCategory != null and selectedCategory.name() == cat.name()} ? ' active' : ''"
+         th:text="${cat.label}">Danh mục</a>
+    </th:block>
+    <th:block th:unless="${showAllNews}">
+      <a th:href="${filterFamilyId != null} ? @{/news(q=${q},familyId=${filterFamilyId})} : @{/news(q=${q})}"
+         class="news-cat-tab" th:classappend="${selectedCategory == null} ? ' active' : ''">Tất cả</a>
+      <a th:each="cat : ${categories}"
+         th:href="${filterFamilyId != null} ? @{/news(category=${cat.name()},q=${q},familyId=${filterFamilyId})} : @{/news(category=${cat.name()},q=${q})}"
+         class="news-cat-tab"
+         th:classappend="${selectedCategory != null and selectedCategory.name() == cat.name()} ? ' active' : ''"
+         th:text="${cat.label}">Danh mục</a>
+    </th:block>
   </div>
 
   <div th:if="${showFeatured and !#lists.isEmpty(featuredArticles)}"
@@ -56,17 +110,19 @@
       <div class="news-card-body">
         <div class="news-card-meta">
           <span class="badge badge-gray" th:text="${article.publicCategory != null ? article.publicCategory.label : '—'}">Danh mục</span>
+          <span th:if="${article.visibility != null and article.visibility.name() == 'FAMILY_ONLY'}" class="badge badge-orange" title="Chỉ thành viên đã đăng nhập thuộc nhánh dòng họ mới xem được">Nội bộ</span>
           <span class="text-xs text-muted" th:text="${article.user != null ? article.user.fullName : 'Ban quản trị'}">Tác giả</span>
           <span class="text-xs text-muted"
                 th:text="${article.createdAt != null ? #temporals.format(article.createdAt, 'dd/MM/yyyy') : '—'}">Ngày</span>
         </div>
         <div class="news-card-title">
-          <a th:href="@{/news/{slug}(slug=${article.slug})}" th:text="${article.title}">Tiêu đề</a>
+          <a th:href="${showAllNews} ? @{/news/{slug}(slug=${article.slug},all=1,familyId=${filterFamilyId},visibility=${visibilityParam})} : (${filterFamilyId != null} ? @{/news/{slug}(slug=${article.slug},familyId=${filterFamilyId})} : @{/news/{slug}(slug=${article.slug})})"
+             th:text="${article.title}">Tiêu đề</a>
         </div>
         <p class="news-card-excerpt" th:text="${article.summary}">Tóm tắt</p>
         <div class="news-card-footer">
           <span></span>
-          <a th:href="@{/news/{slug}(slug=${article.slug})}">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+          <a th:href="${showAllNews} ? @{/news/{slug}(slug=${article.slug},all=1,familyId=${filterFamilyId},visibility=${visibilityParam})} : (${filterFamilyId != null} ? @{/news/{slug}(slug=${article.slug},familyId=${filterFamilyId})} : @{/news/{slug}(slug=${article.slug})})">Đọc thêm <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
     </div>
@@ -79,7 +135,10 @@
   <div th:if="${#lists.isEmpty(articles)}" class="empty-state">
     <i class="fas fa-newspaper"></i>
     <h3>Chưa có bài viết</h3>
-    <p class="text-sm text-muted" style="margin-top:.5rem;">Tạo bài trong <strong>Quản trị → Tin tức</strong> (visibility <code>PUBLIC_SITE</code>, không gắn dòng họ) hoặc chèn vào bảng <code>news_events</code>.</p>
+    <p class="text-sm text-muted" style="margin-top:.5rem;">
+      Tạo bài trong <strong>Quản trị dòng họ → Tin tức</strong>. <strong>Công khai</strong> — ai cũng xem được; <strong>Nội bộ</strong> — cùng trang /news nhưng cần đăng nhập và thuộc nhánh dòng họ (tổ/chi gắn bài là tổ tiên trên dòng của bạn).
+      <span th:if="${filterFamilyId == null}">Trang này có thể hiển thị tin <strong>tất cả</strong> dòng họ (công khai); lọc <code>?familyId=…</code> hoặc đăng nhập để xem thêm tin nội bộ.</span>
+    </p>
   </div>
 
   <div th:unless="${#lists.isEmpty(articles)}" class="news-grid">
@@ -92,17 +151,19 @@
       <div class="news-card-body">
         <div class="news-card-meta">
           <span class="badge badge-gray" th:text="${article.publicCategory != null ? article.publicCategory.label : '—'}">Danh mục</span>
+          <span th:if="${article.visibility != null and article.visibility.name() == 'FAMILY_ONLY'}" class="badge badge-orange" title="Chỉ thành viên đã đăng nhập thuộc nhánh dòng họ mới xem được">Nội bộ</span>
           <span class="text-xs text-muted" th:text="${article.user != null ? article.user.fullName : 'Ban quản trị'}">Tác giả</span>
           <span class="text-xs text-muted"
                 th:text="${article.createdAt != null ? #temporals.format(article.createdAt, 'dd/MM/yyyy') : '—'}">Ngày</span>
         </div>
         <div class="news-card-title">
-          <a th:href="@{/news/{slug}(slug=${article.slug})}" th:text="${article.title}">Tiêu đề</a>
+          <a th:href="${showAllNews} ? @{/news/{slug}(slug=${article.slug},all=1,familyId=${filterFamilyId},visibility=${visibilityParam})} : (${filterFamilyId != null} ? @{/news/{slug}(slug=${article.slug},familyId=${filterFamilyId})} : @{/news/{slug}(slug=${article.slug})})"
+             th:text="${article.title}">Tiêu đề</a>
         </div>
         <p class="news-card-excerpt" th:text="${article.summary}">Tóm tắt</p>
         <div class="news-card-footer">
           <span></span>
-          <a th:href="@{/news/{slug}(slug=${article.slug})}">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+          <a th:href="${showAllNews} ? @{/news/{slug}(slug=${article.slug},all=1,familyId=${filterFamilyId},visibility=${visibilityParam})} : (${filterFamilyId != null} ? @{/news/{slug}(slug=${article.slug},familyId=${filterFamilyId})} : @{/news/{slug}(slug=${article.slug})})">Đọc thêm <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
     </div>
@@ -112,5 +173,20 @@
 
 <th:block th:replace="~{fragments/footer :: footer}"/>
 <script th:src="@{/js/main.js}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var token = localStorage.getItem('token');
+    var myF = localStorage.getItem('my_family_id');
+    var backBtn = document.getElementById('news-back-my-family');
+    if (backBtn && token && myF) {
+      backBtn.href = '/news?familyId=' + encodeURIComponent(myF);
+      backBtn.style.display = '';
+    }
+    if (!token || !myF) return;
+    var params = new URLSearchParams(window.location.search);
+    if (params.has('familyId') || params.has('all')) return;
+    window.location.replace('/news?familyId=' + encodeURIComponent(myF));
+  });
+</script>
 </body>
 </html>

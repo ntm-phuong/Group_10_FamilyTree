@@ -28,6 +28,11 @@ public class Family {
     @Column(name = "privacy_setting", length = 20)
     private String privacySetting; // e.g., "PUBLIC", "PRIVATE"
 
+    /** Dòng họ cha (ví dụ toàn hệ → chi họ); có thể null nếu là gốc. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_family_id")
+    private Family parentFamily;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

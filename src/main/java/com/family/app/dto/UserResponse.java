@@ -16,6 +16,8 @@ public class UserResponse {
     private String occupation;
     private String bio;
     private String avatar;
+    /** ID dòng họ (FK) — tiện cho màn quản trị. */
+    private String familyId;
     private String familyName;
     private String roleName;
 
