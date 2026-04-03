@@ -170,5 +170,14 @@
 
 <th:block th:replace="~{fragments/footer :: footer}"/>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const token = localStorage.getItem('token');
+        // Nếu không có token -> Đá văng về trang khách (/)
+        if (!token) {
+            window.location.replace('/');
+        }
+    });
+</script>
 </body>
 </html>
