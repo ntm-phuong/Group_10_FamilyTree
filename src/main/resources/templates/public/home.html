@@ -1,162 +1,150 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Trang chủ – Gia Phả Dòng Họ Nguyễn</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Chủ - Gia Phả Dòng Họ Nguyễn</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <<link rel="stylesheet" th:href="@{/css/home-guest.css}">
 </head>
 <body>
+
 <th:block th:replace="~{fragments/navbar :: navbar}"/>
 
-<!-- Hero -->
-<section class="hero">
+<section class="guest-hero">
+    <div class="hero-overlay"></div>
     <div class="hero-content">
-        <h1>Gia Phả Dòng Họ<br/>Nguyễn</h1>
-        <p class="hero-quote" th:if="${familyInfo != null and familyInfo.motto != null}"
-           th:text="'&quot;' + ${familyInfo.motto} + '&quot;'">
-            "Mặt bắt hồ thuỷ, xán lả tâm tông"
-        </p>
-        <p class="hero-desc">
-            Cây cổ mọc từ đề cảnh xanh ngợt, nguồn mới bể rộng sông<br/>
-            sâu. Nơi lưu giữ truyền thống và kết nối tất cả con cháu họ Nguyễn.
-        </p>
-        <div class="hero-btns">
-            <a th:href="@{/family-tree}" class="hero-btn-w">
-                <i class="fas fa-sitemap"></i> Xem Gia Phả
-            </a>
-            <a th:href="@{/news}" class="hero-btn-o">
-                <i class="fas fa-newspaper"></i> Tin Tức Dòng Họ
-            </a>
+        <h1>Gia Phả Dòng Họ Nguyễn</h1>
+        <p class="hero-quote">"Mộc bản hồ thủy, vạn cổ tầm tông"</p>
+        <p class="hero-desc">Cây có gốc mới nở cành xanh ngọn, nước có nguồn mới bể rộng sông sâu. Nơi lưu giữ truyền thống và kết nối các thế hệ con cháu họ Nguyễn.</p>
+        <div class="hero-buttons">
+            <a href="#" class="btn btn-outline"><i class="fas fa-sitemap"></i> Xem Gia Phả</a>
+            <a th:href="@{/news}" class="btn btn-outline"><i class="far fa-newspaper"></i> Tin Tức Dòng Họ</a>
         </div>
     </div>
 </section>
 
-<!-- Stats -->
-<div class="section-inner" style="padding:2rem 1.5rem;">
-    <div class="home-stats">
-        <div class="home-stat">
-            <div class="home-stat-icon">👥</div>
-            <div class="home-stat-value" th:text="${stats != null ? stats.totalMembers : 22}">22</div>
-            <div class="home-stat-label">Thành viên</div>
-        </div>
-        <div class="home-stat">
-            <div class="home-stat-icon">🌿</div>
-            <div class="home-stat-value" th:text="${stats != null ? stats.totalGenerations : 4}">4</div>
-            <div class="home-stat-label">Thế hệ</div>
-        </div>
-        <div class="home-stat">
-            <div class="home-stat-icon">👨</div>
-            <div class="home-stat-value" th:text="${stats != null ? stats.maleCount : 11}">11</div>
-            <div class="home-stat-label">Nam giới</div>
-        </div>
-        <div class="home-stat">
-            <div class="home-stat-icon">👩</div>
-            <div class="home-stat-value" th:text="${stats != null ? stats.femaleCount : 11}">11</div>
-            <div class="home-stat-label">Nữ giới</div>
-        </div>
+<section class="guest-stats container">
+    <div class="stat-card">
+        <i class="fas fa-users" style="color: #2E7D32;"></i>
+        <h3>22</h3>
+        <p>Thành viên</p>
     </div>
-</div>
-
-<!-- About section -->
-<section class="section" style="background:var(--bg-white);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
-    <div class="section-inner">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;">
-            <div>
-                <h2 class="section-title">Về Dòng Họ</h2>
-                <div th:if="${familyInfo != null and familyInfo.description != null}">
-                    <p style="color:var(--text-500);font-size:.9rem;line-height:1.75;" th:text="${familyInfo.description}"></p>
-                </div>
-                <div th:if="${familyInfo == null or familyInfo.description == null}">
-                    <p style="color:var(--text-500);font-size:.9rem;line-height:1.75;">
-                        Dòng họ Nguyễn với bề dày lịch sử lâu đời, bắt nguồn từ vùng đất Hà Tây, nay là Hà Nội. Qua nhiều thế hệ, các thành viên đã lan tỏa và phát triển khắp mọi miền đất nước, đóng góp tích cực vào sự phát triển của xã hội.
-                    </p>
-                    <p style="color:var(--text-500);font-size:.9rem;line-height:1.75;">
-                        Với tinh thần đoàn kết và gắn bó, hệ thống gia phả trực tuyến này ra đời nhằm lưu giữ và kết nối mọi thành viên trong dòng họ.
-                    </p>
-                </div>
-                <a th:href="@{/about}" class="btn btn-outline mt-4">
-                    Tìm hiểu lịch sử dòng họ <i class="fas fa-arrow-right"></i>
-                </a>
-            </div>
-            <div style="background:var(--green-50);border-radius:var(--radius-xl);padding:2rem;text-align:center;">
-                <div style="font-size:4rem;margin-bottom:.75rem;">🏛️</div>
-                <div style="font-size:1.1rem;font-weight:700;color:var(--green-800);" th:text="${familyInfo != null ? familyInfo.name : 'Dòng Họ Nguyễn'}">Dòng Họ Nguyễn</div>
-                <div style="font-size:.85rem;color:var(--text-500);margin-top:.4rem;" th:if="${familyInfo != null}" th:text="${familyInfo.origin}">Hà Tây, Hà Nội</div>
-                <div style="font-size:.85rem;color:var(--text-500);margin-top:.4rem;" th:if="${familyInfo == null}">Khởi nguồn từ Hà Tây</div>
-            </div>
-        </div>
+    <div class="stat-card">
+        <i class="fas fa-seedling" style="color: #D84315;"></i>
+        <h3>4</h3>
+        <p>Thế hệ</p>
+    </div>
+    <div class="stat-card">
+        <i class="fas fa-male" style="color: #1976D2;"></i>
+        <h3>11</h3>
+        <p>Nam giới</p>
+    </div>
+    <div class="stat-card">
+        <i class="fas fa-female" style="color: #C2185B;"></i>
+        <h3>11</h3>
+        <p>Nữ giới</p>
     </div>
 </section>
 
-<!-- Upcoming events -->
-<section class="section" th:if="${featuredNews != null and !featuredNews.isEmpty()}">
-    <div class="section-inner">
-        <h2 class="section-title">Sự kiện sắp tới</h2>
-        <p class="section-sub">Đừng bỏ lỡ các sự kiện quan trọng của dòng họ</p>
-        <div class="event-grid">
-            <div th:each="article, s : ${featuredNews}" th:if="${s.index < 4}" class="event-card">
-                <div class="event-date-col">
-                    <div class="event-date-box">
-                        <span th:if="${article.publishedAt != null}" th:text="${#temporals.format(article.publishedAt,'dd')}">15</span>
-                        <span th:if="${article.publishedAt != null}" th:text="${#temporals.format(article.publishedAt,'MM/yy')}">01/26</span>
-                        <span th:if="${article.publishedAt == null}">–</span>
-                    </div>
-                    <span class="badge badge-green" th:text="${article.category.label}">Sự kiện</span>
-                </div>
-                <h4 th:text="${article.title}">Lễ Giỗ Tổ</h4>
-                <p th:text="${#strings.abbreviate(article.summary, 60)}">Mô tả sự kiện...</p>
-                <a th:href="@{/news/{slug}(slug=${article.slug})}"
-                   style="display:inline-flex;align-items:center;gap:.3rem;font-size:.78rem;color:var(--green-700);font-weight:500;margin-top:.5rem;">
-                    Xem chi tiết <i class="fas fa-arrow-right"></i>
-                </a>
+<section class="guest-about">
+    <div class="container">
+        <h2>Về Dòng Họ</h2>
+        <p>Dòng họ Nguyễn có lịch sử lâu đời, bắt nguồn từ vùng đất Hà Tây, nay là Hà Nội. Qua nhiều thế hệ, con cháu đã lan tỏa khắp nơi và có nhiều đóng góp trong các lĩnh vực khác nhau.</p>
+        <p>Với mục tiêu bảo tồn và phát huy truyền thống gia đình, hệ thống gia phả trực tuyến được xây dựng để giúp các thành viên dễ dàng tra cứu thông tin, kết nối với nhau và lưu giữ những kỷ niệm quý báu.</p>
+        <a th:href="@{/about}" class="btn btn-outline-dark">Tìm hiểu lịch sử dòng họ <i class="fas fa-arrow-right"></i></a>
+    </div>
+</section>
+
+<section class="guest-events container">
+    <div class="section-header">
+        <h2>Sự kiện sắp tới</h2>
+        <p>Đừng bỏ lỡ các sự kiện quan trọng của dòng họ</p>
+    </div>
+    <div class="grid-4">
+        <div class="event-card">
+            <div class="event-date"><span>Tháng 3</span><strong>15</strong></div>
+            <div class="event-info">
+                <span class="badge badge-warning">Lễ giỗ - 6 ngày nữa</span>
+                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Nhà thờ họ Nguyễn, Hà Nội</p>
+                <p><i class="far fa-clock"></i> 08:00</p>
+            </div>
+        </div>
+        <div class="event-card">
+            <div class="event-date"><span>Tháng 3</span><strong>15</strong></div>
+            <div class="event-info">
+                <span class="badge badge-warning">Lễ giỗ - 6 ngày nữa</span>
+                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Nhà thờ họ Nguyễn, Hà Nội</p>
+                <p><i class="far fa-clock"></i> 08:00</p>
+            </div>
+        </div>
+        <div class="event-card">
+            <div class="event-date"><span>Tháng 3</span><strong>15</strong></div>
+            <div class="event-info">
+                <span class="badge badge-warning">Lễ giỗ - 6 ngày nữa</span>
+                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Nhà thờ họ Nguyễn, Hà Nội</p>
+                <p><i class="far fa-clock"></i> 08:00</p>
+            </div>
+        </div>
+        <div class="event-card">
+            <div class="event-date"><span>Tháng 3</span><strong>15</strong></div>
+            <div class="event-info">
+                <span class="badge badge-warning">Lễ giỗ - 6 ngày nữa</span>
+                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Nhà thờ họ Nguyễn, Hà Nội</p>
+                <p><i class="far fa-clock"></i> 08:00</p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Latest news -->
-<section class="section" style="background:var(--bg-white);border-top:1px solid var(--border);"
-         th:if="${featuredNews != null and !featuredNews.isEmpty()}">
-    <div class="section-inner">
-        <h2 class="section-title">Tin Tức Mới Nhất</h2>
-        <p class="section-sub">Cập nhật các hoạt động và tin tức mới nhất của dòng họ</p>
-        <div class="news-grid">
-            <div th:each="article, s : ${featuredNews}" th:if="${s.index < 4}" class="news-card">
-                <div class="news-card-img">
-                    <img th:if="${article.coverImage != null}" th:src="${article.coverImage}" th:alt="${article.title}"/>
-                    <div th:if="${article.coverImage == null}" class="ph-icon"><i class="fas fa-newspaper"></i></div>
-                </div>
-                <div class="news-card-body">
-                    <div class="news-card-meta">
-                        <span class="badge badge-gray" th:text="${article.category.label}">Danh mục</span>
-                        <span class="text-xs text-muted" th:if="${article.author != null}" th:text="${article.author.name}">Tác giả</span>
-                        <span class="text-xs text-muted">1 tuần trước</span>
-                    </div>
-                    <div class="news-card-title">
-                        <a th:href="@{/news/{slug}(slug=${article.slug})}" th:text="${article.title}">Tiêu đề</a>
-                    </div>
-                    <p class="news-card-excerpt" th:text="${article.summary}"></p>
-                    <div class="news-card-footer">
-                        <span></span>
-                        <a th:href="@{/news/{slug}(slug=${article.slug})}">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                </div>
-            </div>
+<section class="guest-news container">
+    <div class="section-header">
+        <h2>Tin Tức Mới Nhất</h2>
+        <p>Cập nhật các hoạt động và sự kiện của dòng họ</p>
+    </div>
+    <div class="grid-4">
+        <div class="news-card">
+            <span class="badge badge-success">Sự kiện</span> <span class="news-time">5 ngày trước</span>
+            <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
+            <p>Thông báo về việc tổ chức Lễ Giỗ Tổ hàng năm của dòng họ Nguyễn. Sự kiện dự kiến diễn ra vào ngày 15 tháng 3 âm lịch...</p>
+            <a href="#" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="news-card">
+            <span class="badge badge-success">Sự kiện</span> <span class="news-time">5 ngày trước</span>
+            <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
+            <p>Thông báo về việc tổ chức Lễ Giỗ Tổ hàng năm của dòng họ Nguyễn. Sự kiện dự kiến diễn ra vào ngày 15 tháng 3 âm lịch...</p>
+            <a href="#" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="news-card">
+            <span class="badge badge-success">Sự kiện</span> <span class="news-time">5 ngày trước</span>
+            <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
+            <p>Thông báo về việc tổ chức Lễ Giỗ Tổ hàng năm của dòng họ Nguyễn. Sự kiện dự kiến diễn ra vào ngày 15 tháng 3 âm lịch...</p>
+            <a href="#" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="news-card">
+            <span class="badge badge-success">Sự kiện</span> <span class="news-time">5 ngày trước</span>
+            <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
+            <p>Thông báo về việc tổ chức Lễ Giỗ Tổ hàng năm của dòng họ Nguyễn. Sự kiện dự kiến diễn ra vào ngày 15 tháng 3 âm lịch...</p>
+            <a href="#" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
         </div>
     </div>
 </section>
 
-<!-- CTA -->
-<section class="cta-section">
-    <h2>Kết Nối Với Gia Đình</h2>
-    <p>Hãy cùng nhau xây dựng và gìn giữ gia phả dòng họ. Mỗi thành viên đều là một phần quan<br/>trọng trong lịch sử gia đình.</p>
-    <a th:href="@{/login}" class="hero-btn-w" style="display:inline-flex;">
-        <i class="fas fa-sign-in-alt"></i> Đăng Nhập
-    </a>
+<section class="guest-cta">
+    <div class="container text-center">
+        <h2>Kết Nối Với Gia Đình</h2>
+        <p>Hãy cùng nhau xây dựng và gìn giữ gia phả dòng họ. Mỗi thành viên đều là một phần quan trọng trong lịch sử gia đình.</p>
+        <a th:href="@{/login}" class="btn btn-light"><i class="fas fa-sign-in-alt"></i> Đăng Nhập</a>
+    </div>
 </section>
 
 <th:block th:replace="~{fragments/footer :: footer}"/>
-<script th:src="@{/js/main.js}"></script>
+
 </body>
 </html>
