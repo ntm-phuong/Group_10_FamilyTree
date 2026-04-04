@@ -95,9 +95,9 @@ public class AuthService {
             authData.put("userId", user.getUserId());
             authData.put("fullName", user.getFullName());
 
-            if (user.getRole() != null) {
-                authData.put("role", user.getRole().getRoleName());
-            }
+            // if (user.getRole() != null) {
+            //     authData.put("role", user.getRole().getRoleName());
+            // }
 
             return authData;
         } else {

@@ -8,6 +8,7 @@ import com.family.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.Map;
@@ -17,6 +18,7 @@ public class ProfileService {
 
     @Autowired
     private UserRepository userRepository;
+    @Transactional(readOnly = true)
     public UserResponse getProfileById(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với ID: " + userId));
@@ -24,6 +26,7 @@ public class ProfileService {
         return convertToDTO(user);
     }
 
+    @Transactional
     public UserResponse updateProfile(String userId, UserResponse updateData) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng để cập nhật"));
@@ -50,6 +53,7 @@ public class ProfileService {
         return uploadResult.get("url").toString();
     }
 
+    @Transactional
     public UserResponse updateAvatar(String userId, String avatarUrl) {
         User user = userRepository.findById(userId).orElseThrow();
         user.setAvatar(avatarUrl);
@@ -74,9 +78,9 @@ public class ProfileService {
         if (user.getFamily() != null) {
             dto.setFamilyName(user.getFamily().getFamilyName());
         }
-        if (user.getRole() != null) {
-            dto.setRoleName(user.getRole().getRoleName());
-        }
+        // if (user.getRole() != null) {
+        //     dto.setRoleName(user.getRole().getRoleName());
+        // }
 
         return dto;
     }
