@@ -27,4 +27,9 @@ public class PageController {
     public String login() {
         return "public/login";
     }
+
+    @GetMapping("/family-head")
+    public String showDashboard() {
+        return "admin/dashboard";
+    }
 }

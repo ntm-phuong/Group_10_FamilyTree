@@ -86,4 +86,7 @@ public class User {
             this.userId = UUID.randomUUID().toString();
         }
     }
+    public boolean isAlive() {
+        return this.dod == null;
+    }
 }
