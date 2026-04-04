@@ -99,6 +99,7 @@ public class AuthService {
             authData.put("token", token);
             authData.put("userId", user.getUserId());
             authData.put("fullName", user.getFullName());
+            authData.put("status", user.getStatus());
 
             if (user.getFamily() != null) {
                 authData.put("familyId", user.getFamily().getFamilyId());
