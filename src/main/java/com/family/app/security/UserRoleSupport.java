@@ -111,8 +111,8 @@ public final class UserRoleSupport {
         if (names.contains("ADMIN")) {
             return "ADMIN";
         }
-        if (names.contains("FAMILY_HEAD")) {
-            return "FAMILY_HEAD";
+        if (names.contains("FAMILY_BRANCH_MANAGER")) {
+            return "FAMILY_BRANCH_MANAGER";
         }
         if (names.contains("FAMILY_NEWS_MANAGER")) {
             return "FAMILY_NEWS_MANAGER";

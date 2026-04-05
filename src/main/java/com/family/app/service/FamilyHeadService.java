@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 public class FamilyHeadService {
 
     private static final Set<String> ASSIGNABLE_MEMBER_ROLE_NAMES = Set.of(
-            "MEMBER", "FAMILY_NEWS_MANAGER", "FAMILY_HEAD");
+            "MEMBER", "FAMILY_NEWS_MANAGER", "FAMILY_BRANCH_MANAGER");
 
     /** Không gán qua màn trưởng họ (quản trị hệ thống). */
     private static final Set<String> NON_ASSIGNABLE_FAMILY_UI_ROLE_NAMES = Set.of("ADMIN");
@@ -110,7 +110,7 @@ public class FamilyHeadService {
         Map<String, String> labels = new LinkedHashMap<>();
         labels.put("MEMBER", "Thành viên");
         labels.put("FAMILY_NEWS_MANAGER", "Phụ trách tin & sự kiện");
-        labels.put("FAMILY_HEAD", "Trưởng họ (tin + thành viên)");
+        labels.put("FAMILY_BRANCH_MANAGER", "Phụ trách chi (tin + thành viên trong nhánh)");
         List<MemberRoleOptionResponse> out = new ArrayList<>();
         for (Map.Entry<String, String> e : labels.entrySet()) {
             Role r = roleRepository.findByRoleName(e.getKey()).orElse(null);

@@ -54,8 +54,9 @@ public class ProfileController {
             }
             if (!canEditOthers && authentication.getAuthorities() != null) {
                 canEditOthers = authentication.getAuthorities().stream()
-                        .anyMatch(a -> "ROLE_FAMILY_HEAD".equals(a.getAuthority())
-                                || AppPermissions.MANAGE_CLAN.equals(a.getAuthority()));
+                        .anyMatch(a -> AppPermissions.FAMILY_HEAD.equals(a.getAuthority())
+                                || AppPermissions.MANAGE_CLAN.equals(a.getAuthority())
+                                || "ROLE_FAMILY_BRANCH_MANAGER".equals(a.getAuthority()));
             }
         }
 
@@ -92,8 +93,9 @@ public class ProfileController {
             }
             if (!canEditOthers && authentication.getAuthorities() != null) {
                 canEditOthers = authentication.getAuthorities().stream()
-                        .anyMatch(a -> "ROLE_FAMILY_HEAD".equals(a.getAuthority())
-                                || AppPermissions.MANAGE_CLAN.equals(a.getAuthority()));
+                        .anyMatch(a -> AppPermissions.FAMILY_HEAD.equals(a.getAuthority())
+                                || AppPermissions.MANAGE_CLAN.equals(a.getAuthority())
+                                || "ROLE_FAMILY_BRANCH_MANAGER".equals(a.getAuthority()));
             }
         }
 

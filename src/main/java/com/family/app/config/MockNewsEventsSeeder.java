@@ -60,7 +60,7 @@ public class MockNewsEventsSeeder implements CommandLineRunner {
         String fid = clanProperties.getFamilyId();
         Family fam = familyRepository.findById(fid)
                 .orElseThrow(() -> new IllegalStateException("Thiếu dòng họ " + fid + " — DataInitializer phải chạy trước."));
-        User author = userRepository.findByEmail("truongho@giapha.vn")
+        User author = userRepository.findByEmail("nguyenvantruong@giapha.vn")
                 .orElseGet(() -> userRepository.findById("seed-clan-m-07").orElseThrow());
 
         Category catTb = categoryRepository.findById("cat-001").orElseThrow();
@@ -124,7 +124,7 @@ public class MockNewsEventsSeeder implements CommandLineRunner {
         }
 
         log.info("[MockNewsEventsSeeder] Đã seed {} tin (family {}).", batch.size(), fid);
-        log.info("  Đăng nhập demo: truongho@giapha.vn / 123456 (trưởng họ) | member@giapha.vn / 123456 (thành viên)");
+        log.info("  Đăng nhập demo: truongho@giapha.vn / 123456 (trưởng họ — ADMIN) | nguyenvantruong@giapha.vn / 123456 (phụ trách chi) | member@giapha.vn / 123456 (thành viên)");
     }
 
     private void ensureCategories() {

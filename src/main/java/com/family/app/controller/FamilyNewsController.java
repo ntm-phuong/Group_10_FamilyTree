@@ -18,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/family-head/news")
-@PreAuthorize("hasAuthority('MANAGE_FAMILY_NEWS')")
+@PreAuthorize("hasAnyAuthority('MANAGE_FAMILY_NEWS','MANAGE_CLAN')")
 public class FamilyNewsController {
 
     @Autowired

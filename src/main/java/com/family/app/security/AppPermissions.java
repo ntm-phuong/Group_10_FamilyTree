@@ -23,6 +23,12 @@ public final class AppPermissions {
     public static final String MANAGE_FAMILY_MEMBERS = "MANAGE_FAMILY_MEMBERS";
 
     /**
+     * Trưởng họ chính thức (định danh tài khoản quản trị / email trưởng họ) — <strong>chỉ</strong> gán kèm role ADMIN,
+     * không dùng làm vai trò gán cho thành viên thường.
+     */
+    public static final String FAMILY_HEAD = "FAMILY_HEAD";
+
+    /**
      * Bỏ giới hạn nhánh: được thao tác trên <strong>mọi chi</strong> thuộc cây phả hệ gốc {@code app.clan.family-id}
      * (mọi descendant của tổ tông cấu hình). Chỉ nên gán cho role {@code ADMIN} (một tài khoản).
      */

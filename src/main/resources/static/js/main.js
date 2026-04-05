@@ -61,10 +61,11 @@ function canManageFamilyMembersGlobal() {
     const perms = JSON.parse(localStorage.getItem("permissions") || "[]");
     const p = Array.isArray(perms) ? perms : [];
     return (
-      role === "FAMILY_HEAD" ||
+      role === "FAMILY_BRANCH_MANAGER" ||
       role === "ADMIN" ||
       p.indexOf("MANAGE_FAMILY_MEMBERS") >= 0 ||
-      p.indexOf("MANAGE_CLAN") >= 0
+      p.indexOf("MANAGE_CLAN") >= 0 ||
+      p.indexOf("FAMILY_HEAD") >= 0
     );
   } catch (e) {
     return false;

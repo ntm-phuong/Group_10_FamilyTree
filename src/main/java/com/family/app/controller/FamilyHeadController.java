@@ -30,17 +30,18 @@ public class FamilyHeadController {
 
     /** Danh sách chi trong phạm vi — dùng cho cả lọc tin (MANAGE_FAMILY_NEWS) và quản lý chi (MANAGE_FAMILY_MEMBERS). */
     @GetMapping("/families")
-    @PreAuthorize("hasAnyAuthority('MANAGE_FAMILY_MEMBERS','MANAGE_FAMILY_NEWS')")
+    @PreAuthorize("hasAnyAuthority('MANAGE_FAMILY_MEMBERS','MANAGE_FAMILY_NEWS','MANAGE_CLAN')")
     public ResponseEntity<List<FamilyResponse>> listFamilies(
             @AuthenticationPrincipal User principal,
             Authentication authentication) {
         boolean memberScope = authentication != null && authentication.getAuthorities().stream()
-                .anyMatch(a -> AppPermissions.MANAGE_FAMILY_MEMBERS.equals(a.getAuthority()));
+                .anyMatch(a -> AppPermissions.MANAGE_FAMILY_MEMBERS.equals(a.getAuthority())
+                        || AppPermissions.MANAGE_CLAN.equals(a.getAuthority()));
         return ResponseEntity.ok(familyHeadService.listFamiliesInScope(principal.getUserId(), memberScope));
     }
 
     @PostMapping("/families")
-    @PreAuthorize("hasAuthority('MANAGE_FAMILY_MEMBERS')")
+    @PreAuthorize("hasAnyAuthority('MANAGE_FAMILY_MEMBERS','MANAGE_CLAN')")
     public ResponseEntity<FamilyResponse> createFamily(
             @RequestBody FamilyWriteRequest request,
             @AuthenticationPrincipal User principal) {
@@ -48,7 +49,7 @@ public class FamilyHeadController {
     }
 
     @PutMapping("/families/{id}")
-    @PreAuthorize("hasAuthority('MANAGE_FAMILY_MEMBERS')")
+    @PreAuthorize("hasAnyAuthority('MANAGE_FAMILY_MEMBERS','MANAGE_CLAN')")
     public ResponseEntity<FamilyResponse> updateFamily(
             @PathVariable String id,
             @RequestBody FamilyWriteRequest request,
@@ -57,7 +58,7 @@ public class FamilyHeadController {
     }
 
     @DeleteMapping("/families/{id}")
-    @PreAuthorize("hasAuthority('MANAGE_FAMILY_MEMBERS')")
+    @PreAuthorize("hasAnyAuthority('MANAGE_FAMILY_MEMBERS','MANAGE_CLAN')")
     public ResponseEntity<String> deleteFamily(@PathVariable String id, @AuthenticationPrincipal User principal) {
         familyHeadService.deleteFamily(id, principal.getUserId());
         return ResponseEntity.ok("Đã xóa dòng họ.");
@@ -65,13 +66,13 @@ public class FamilyHeadController {
 
     /** Vai trò có thể gán khi thêm/sửa thành viên (MEMBER, phụ trách tin, trưởng họ). */
     @GetMapping("/member-roles")
-    @PreAuthorize("hasAuthority('MANAGE_FAMILY_MEMBERS')")
+    @PreAuthorize("hasAnyAuthority('MANAGE_FAMILY_MEMBERS','MANAGE_CLAN')")
     public ResponseEntity<List<MemberRoleOptionResponse>> listMemberRoles() {
         return ResponseEntity.ok(familyHeadService.listAssignableMemberRoles());
     }
 
     @GetMapping("/members")
-    @PreAuthorize("hasAuthority('MANAGE_FAMILY_MEMBERS')")
+    @PreAuthorize("hasAnyAuthority('MANAGE_FAMILY_MEMBERS','MANAGE_CLAN')")
     public ResponseEntity<List<UserResponse>> getMembers(
             @RequestParam(required = false) String familyId,
             @AuthenticationPrincipal User principal) {
@@ -83,19 +84,19 @@ public class FamilyHeadController {
     }
 
     @GetMapping("/members/{id}")
-    @PreAuthorize("hasAuthority('MANAGE_FAMILY_MEMBERS')")
+    @PreAuthorize("hasAnyAuthority('MANAGE_FAMILY_MEMBERS','MANAGE_CLAN')")
     public ResponseEntity<UserResponse> getMember(@PathVariable String id, @AuthenticationPrincipal User principal) {
         return ResponseEntity.ok(familyHeadService.getMember(id, principal.getUserId()));
     }
 
     @PostMapping("/members")
-    @PreAuthorize("hasAuthority('MANAGE_FAMILY_MEMBERS')")
+    @PreAuthorize("hasAnyAuthority('MANAGE_FAMILY_MEMBERS','MANAGE_CLAN')")
     public ResponseEntity<?> addMember(@RequestBody UserRequest request, @AuthenticationPrincipal User principal) {
         return ResponseEntity.ok(familyHeadService.saveMember(request, principal.getUserId()));
     }
 
     @PutMapping("/members/{id}")
-    @PreAuthorize("hasAuthority('MANAGE_FAMILY_MEMBERS')")
+    @PreAuthorize("hasAnyAuthority('MANAGE_FAMILY_MEMBERS','MANAGE_CLAN')")
     public ResponseEntity<?> updateMember(
             @PathVariable String id,
             @RequestBody UserRequest request,
@@ -104,7 +105,7 @@ public class FamilyHeadController {
     }
 
     @PostMapping("/members/{id}/spouse")
-    @PreAuthorize("hasAuthority('MANAGE_FAMILY_MEMBERS')")
+    @PreAuthorize("hasAnyAuthority('MANAGE_FAMILY_MEMBERS','MANAGE_CLAN')")
     public ResponseEntity<UserResponse> createSpouseForMember(
             @PathVariable String id,
             @RequestBody CreateSpouseRequest request,
@@ -113,7 +114,7 @@ public class FamilyHeadController {
     }
 
     @DeleteMapping("/members/{id}")
-    @PreAuthorize("hasAuthority('MANAGE_FAMILY_MEMBERS')")
+    @PreAuthorize("hasAnyAuthority('MANAGE_FAMILY_MEMBERS','MANAGE_CLAN')")
     public ResponseEntity<?> deleteMember(@PathVariable String id, @AuthenticationPrincipal User principal) {
         familyHeadService.deleteMember(id, principal.getUserId());
         return ResponseEntity.ok("Đã xóa thành viên thành công.");

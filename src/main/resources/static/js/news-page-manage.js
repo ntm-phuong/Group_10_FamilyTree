@@ -1,5 +1,5 @@
 /**
- * Trang /news: tạo / sửa / xóa tin khi có MANAGE_FAMILY_NEWS (hoặc FAMILY_HEAD).
+ * Trang /news: tạo / sửa / xóa tin khi có MANAGE_FAMILY_NEWS (hoặc phụ trách chi / ADMIN).
  * API: POST /api/family-head/news, GET /api/news/{id}, PUT/DELETE /api/family-head/news/{id}
  */
 (function () {
@@ -13,7 +13,13 @@
   }
 
   function canManageNews() {
-    return hasPerm("MANAGE_FAMILY_NEWS") || localStorage.getItem("role") === "FAMILY_HEAD";
+    const r = (localStorage.getItem("role") || "").trim();
+    return (
+      hasPerm("MANAGE_FAMILY_NEWS") ||
+      r === "FAMILY_BRANCH_MANAGER" ||
+      r === "ADMIN" ||
+      hasPerm("FAMILY_HEAD")
+    );
   }
 
   function authHeaders() {

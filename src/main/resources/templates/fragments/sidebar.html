@@ -47,7 +47,7 @@
       </div>
       <div>
         <div class="sidebar-user-name" th:text="${currentUser != null ? currentUser.name : 'Admin'}">Admin</div>
-        <div class="sidebar-user-email" th:text="${currentUser != null ? currentUser.email : 'admin@giapha.vn'}">admin@giapha.vn</div>
+        <div class="sidebar-user-email" th:text="${currentUser != null ? currentUser.email : 'truongho@giapha.vn'}">truongho@giapha.vn</div>
       </div>
     </div>
     <form th:action="@{/logout}" method="post">

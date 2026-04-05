@@ -145,7 +145,7 @@
       } catch (ignore) {}
     }
     if (!hasSiteNewsPermission()) {
-      showAlert("snAlert", "Cần đăng nhập bằng tài khoản có quyền MANAGE_SITE_NEWS (ví dụ admin@giapha.vn).", "error");
+      showAlert("snAlert", "Cần đăng nhập bằng tài khoản có quyền MANAGE_SITE_NEWS (ví dụ truongho@giapha.vn).", "error");
       setTimeout(() => {
         window.location.href = "/login?redirect=" + encodeURIComponent("/site-news-manage");
       }, 2500);

@@ -12,6 +12,8 @@
 
     <a href="/family-tree" id="navFamilyTree" style="display: none;"><i class="fas fa-sitemap"></i> Gia Phả</a>
 
+    <a href="/family-head" id="navFamilyHead" style="display: none;"><i class="fas fa-tachometer-alt"></i> Quản trị họ</a>
+
     <a href="/news" id="navNews"><i class="far fa-newspaper"></i> Tin Tức</a>
   </nav>
 
@@ -47,6 +49,7 @@
             const navLogo = document.getElementById('navLogo');
             const navHome = document.getElementById('navHome');
             const navFamilyTree = document.getElementById('navFamilyTree');
+            const navFamilyHead = document.getElementById('navFamilyHead');
             const navAdmin = document.getElementById('navAdmin');
             const navLoginBtn = document.getElementById('navLoginBtn');
             const navUserDropdown = document.getElementById('navUserDropdown');
@@ -64,6 +67,21 @@
 
                 // 2. Hiện menu Gia Phả
                 navFamilyTree.style.display = 'flex';
+                // 2b. Quản trị họ (/family-head): MANAGE_CLAN, ADMIN, trưởng họ / quản lý thành viên
+                try {
+                    const role = (localStorage.getItem('role') || '').trim();
+                    const perms = JSON.parse(localStorage.getItem('permissions') || '[]');
+                    const p = Array.isArray(perms) ? perms : [];
+                    const showHead =
+                        role === 'FAMILY_BRANCH_MANAGER' ||
+                        role === 'ADMIN' ||
+                        p.indexOf('MANAGE_FAMILY_MEMBERS') >= 0 ||
+                        p.indexOf('MANAGE_CLAN') >= 0 ||
+                        p.indexOf('FAMILY_HEAD') >= 0;
+                    if (navFamilyHead && showHead) {
+                        navFamilyHead.style.display = 'flex';
+                    }
+                } catch (e) { /* ignore */ }
                 // 3. Ẩn nút Đăng nhập, hiện Dropdown Profile
                 navLoginBtn.style.display = 'none';
                 navUserDropdown.style.display = 'inline-block';

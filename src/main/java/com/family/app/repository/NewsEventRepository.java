@@ -117,4 +117,9 @@ public interface NewsEventRepository extends JpaRepository<NewsEvent, String> {
     List<NewsEvent> findTop4ByFamily_FamilyIdOrderByCreatedAtDesc(@Param("familyId") String familyId);
 
     long countByFamily_FamilyId(String familyId);
+
+    /** Tin theo nhiều chi (dashboard / thống kê phạm vi cây). */
+    @Query("SELECT COUNT(n) FROM NewsEvent n WHERE n.family.familyId IN :familyIds "
+            + "AND (n.visibility IS NULL OR n.visibility <> com.family.app.model.NewsVisibility.DRAFT)")
+    long countVisibleByFamilyFamilyIdIn(@Param("familyIds") Collection<String> familyIds);
 }

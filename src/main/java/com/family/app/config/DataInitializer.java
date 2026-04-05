@@ -43,9 +43,9 @@ public class DataInitializer implements CommandLineRunner {
     /** Chi lồng — thế hệ IX–X. */
     private static final String SEED_CHI_DOI_TRE = "seed-chi-doi-tre";
 
-    /** Một tài khoản ADMIN duy nhất (quản trị toàn cây phả hệ + tin site). */
+    /** Một tài khoản ADMIN duy nhất — email trưởng họ chính thức (quyền {@link AppPermissions#FAMILY_HEAD}). */
     private static final String SEED_ADMIN_USER_ID = "seed-system-admin-01";
-    private static final String SEED_ADMIN_EMAIL = "admin@giapha.vn";
+    private static final String SEED_ADMIN_EMAIL = "truongho@giapha.vn";
 
     @Autowired
     private UserRepository userRepository;
@@ -84,12 +84,17 @@ public class DataInitializer implements CommandLineRunner {
                 AppPermissions.MANAGE_CLAN,
                 "Toàn bộ chi trong cây phả hệ (gốc app.clan.family-id) — chỉ role ADMIN."
         );
+        Permission familyHeadPerm = ensurePermission(
+                AppPermissions.FAMILY_HEAD,
+                "Trưởng họ chính thức — chỉ gán cho tài khoản ADMIN (email trưởng họ)."
+        );
 
-        Role headRole = ensureRoleWithPermissions("FAMILY_HEAD", "role-head", Set.of(manageNews, manageMembers));
+        Role branchLeadRole = ensureRoleById("role-head", "FAMILY_BRANCH_MANAGER",
+                Set.of(manageNews, manageMembers));
         Role newsMgrRole = ensureRoleWithPermissions("FAMILY_NEWS_MANAGER", "role-news-mgr", Set.of(manageNews));
         Role memberRole = ensureRoleWithPermissions("MEMBER", "role-member", Set.of());
-        Role adminRole = ensureRoleWithPermissions("ADMIN", "role-admin",
-                Set.of(siteNewsPerm, manageNews, manageMembers, manageClan));
+        Role adminRole = ensureRoleById("role-admin", "ADMIN",
+                Set.of(siteNewsPerm, manageNews, manageMembers, manageClan, familyHeadPerm));
 
         String fid = clanProperties.getFamilyId();
         Family clan = familyRepository.findById(fid).orElseGet(() -> {
@@ -125,9 +130,10 @@ public class DataInitializer implements CommandLineRunner {
                 chiTieu
         );
 
-        seedTenGenerations(clan, chiPhuKe, chiTieu, chiDoiTre, headRole, newsMgrRole, memberRole);
+        seedTenGenerations(clan, chiPhuKe, chiTieu, chiDoiTre, branchLeadRole, newsMgrRole, memberRole);
 
-        ensureSingleAdminAccount(clan, adminRole);
+        syncBranchLeadDemoIdentity();
+        ensureAndSyncAdminAccount(clan, adminRole);
 
         migrateLegacySingleRoleColumnToUserRoles();
 
@@ -136,29 +142,48 @@ public class DataInitializer implements CommandLineRunner {
             log.warn("[DataInitializer] Cảnh báo: có {} tài khoản ADMIN — hệ thống thiết kế chỉ 1. Kiểm tra DB.", adminCount);
         }
 
-        log.info("[DataInitializer] Dòng họ {} + 3 chi. Trưởng họ: truongho@giapha.vn / 123456 | ADMIN: {} / 123456",
+        log.info("[DataInitializer] Dòng họ {} + 3 chi. Email trưởng họ (ADMIN): {} / 123456 | Phụ trách nhánh: nguyenvantruong@giapha.vn / 123456",
                 fid, SEED_ADMIN_EMAIL);
     }
 
+    /** Đồng bộ tài khoản phụ trách nhánh (không dùng email trưởng họ — email đó chỉ cho ADMIN). */
+    private void syncBranchLeadDemoIdentity() {
+        userRepository.findById("seed-clan-m-07").ifPresent(u -> {
+            u.setFullName("Nguyễn Văn Trưởng");
+            u.setEmail("nguyenvantruong@giapha.vn");
+            roleRepository.findById("role-head").ifPresent(br ->
+                    roleRepository.findById("role-news-mgr").ifPresent(nm ->
+                            u.setRoles(new HashSet<>(Set.of(br, nm)))));
+            userRepository.save(u);
+        });
+    }
+
     /**
-     * Tạo hoặc đồng bộ đúng một user ADMIN nếu chưa có ai có role ADMIN.
+     * Đồng bộ tài khoản ADMIN ({@link #SEED_ADMIN_USER_ID}): email trưởng họ + quyền đầy đủ.
+     * Chỉ tạo mới nếu chưa có bất kỳ user nào mang role ADMIN.
      */
-    private void ensureSingleAdminAccount(Family clanRoot, Role adminRole) {
+    private void ensureAndSyncAdminAccount(Family clanRoot, Role adminRole) {
+        userRepository.findById(SEED_ADMIN_USER_ID).ifPresent(u -> {
+            u.setEmail(SEED_ADMIN_EMAIL);
+            u.setFullName("Ban trưởng họ (quản trị hệ thống)");
+            u.setFamily(clanRoot);
+            u.setRoles(new HashSet<>(Set.of(adminRole)));
+            if (u.getPassword() == null || u.getPassword().isBlank()) {
+                u.setPassword(passwordEncoder.encode("123456"));
+            }
+            u.setStatus(2);
+            userRepository.save(u);
+        });
+        if (userRepository.findById(SEED_ADMIN_USER_ID).isPresent()) {
+            return;
+        }
         long existingAdmins = userRepository.countDistinctByRoleName("ADMIN");
         if (existingAdmins >= 1) {
             return;
         }
-        userRepository.findById(SEED_ADMIN_USER_ID).map(u -> {
-            u.setEmail(SEED_ADMIN_EMAIL);
-            u.setFullName(u.getFullName() != null && !u.getFullName().isBlank() ? u.getFullName() : "Quản trị hệ thống");
-            u.setFamily(clanRoot);
-            u.setRoles(new HashSet<>(Set.of(adminRole)));
-            u.setPassword(passwordEncoder.encode("123456"));
-            u.setStatus(2);
-            return userRepository.save(u);
-        }).orElseGet(() -> userRepository.save(User.builder()
+        userRepository.save(User.builder()
                 .userId(SEED_ADMIN_USER_ID)
-                .fullName("Quản trị hệ thống")
+                .fullName("Ban trưởng họ (quản trị hệ thống)")
                 .email(SEED_ADMIN_EMAIL)
                 .password(passwordEncoder.encode("123456"))
                 .gender("MALE")
@@ -167,7 +192,7 @@ public class DataInitializer implements CommandLineRunner {
                 .orderInFamily(0)
                 .roles(new HashSet<>(Set.of(adminRole)))
                 .status(2)
-                .build()));
+                .build());
     }
 
     /**
@@ -248,7 +273,7 @@ public class DataInitializer implements CommandLineRunner {
             Family chiPhuKe,
             Family chiTieu,
             Family chiDoiTre,
-            Role headRole,
+            Role branchLeadRole,
             Role newsMgrRole,
             Role memberRole
     ) {
@@ -260,7 +285,7 @@ public class DataInitializer implements CommandLineRunner {
                 {"seed-clan-m-04", "Nguyễn Văn Bình", "1928-07-25", "1998-02-14", "Công chức xã", "0903000004", ""},
                 {"seed-clan-m-05", "Nguyễn Văn Tám", "1942-03-08", "", "Bộ đội xuất ngũ", "0903000005", ""},
                 {"seed-clan-m-06", "Nguyễn Văn Hải", "1956-10-30", "", "Kỹ sư xây dựng", "0903000006", ""},
-                {"seed-clan-m-07", "Nguyễn Văn Trường", "1970-05-17", "", "Trưởng họ (hưu)", "0903000007", "truongho@giapha.vn"},
+                {"seed-clan-m-07", "Nguyễn Văn Trưởng", "1970-05-17", "", "Phụ trách chi (hưu)", "0903000007", "nguyenvantruong@giapha.vn"},
                 {"seed-clan-m-08", "Nguyễn Văn Minh", "1984-12-01", "", "Kế toán doanh nghiệp", "0903000008", ""},
                 {"seed-clan-m-09", "Nguyễn Văn Quân", "1998-08-22", "", "Lập trình viên", "0903000009", ""},
                 {"seed-clan-m-10", "Nguyễn Văn Phúc", "2012-01-05", "", "Học sinh THCS", "0903000010", "member@giapha.vn"}
@@ -291,7 +316,7 @@ public class DataInitializer implements CommandLineRunner {
             LocalDate dobM = LocalDate.parse(mr[2]);
             LocalDate dodM = (mr[3] != null && !mr[3].isBlank()) ? LocalDate.parse(mr[3]) : null;
             Set<Role> maleRoles = (i == 6)
-                    ? new HashSet<>(Set.of(headRole, newsMgrRole))
+                    ? new HashSet<>(Set.of(branchLeadRole, newsMgrRole))
                     : new HashSet<>(Set.of(memberRole));
 
             m[i] = upsertPerson(
@@ -807,6 +832,19 @@ public class DataInitializer implements CommandLineRunner {
             x.setRoleName(roleName);
             return roleRepository.saveAndFlush(x);
         });
+        r.setPermissions(new HashSet<>(permissions));
+        return roleRepository.save(r);
+    }
+
+    /** Cố định {@code roleId} (ổn định FK {@code user_roles}) — cập nhật tên role + tập quyền mỗi lần seed. */
+    private Role ensureRoleById(String roleId, String roleName, Set<Permission> permissions) {
+        Role r = roleRepository.findById(roleId).orElseGet(() -> {
+            Role x = new Role();
+            x.setRoleId(roleId);
+            x.setRoleName(roleName);
+            return roleRepository.saveAndFlush(x);
+        });
+        r.setRoleName(roleName);
         r.setPermissions(new HashSet<>(permissions));
         return roleRepository.save(r);
     }
