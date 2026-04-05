@@ -1,60 +1,56 @@
 package com.family.app.service;
 
 import com.family.app.dto.DashboardResponse;
-import com.family.app.dto.NewsEventSummaryDTO;
-import com.family.app.dto.UserSummaryDTO;
-import com.family.app.model.NewsEvent;
 import com.family.app.model.User;
-import com.family.app.repository.NewsEventRepository;
 import com.family.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Service
 public class DashboardService {
-    @Autowired private UserRepository userRepository;
-    @Autowired private NewsEventRepository newsEventRepository;
-    
-    public DashboardResponse getFamilyHeadDashboard(String familyId) {
-        // Lấy tất cả User thuộc Family để xử lý trong bộ nhớ (tối ưu cho dòng họ vừa và nhỏ)
-        List<User> familyMembers = userRepository.findByFamily_FamilyIdOrderByOrderInFamilyAsc(familyId);
 
-        // 1. Thống kê tổng quát
-        long totalMembers = familyMembers.size();
-        long livingMembers = familyMembers.stream().filter(User::isAlive).count();
+    @Autowired
+    private UserRepository userRepository;
 
-        // 2. Phân bố thế hệ (Đếm số người theo từng đời)
-        Map<Integer, Long> generationDist = familyMembers.stream()
-                .collect(Collectors.groupingBy(User::getGeneration, Collectors.counting()));
+    public DashboardResponse getFamilyHeadDashboard(User currentUser) {
+        if (currentUser.getFamily() == null) {
+            return new DashboardResponse();
+        }
 
-        // 3. Lấy 5 tin tức mới nhất từ Repository có sẵn
-        List<NewsEvent> topNews = newsEventRepository.findTop5ByFamily_FamilyIdOrderByCreatedAtDesc(familyId);
+        String familyId = currentUser.getFamily().getFamilyId();
+        DashboardResponse dto = new DashboardResponse();
 
-        return DashboardResponse.builder()
-                .totalMembers(totalMembers)
-                .livingMembers(livingMembers)
-                .deceasedMembers(totalMembers - livingMembers)
-                .totalGenerations(generationDist.size())
-                .generationDistribution(generationDist)
-                .newMembers(familyMembers.stream().limit(4).map(this::mapToUserSummary).collect(Collectors.toList()))
-                .recentNews(topNews.stream().map(this::mapToNewsSummary).collect(Collectors.toList()))
-                .build();
-    }
+        // 1. Lấy các con số tổng quát từ Repository
+        dto.setTotalMembers((int) userRepository.countByFamily_FamilyId(familyId));
 
-    private UserSummaryDTO mapToUserSummary(User user) {
-        // Lấy dữ liệu từ entity User để đổ vào DTO rút gọn
-        return new UserSummaryDTO(
-                user.getFullName(),
-                user.getGeneration(), // Lấy từ field generation trong file bạn gửi
-                user.getGender()      // Lấy để phân biệt màu sắc giao diện
-        );
-    }
+        // Đếm dựa trên logic dod (Ngày mất) trong Entity User
+        // Bạn có thể viết thêm countByFamily_FamilyIdAndDodIsNull trong Repo nếu muốn tối ưu
+        long living = userRepository.findByFamily_FamilyIdOrderByOrderInFamilyAsc(familyId)
+                .stream().filter(User::isAlive).count();
 
-    private NewsEventSummaryDTO mapToNewsSummary(NewsEvent news) {
-        return new NewsEventSummaryDTO(news.getTitle(), news.getCreatedAt(), "Đã đăng");
+        dto.setLivingMembers((int) living);
+        dto.setDeceasedMembers(dto.getTotalMembers() - (int) living);
+
+        // 2. Lấy số đời cao nhất
+        Integer maxGen = userRepository.findMaxGenerationByFamilyId(familyId);
+        dto.setTotalGenerations(maxGen != null ? maxGen : 0);
+
+        // 3. Thống kê phân bổ đời (Ví dụ: Đời 1: 2 người, Đời 2: 5 người...)
+        // Dùng TreeMap để tự động sắp xếp theo thứ tự Đời 1 -> 2 -> 3
+        Map<Integer, Long> genDist = userRepository.findByFamily_FamilyIdOrderByOrderInFamilyAsc(familyId)
+                .stream()
+                .filter(u -> u.getGeneration() != null)
+                .collect(Collectors.groupingBy(
+                        User::getGeneration, // Key là Integer (đời thứ mấy)
+                        TreeMap::new,        // Sắp xếp theo thứ tự đời
+                        Collectors.counting() // Value trả về kiểu Long (số lượng)
+                ));
+        dto.setGenerationDistribution(genDist);
+
+        return dto;
     }
 }

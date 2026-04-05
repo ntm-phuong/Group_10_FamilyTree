@@ -1,56 +1,90 @@
-document.addEventListener("DOMContentLoaded", function() {
-    const familyId = "fam-01"; // ID thực tế của bạn
+/**
+ * Dashboard Controller - Xử lý hiển thị dữ liệu thống kê
+ */
+document.addEventListener("DOMContentLoaded", function () {
 
-    // Cập nhật tên từ localStorage (nếu có)
-    const storedName = localStorage.getItem('full_name');
-    if (storedName) {
-        document.getElementById('welcomeUser').innerText = `Xin chào, ${storedName}`;
+    // 1. Hiển thị lời chào cá nhân hóa
+    const fullName = localStorage.getItem('full_name');
+    const welcomeEl = document.getElementById('welcomeUser');
+    if (welcomeEl && fullName) {
+        welcomeEl.innerText = `Xin chào, ${fullName}`;
     }
 
-    fetch(`/api/family-head/dashboard?familyId=${familyId}`)
-        .then(res => res.json())
-        .then(data => {
-            // Update Stats
-            document.getElementById('totalMembers').innerText = data.totalMembers || 0;
-            document.getElementById('livingCount').innerText = `${data.livingMembers || 0} còn sống`;
-            document.getElementById('deceasedCount').innerText = `${data.deceasedMembers || 0} đã mất`;
-            document.getElementById('genCount').innerText = data.totalGenerations || 0;
-            document.getElementById('newsCount').innerText = data.totalNews || 0;
-            document.getElementById('publishedCount').innerText = `${data.totalNews || 0} đã đăng`;
+    // 2. Hàm Fetch dữ liệu từ API
+    async function initDashboard() {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.warn("Chưa đăng nhập, chuyển hướng...");
+                window.location.href = "/login";
+                return;
+            }
 
-            // Render Generation Bars
-            const genContainer = document.getElementById('genDistContainer');
-            const dist = data.generationDistribution || {};
-            genContainer.innerHTML = Object.entries(dist).map(([gen, count]) => `
-                <div class="gen-item">
-                    <div class="gen-info"><span>Đời thứ ${gen}</span><span>${count} người</span></div>
-                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${(count/data.totalMembers)*100}%"></div></div>
-                </div>
-            `).join('');
+            // Gọi API (Backend tự lấy FamilyId từ SecurityContext)
+            const response = await fetch('/api/family-head/dashboard', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
 
-            // Render New Members
-            const memberContainer = document.getElementById('recentMembers');
-            memberContainer.innerHTML = (data.newMembers || []).map(m => `
-                <div class="list-row">
-                    <div>
-                        <div style="font-weight:700; font-size:0.9rem;">${m.fullName}</div>
-                        <div class="text-muted" style="font-size:0.75rem;">Đời thứ ${m.generation}</div>
+            if (!response.ok) throw new Error("Không thể tải dữ liệu Dashboard");
+
+            const data = await response.json();
+
+            // Thực hiện đổ dữ liệu
+            updateStatistics(data);
+            renderGenerationProgress(data);
+
+        } catch (error) {
+            console.error("Lỗi Dashboard JS:", error);
+        }
+    }
+
+    // 3. Cập nhật các con số thống kê chính
+    function updateStatistics(data) {
+        const elements = {
+            'totalMembers': data.totalMembers || 0,
+            'livingCount': `${data.livingMembers || 0} còn sống`,
+            'deceasedCount': `${data.deceasedMembers || 0} đã mất`,
+            'genCount': data.totalGenerations || 0,
+            'newsCount': data.totalNews || 0 // Nếu backend chưa có thì mặc định 0
+        };
+
+        for (const [id, value] of Object.entries(elements)) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = value;
+        }
+    }
+
+    // 4. Vẽ danh sách phân bổ đời (Thanh Progress Bar)
+    function renderGenerationProgress(data) {
+        const container = document.getElementById('genDistContainer');
+        if (!container || !data.generationDistribution) return;
+
+        container.innerHTML = ""; // Xóa dữ liệu cũ
+        const dist = data.generationDistribution;
+        const total = data.totalMembers || 1;
+
+        Object.entries(dist).forEach(([gen, count]) => {
+            const percentage = Math.round((count / total) * 100);
+
+            const genHtml = `
+                <div class="gen-item" style="margin-bottom: 1.2rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem;">
+                        <span style="font-weight: 600;">Đời thứ ${gen}</span>
+                        <span class="text-muted">${count} thành viên</span>
                     </div>
-                    <span class="badge ${m.gender === 'Nam' ? 'badge-nam' : 'badge-nu'}">${m.gender}</span>
-                </div>
-            `).join('');
-
-            // Render News
-            const newsContainer = document.getElementById('recentNews');
-            newsContainer.innerHTML = (data.recentNews || []).map(n => `
-                <div class="list-row">
-                    <div>
-                        <div style="font-weight:700; font-size:0.9rem;">${n.title}</div>
-                        <div class="text-muted" style="font-size:0.75rem;">${n.time || 'Vừa xong'}</div>
+                    <div style="background: #e9ecef; height: 10px; border-radius: 5px; overflow: hidden;">
+                        <div style="width: ${percentage}%; background: #34495e; height: 100%; transition: width 0.5s ease;"></div>
                     </div>
-                    <span class="badge badge-success">Đã đăng</span>
                 </div>
-            `).join('');
-        })
-        .catch(err => console.error("Dashboard Sync Error:", err));
+            `;
+            container.insertAdjacentHTML('beforeend', genHtml);
+        });
+    }
+
+    // Khởi chạy
+    initDashboard();
 });

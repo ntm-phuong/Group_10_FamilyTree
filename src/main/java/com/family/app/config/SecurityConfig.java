@@ -49,6 +49,8 @@ public class SecurityConfig {
                         // Cho phép API login/register
                         .requestMatchers("/api/auth/**").permitAll()
 
+                        .requestMatchers("/family-head/**").permitAll()
+
                         // Tất cả các request khác (thường là API nghiệp vụ) mới cần login
                         .anyRequest().permitAll()
                 )
