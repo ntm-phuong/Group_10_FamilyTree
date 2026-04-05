@@ -55,6 +55,31 @@ public class PublicMemberController {
         return "public/member-detail";
     }
 
+    @GetMapping("/edit/{id}")
+    @Transactional(readOnly = true)
+    public String editMemberDetail(@PathVariable String id, Model model) {
+        User member = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Thành viên không tồn tại: " + id));
+
+        // Lấy thêm các thông tin phụ trợ (giống y hệt trang Detail)
+        User spouse = findSpouse(member.getUserId());
+        List<User> parents = findParents(member.getUserId());
+        User father = parents.stream().filter(p -> "MALE".equalsIgnoreCase(p.getGender())).findFirst().orElse(null);
+        User mother = parents.stream().filter(p -> "FEMALE".equalsIgnoreCase(p.getGender())).findFirst().orElse(null);
+        List<User> children = findChildren(member.getUserId());
+        List<User> siblings = findSiblings(member.getUserId(), parents);
+
+        // Gửi toàn bộ data sang file giao diện HTML
+        model.addAttribute("member", member);
+        model.addAttribute("memberAge", calculateAge(member.getDob(), member.getDod()));
+        model.addAttribute("father", father);
+        model.addAttribute("mother", mother);
+        model.addAttribute("spouse", spouse);
+        model.addAttribute("children", children);
+        model.addAttribute("siblings", siblings);
+
+        return "public/edit-member-detail";
+    }
     private User findSpouse(String userId) {
         List<Relationship> spouseRelations = relationshipRepository.findSpouses(userId);
         if (spouseRelations.isEmpty()) {

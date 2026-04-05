@@ -30,7 +30,6 @@ public class User {
     @Column(name = "otp_expiry")
     private LocalDateTime otpExpiry;
 
-    // Nhớ tạo Getter và Setter cho 2 biến này nhé!
 
     @Column(name = "full_name", nullable = false)
     private String fullName;
