@@ -104,12 +104,14 @@ public class MockNewsEventsSeeder implements CommandLineRunner {
                         null, null, null, null,
                         false, 340, t0.plusDays(3)),
                 family("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0005", author, fam, catTb,
+                        "hop-noi-bo-quy-khuyen-hoc-2026",
                         "Họp nội bộ — quỹ khuyến học 2026",
                         "Chỉ thành viên đã đăng nhập thuộc dòng họ.",
                         "<p>Dự kiến chi 120 triệu đồng; danh sách học sinh đạt giải kèm theo biên bản.</p>",
                         LocalDateTime.of(2026, 5, 10, 19, 30), null, "Nhà văn hóa thôn", 120,
                         15, t0.plusDays(4)),
                 family("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0006", author, fam, catLe,
+                        "le-hoi-den-lang-nhac-lich",
                         "Lễ hội đền làng — nhắc lịch",
                         "Nhắc trước 1 ngày qua Zalo nhóm họ.",
                         "<p>Đền làng Đông Anh; mời các gia đình sắp xếp thời gian tham gia nghi lễ.</p>",
@@ -171,7 +173,7 @@ public class MockNewsEventsSeeder implements CommandLineRunner {
     }
 
     private static NewsEvent family(
-            String id, User author, Family fam, Category cat, String title,
+            String id, User author, Family fam, Category cat, String slug, String title,
             String summary, String html,
             LocalDateTime start, LocalDateTime end, String location, Integer remind,
             int views, LocalDateTime created
@@ -182,7 +184,7 @@ public class MockNewsEventsSeeder implements CommandLineRunner {
                 .category(cat)
                 .user(author)
                 .title(title)
-                .slug(null)
+                .slug(slug)
                 .summary(summary)
                 .content(html)
                 .publicCategory(null)

@@ -146,7 +146,10 @@
             <select id="tmMemParentId" class="form-control form-select">
               <option value="">— Không (đời đầu) —</option>
             </select>
-            <p class="text-xs text-muted" style="margin:.35rem 0 0;">Chọn người làm cha hoặc mẹ trực tiếp; thế hệ và thứ tự được tính tự động. Chỉ được thêm con khi người đó đã có vợ/chồng (nút &quot;Thêm vợ/chồng&quot; tạo hồ sơ vợ/chồng mới).</p>
+            <p id="tmMemParentLockHint" class="text-xs text-muted" style="margin:.35rem 0 0;" hidden>
+              Thêm con: cha/mẹ và chi đã chọn trên cây — các ô này tự điền và <strong>không chỉnh sửa</strong> được.
+            </p>
+            <p id="tmMemParentHelp" class="text-xs text-muted" style="margin:.35rem 0 0;">Chọn người làm cha hoặc mẹ trực tiếp; thế hệ và thứ tự được tính tự động. Chỉ được thêm con khi người đó đã có vợ/chồng (nút &quot;Thêm vợ/chồng&quot; tạo hồ sơ vợ/chồng mới).</p>
           </div>
           <div>
             <label for="tmMemGeneration">Thế hệ <span class="text-muted" style="font-weight:400;">(tự tính)</span></label>

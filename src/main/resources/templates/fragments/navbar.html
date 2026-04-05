@@ -31,7 +31,7 @@
 
       <div class="dropdown-menu">
         <a href="/profile" class="dropdown-item" id="profileLink">Hồ sơ cá nhân</a>
-        <a href="/admin" class="dropdown-item">Trang quản trị</a>
+        <a href="/admin" class="dropdown-item" id="navAdminMenu" style="display: none;">Trang quản trị</a>
         <a href="#" class="dropdown-item logout-btn" id="navLogoutBtn">Đăng xuất</a>
       </div>
     </div>
@@ -50,6 +50,7 @@
             const navHome = document.getElementById('navHome');
             const navFamilyTree = document.getElementById('navFamilyTree');
             const navFamilyHead = document.getElementById('navFamilyHead');
+            const navAdminMenu = document.getElementById('navAdminMenu');
             const navAdmin = document.getElementById('navAdmin');
             const navLoginBtn = document.getElementById('navLoginBtn');
             const navUserDropdown = document.getElementById('navUserDropdown');
@@ -67,19 +68,15 @@
 
                 // 2. Hiện menu Gia Phả
                 navFamilyTree.style.display = 'flex';
-                // 2b. Quản trị họ (/family-head): MANAGE_CLAN, ADMIN, trưởng họ / quản lý thành viên
+                // 2b. Quản trị họ (/family-head): chỉ permission FAMILY_HEAD (đồng bộ SecurityConfig)
                 try {
-                    const role = (localStorage.getItem('role') || '').trim();
                     const perms = JSON.parse(localStorage.getItem('permissions') || '[]');
                     const p = Array.isArray(perms) ? perms : [];
-                    const showHead =
-                        role === 'FAMILY_BRANCH_MANAGER' ||
-                        role === 'ADMIN' ||
-                        p.indexOf('MANAGE_FAMILY_MEMBERS') >= 0 ||
-                        p.indexOf('MANAGE_CLAN') >= 0 ||
-                        p.indexOf('FAMILY_HEAD') >= 0;
-                    if (navFamilyHead && showHead) {
+                    if (navFamilyHead && p.indexOf('FAMILY_HEAD') >= 0) {
                         navFamilyHead.style.display = 'flex';
+                    }
+                    if (navAdminMenu && p.indexOf('FAMILY_HEAD') >= 0) {
+                        navAdminMenu.style.display = 'block';
                     }
                 } catch (e) { /* ignore */ }
                 // 3. Ẩn nút Đăng nhập, hiện Dropdown Profile
