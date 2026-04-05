@@ -2,255 +2,351 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title th:text="${member.name + ' – Gia Phả'}">Thành viên</title>
-  <link rel="stylesheet" th:href="@{/css/style.css}"/>
-  <link rel="stylesheet" th:href="@{/css/profile.css}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${member.fullName + ' – Gia Phả'}">Thành viên</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" th:href="@{/css/profile.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
 <th:block th:replace="~{fragments/navbar :: navbar}"/>
 
 <div class="profile-wrap">
-  <!-- Breadcrumb -->
-  <div class="breadcrumb">
-    <a th:href="@{/}"><i class="fas fa-home"></i></a>
-    <span class="breadcrumb-sep">›</span>
-    <a th:href="@{/family-tree}">Gia Phả</a>
-    <span class="breadcrumb-sep">›</span>
-    <span th:text="${member.name}">Thành viên</span>
-  </div>
 
-  <!-- Profile header card -->
-  <div class="profile-header-card">
-    <div class="avatar avatar-xl" th:classappend="${member.gender.name()=='MALE'}?' avatar-male':' avatar-female'">
-      <span th:text="${member.name.length() >= 2 ? member.name.substring(member.name.lastIndexOf(' ') > 0 ? member.name.lastIndexOf(' ')+1 : 0, member.name.length() >= member.name.lastIndexOf(' ')+3 ? member.name.lastIndexOf(' ')+3 : member.name.length()) : member.name.substring(0,1)}">HS</span>
-    </div>
-    <div class="profile-info">
-      <h2 th:text="${member.name}">Nguyễn Hồng Sơn</h2>
-      <div class="profile-meta">
-        Đời thứ <span th:text="${member.generation}">3</span>
-        | <span th:text="${member.age}">56</span> tuổi
-      </div>
-      <div class="profile-job" th:if="${member.occupation != null}" th:text="${member.occupation}">Giám đốc công ty CNTT</div>
-    </div>
-    <div style="margin-left:auto;">
-      <sec:authorize access="hasRole('ADMIN')">
-        <a th:href="@{/admin/members/{id}/edit(id=${member.id})}" class="btn btn-primary">
-          <i class="fas fa-pencil-alt"></i> Chỉnh sửa
-        </a>
-      </sec:authorize>
-      <a th:href="@{/family-tree}" class="btn btn-outline ml-2">
-        <i class="fas fa-sitemap"></i> Xem trong cây
-      </a>
-    </div>
-  </div>
+    <div class="profile-header-card">
+        <div style="position: relative; display: inline-block; flex-shrink: 0;">
 
-  <!-- Profile body -->
-  <div class="profile-body">
-    <!-- Left: details -->
-    <div>
-      <!-- Personal info -->
-      <form th:action="@{/admin/members/{id}/edit(id=${member.id})}" method="post">
-  <div class="card mb-4">
-    <div class="card-header">
-      <div class="card-header-left">
-        <h3>Thông tin cá nhân</h3>
-      </div>
+            <div class="avatar avatar-xl" id="avatarPreview"
+                 th:classappend="${member.gender == 'MALE'}?' avatar-male':' avatar-female'"
+                 th:style="${member.avatar != null and !member.avatar.isEmpty()} ? |background-image: url('${member.avatar}'); background-size: cover; background-position: center; color: transparent;| : ''">
 
-      <div style="margin-left:auto; display:flex; gap:8px;">
-        <a th:href="@{/member/{id}(id=${member.id})}" class="btn btn-outline">
-          <i class="fas fa-times"></i> Hủy
-        </a>
-
-        <button type="submit" class="btn btn-primary">
-          <i class="fas fa-check"></i> Lưu
-        </button>
-      </div>
-    </div>
-
-    <div class="card-body">
-      <div class="profile-detail-grid">
-
-        <!-- Họ -->
-        <div class="profile-detail-item">
-          <label>Họ</label>
-          <input type="text" name="lastName"
-                 class="form-control"
-                 th:value="${member.name != null ? member.name.split(' ')[0] : ''}">
-        </div>
-
-        <!-- Tên -->
-        <div class="profile-detail-item">
-          <label>Tên</label>
-          <input type="text" name="firstName"
-                 class="form-control"
-                 th:value="${member.name != null ? member.name.substring(member.name.lastIndexOf(' ')+1) : ''}">
-        </div>
-
-        <!-- Nghề nghiệp -->
-        <div class="profile-detail-item">
-          <label>Nghề nghiệp</label>
-          <input type="text" name="occupation"
-                 class="form-control"
-                 th:value="${member.occupation}">
-        </div>
-
-        <!-- Điện thoại -->
-        <div class="profile-detail-item">
-          <label>Điện thoại</label>
-          <input type="text" name="phone"
-                 class="form-control"
-                 th:value="${member.phone}">
-        </div>
-
-        <!-- Địa chỉ -->
-        <div class="profile-detail-item" style="grid-column: span 2;">
-          <label>Quê quán, Địa chỉ</label>
-          <input type="text" name="address"
-                 class="form-control"
-                 th:value="${member.address}">
-        </div>
-
-        <!-- Tiểu sử -->
-        <div class="profile-detail-item" style="grid-column: span 2;">
-          <label>Tiểu sử</label>
-          <textarea name="bio" class="form-control" rows="5"
-                    th:text="${member.bio}"></textarea>
-        </div>
-
-      </div>
-    </div>
-  </div>
-</form>
-
-      <!-- Note -->
-      <div class="profile-note">
-        <i class="fas fa-lock" style="color:var(--text-300);flex-shrink:0;"></i>
-        <span>Thông tin quan hệ gia đình (Cha mẹ, vợ/chồng, con cái) chỉ có <strong>quản trị viên</strong> mới được phép chỉnh sửa.</span>
-      </div>
-    </div>
-
-    <!-- Right: relations -->
-    <div>
-      <!-- Parents -->
-      <div class="card mb-4">
-        <div class="card-header">
-          <h3><i class="fas fa-users" style="color:var(--text-300);"></i> Cha mẹ</h3>
-          <sec:authorize access="hasRole('ADMIN')">
-            <span class="text-xs text-muted"><i class="fas fa-lock"></i> Chỉ quản trị</span>
-          </sec:authorize>
-        </div>
-        <div class="card-body" style="padding:.75rem 1rem;">
-          <div th:if="${member.father == null and member.mother == null}" class="text-sm text-muted" style="padding:.5rem 0;">Không có thông tin</div>
-          <a th:if="${member.father != null}" th:href="@{/member/{id}(id=${member.father.id})}" class="relation-item">
-            <div class="relation-item-left">
-              <div class="avatar avatar-sm avatar-male"><span th:text="${member.father.name.substring(0,1)}">N</span></div>
-              <div>
-                <div class="relation-item-name" th:text="${member.father.name}">Tên cha</div>
-                <div class="relation-item-sub">Thành viên dòng họ</div>
-              </div>
+        <span th:if="${member.avatar == null or member.avatar.isEmpty()}"
+              th:text="${member.fullName.length() >= 2 ? member.fullName.substring(member.fullName.lastIndexOf(' ') > 0 ? member.fullName.lastIndexOf(' ')+1 : 0, member.fullName.length() >= member.fullName.lastIndexOf(' ')+3 ? member.fullName.lastIndexOf(' ')+3 : member.fullName.length()) : member.fullName.substring(0,1)}">HS</span>
             </div>
-            <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
-          </a>
-          <a th:if="${member.mother != null}" th:href="@{/member/{id}(id=${member.mother.id})}" class="relation-item">
-            <div class="relation-item-left">
-              <div class="avatar avatar-sm avatar-female"><span th:text="${member.mother.name.substring(0,1)}">N</span></div>
-              <div>
-                <div class="relation-item-name" th:text="${member.mother.name}">Tên mẹ</div>
-                <div class="relation-item-sub">Thành viên dòng họ</div>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
-          </a>
-        </div>
-      </div>
 
-      <!-- Spouse -->
-      <div class="card mb-4">
-        <div class="card-header">
-          <h3><i class="fas fa-heart" style="color:var(--text-300);"></i> Vợ chồng</h3>
-          <sec:authorize access="hasRole('ADMIN')">
-            <span class="text-xs text-muted"><i class="fas fa-lock"></i> Chỉ quản trị</span>
-          </sec:authorize>
-        </div>
-        <div class="card-body" style="padding:.75rem 1rem;">
-          <div th:if="${member.spouse == null}" class="text-sm text-muted" style="padding:.5rem 0;">Không có thông tin</div>
-          <a th:if="${member.spouse != null}" th:href="@{/member/{id}(id=${member.spouse.id})}" class="relation-item">
-            <div class="relation-item-left">
-              <div class="avatar avatar-sm"
-                   th:classappend="${member.spouse.gender.name()=='MALE'}?' avatar-male':' avatar-female'">
-                <span th:text="${member.spouse.name.substring(0,1)}">N</span>
-              </div>
-              <div>
-                <div class="relation-item-name" th:text="${member.spouse.name}">Tên</div>
-                <div class="relation-item-sub">Thành viên dòng họ</div>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
-          </a>
-        </div>
-      </div>
+            <label for="avatarUpload" class="member-avatar-upload-btn" title="Thay đổi ảnh đại diện">
+                <i class="fas fa-camera"></i>
+            </label>
 
-      <!-- Children -->
-      <div class="card mb-4">
-        <div class="card-header">
-          <h3><i class="fas fa-child" style="color:var(--text-300);"></i>
-            Con cái (<span th:text="${children.size()}">0</span>)
-          </h3>
-          <sec:authorize access="hasRole('ADMIN')">
-            <span class="text-xs text-muted"><i class="fas fa-lock"></i> Chỉ quản trị</span>
-          </sec:authorize>
+            <input type="file" id="avatarUpload" accept="image/png, image/jpeg" class="member-avatar-upload-input" th:data-id="${member.userId}">
         </div>
-        <div class="card-body" style="padding:.75rem 1rem;">
-          <div th:if="${children.isEmpty()}" class="text-sm text-muted" style="padding:.5rem 0;">Không có thông tin</div>
-          <a th:each="child : ${children}" th:href="@{/member/{id}(id=${child.id})}" class="relation-item">
-            <div class="relation-item-left">
-              <div class="avatar avatar-sm"
-                   th:classappend="${child.gender.name()=='MALE'}?' avatar-male':' avatar-female'">
-                <span th:text="${child.name.substring(0,1)}">N</span>
-              </div>
-              <div>
-                <div class="relation-item-name" th:text="${child.name}">Tên</div>
-                <div class="relation-item-sub">Thành viên dòng họ</div>
-              </div>
+        <div class="profile-info">
+            <h2 th:text="${member.fullName}">Nguyễn Hồng Sơn</h2>
+            <div class="profile-meta">
+                Đời thứ <span th:text="${member.generation}">3</span>
+                | <span th:text="${memberAge != null ? memberAge : '–'}">56</span> tuổi
             </div>
-            <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
-          </a>
+            <div class="profile-job" th:if="${member.occupation != null}" th:text="${member.occupation}">Giám đốc công ty CNTT</div>
         </div>
-      </div>
-
-      <!-- Siblings -->
-      <div class="card" th:if="${siblings != null and !siblings.isEmpty()}">
-        <div class="card-header">
-          <h3><i class="fas fa-people-arrows" style="color:var(--text-300);"></i>
-            Anh Chị Em (<span th:text="${siblings.size()}">0</span>)
-          </h3>
-          <sec:authorize access="hasRole('ADMIN')">
-            <span class="text-xs text-muted"><i class="fas fa-lock"></i> Chỉ quản trị</span>
-          </sec:authorize>
+        <div style="margin-left:auto;">
+            <a th:href="@{/family-tree}" class="btn btn-outline ml-2">
+                <i class="fas fa-sitemap"></i> Xem trong cây
+            </a>
         </div>
-        <div class="card-body" style="padding:.75rem 1rem;">
-          <a th:each="s : ${siblings}" th:href="@{/member/{id}(id=${s.id})}" class="relation-item">
-            <div class="relation-item-left">
-              <div class="avatar avatar-sm"
-                   th:classappend="${s.gender.name()=='MALE'}?' avatar-male':' avatar-female'">
-                <span th:text="${s.name.substring(0,1)}">N</span>
-              </div>
-              <div>
-                <div class="relation-item-name" th:text="${s.name}">Tên</div>
-                <div class="relation-item-sub">Thành viên dòng họ</div>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
-          </a>
-        </div>
-      </div>
     </div>
-  </div>
+
+    <div class="profile-body">
+        <div>
+            <form id="editProfileForm">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <h3>Thông tin cá nhân</h3>
+                        </div>
+
+                        <div style="margin-left:auto; display:flex; gap:8px;">
+                            <a th:href="@{/member/{id}(id=${member.userId})}" class="btn btn-outline">
+                                <i class="fas fa-times"></i> Hủy
+                            </a>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-check"></i> Lưu
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="profile-detail-grid">
+
+                            <div class="profile-detail-item">
+                                <label>Họ</label>
+                                <input type="text" name="lastName"
+                                       class="form-control"
+                                       th:value="${member.fullName != null ? member.fullName.split(' ')[0] : ''}">
+                            </div>
+
+                            <div class="profile-detail-item">
+                                <label>Tên</label>
+                                <input type="text" name="firstName"
+                                       class="form-control"
+                                       th:value="${member.fullName != null ? member.fullName.substring(member.fullName.lastIndexOf(' ')+1) : ''}">
+                            </div>
+
+                            <div class="profile-detail-item">
+                                <label>Nghề nghiệp</label>
+                                <input type="text" name="occupation"
+                                       class="form-control"
+                                       th:value="${member.occupation}">
+                            </div>
+
+                            <div class="profile-detail-item">
+                                <label>Điện thoại</label>
+                                <input type="text" name="phoneNumber"
+                                       class="form-control"
+                                       th:value="${member.phoneNumber}">
+                            </div>
+
+                            <div class="profile-detail-item" style="grid-column: span 2;">
+                                <label>Quê quán, Địa chỉ</label>
+                                <input type="text" name="currentAddress"
+                                       class="form-control"
+                                       th:value="${member.currentAddress}">
+                            </div>
+
+                            <div class="profile-detail-item" style="grid-column: span 2;">
+                                <label>Tiểu sử</label>
+                                <textarea name="bio" class="form-control" rows="5"
+                                          th:text="${member.bio}"></textarea>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="profile-note">
+                <i class="fas fa-lock" style="color:var(--text-300);flex-shrink:0;"></i>
+                <span>Thông tin quan hệ gia đình (Cha mẹ, vợ/chồng, con cái) chỉ có <strong>quản trị viên</strong> mới được phép chỉnh sửa.</span>
+            </div>
+        </div>
+
+        <div>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3><i class="fas fa-users" style="color:var(--text-300);"></i> Cha mẹ</h3>
+                    <sec:authorize access="hasRole('ADMIN')">
+                        <span class="text-xs text-muted"><i class="fas fa-lock"></i> Chỉ quản trị</span>
+                    </sec:authorize>
+                </div>
+                <div class="card-body" style="padding:.75rem 1rem;">
+                    <div th:if="${father == null and mother == null}" class="text-sm text-muted" style="padding:.5rem 0;">Không có thông tin</div>
+                    <a th:if="${father != null}" th:href="@{/member/{id}(id=${father.userId})}" class="relation-item">
+                        <div class="relation-item-left">
+                            <div class="avatar avatar-sm avatar-male"><span th:text="${father.fullName.substring(0,1)}">N</span></div>
+                            <div>
+                                <div class="relation-item-name" th:text="${father.fullName}">Tên cha</div>
+                                <div class="relation-item-sub">Thành viên dòng họ</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
+                    </a>
+                    <a th:if="${mother != null}" th:href="@{/member/{id}(id=${mother.userId})}" class="relation-item">
+                        <div class="relation-item-left">
+                            <div class="avatar avatar-sm avatar-female"><span th:text="${mother.fullName.substring(0,1)}">N</span></div>
+                            <div>
+                                <div class="relation-item-name" th:text="${mother.fullName}">Tên mẹ</div>
+                                <div class="relation-item-sub">Thành viên dòng họ</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3><i class="fas fa-heart" style="color:var(--text-300);"></i> Vợ chồng</h3>
+                    <sec:authorize access="hasRole('ADMIN')">
+                        <span class="text-xs text-muted"><i class="fas fa-lock"></i> Chỉ quản trị</span>
+                    </sec:authorize>
+                </div>
+                <div class="card-body" style="padding:.75rem 1rem;">
+                    <div th:if="${spouse == null}" class="text-sm text-muted" style="padding:.5rem 0;">Không có thông tin</div>
+                    <a th:if="${spouse != null}" th:href="@{/member/{id}(id=${spouse.userId})}" class="relation-item">
+                        <div class="relation-item-left">
+                            <div class="avatar avatar-sm"
+                                 th:classappend="${spouse.gender == 'MALE'}?' avatar-male':' avatar-female'">
+                                <span th:text="${spouse.fullName.substring(0,1)}">N</span>
+                            </div>
+                            <div>
+                                <div class="relation-item-name" th:text="${spouse.fullName}">Tên</div>
+                                <div class="relation-item-sub">Thành viên dòng họ</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3><i class="fas fa-child" style="color:var(--text-300);"></i>
+                        Con cái (<span th:text="${children.size()}">0</span>)
+                    </h3>
+                    <sec:authorize access="hasRole('ADMIN')">
+                        <span class="text-xs text-muted"><i class="fas fa-lock"></i> Chỉ quản trị</span>
+                    </sec:authorize>
+                </div>
+                <div class="card-body" style="padding:.75rem 1rem;">
+                    <div th:if="${children.isEmpty()}" class="text-sm text-muted" style="padding:.5rem 0;">Không có thông tin</div>
+                    <a th:each="child : ${children}" th:href="@{/member/{id}(id=${child.userId})}" class="relation-item">
+                        <div class="relation-item-left">
+                            <div class="avatar avatar-sm"
+                                 th:classappend="${child.gender == 'MALE'}?' avatar-male':' avatar-female'">
+                                <span th:text="${child.fullName.substring(0,1)}">N</span>
+                            </div>
+                            <div>
+                                <div class="relation-item-name" th:text="${child.fullName}">Tên</div>
+                                <div class="relation-item-sub">Thành viên dòng họ</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="card" th:if="${siblings != null and !siblings.isEmpty()}">
+                <div class="card-header">
+                    <h3><i class="fas fa-people-arrows" style="color:var(--text-300);"></i>
+                        Anh Chị Em (<span th:text="${siblings.size()}">0</span>)
+                    </h3>
+                    <sec:authorize access="hasRole('ADMIN')">
+                        <span class="text-xs text-muted"><i class="fas fa-lock"></i> Chỉ quản trị</span>
+                    </sec:authorize>
+                </div>
+                <div class="card-body" style="padding:.75rem 1rem;">
+                    <a th:each="s : ${siblings}" th:href="@{/member/{id}(id=${s.userId})}" class="relation-item">
+                        <div class="relation-item-left">
+                            <div class="avatar avatar-sm"
+                                 th:classappend="${s.gender == 'MALE'}?' avatar-male':' avatar-female'">
+                                <span th:text="${s.fullName.substring(0,1)}">N</span>
+                            </div>
+                            <div>
+                                <div class="relation-item-name" th:text="${s.fullName}">Tên</div>
+                                <div class="relation-item-sub">Thành viên dòng họ</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted" style="font-size:.7rem;"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <th:block th:replace="~{fragments/footer :: footer}"/>
 <script th:src="@{/js/main.js}"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // -------------------------------------------------------------
+        // 1. XỬ LÝ UPLOAD AVATAR
+        // -------------------------------------------------------------
+        const avatarUpload = document.getElementById('avatarUpload');
+        const avatarPreview = document.getElementById('avatarPreview');
+
+        if (avatarUpload && avatarPreview) {
+            avatarUpload.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                // Hiển thị ảnh xem trước ngay lập tức
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    avatarPreview.innerHTML = ''; // Xóa chữ viết tắt
+                    avatarPreview.style.backgroundImage = `url('${event.target.result}')`;
+                    avatarPreview.style.backgroundSize = 'cover';
+                    avatarPreview.style.backgroundPosition = 'center';
+                }
+                reader.readAsDataURL(file);
+
+                // Gửi API Upload
+                const userId = avatarUpload.getAttribute('data-id');
+                const formData = new FormData();
+                formData.append("file", file);
+
+                // Lấy JWT Token (đổi 'accessToken' thành key bạn đang lưu trữ nếu cần)
+                const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+                const headers = {};
+                if (token) headers['Authorization'] = 'Bearer ' + token;
+
+                fetch(`/api/profile/${userId}/upload-avatar`, {
+                    method: 'POST',
+                    headers: headers,
+                    body: formData
+                })
+                .then(async response => {
+                    if (response.ok) {
+                        // Tùy chọn: Dùng thư viện Toastr hoặc thông báo mượt mà hơn
+                        alert("Tải ảnh đại diện thành công!");
+                    } else {
+                        const err = await response.text();
+                        alert("Lỗi tải ảnh: " + err);
+                    }
+                })
+                .catch(error => {
+                    console.error("Upload error:", error);
+                    alert("Lỗi kết nối máy chủ khi tải ảnh.");
+                });
+            });
+        }
+
+        // -------------------------------------------------------------
+        // 2. XỬ LÝ NÚT "LƯU" THÔNG TIN PROFILE
+        // -------------------------------------------------------------
+        const editForm = document.getElementById('editProfileForm');
+
+        if (editForm) {
+            editForm.addEventListener('submit', function(e) {
+                e.preventDefault(); // Ngăn trình duyệt tự tải lại trang
+
+                // Lấy userId
+                const userId = document.getElementById('avatarUpload').getAttribute('data-id');
+
+                // Gom dữ liệu từ form
+                const formData = new FormData(editForm);
+
+                // Ghép Họ và Tên thành fullName (chuẩn bị dữ liệu JSON)
+                const lastName = formData.get('lastName') || '';
+                const firstName = formData.get('firstName') || '';
+                const fullName = (lastName + ' ' + firstName).trim();
+
+                const updateData = {
+                    fullName: fullName,
+                    occupation: formData.get('occupation'),
+                    phoneNumber: formData.get('phoneNumber'),
+                    currentAddress: formData.get('currentAddress'),
+                    bio: formData.get('bio')
+                };
+
+                const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (token) headers['Authorization'] = 'Bearer ' + token;
+
+                fetch(`/api/profile/${userId}`, {
+                    method: 'PUT',
+                    headers: headers,
+                    body: JSON.stringify(updateData)
+                })
+                .then(async response => {
+                    if (response.ok) {
+                        alert("Cập nhật thông tin thành công!");
+                        // Chuyển hướng về trang chi tiết sau khi lưu thành công
+                        window.location.href = `/member/${userId}`;
+                    } else {
+                        const err = await response.text();
+                        alert("Lỗi cập nhật: " + err);
+                    }
+                })
+                .catch(error => {
+                    console.error("Update error:", error);
+                    alert("Lỗi kết nối máy chủ khi lưu thông tin.");
+                });
+            });
+        }
+    });
+</script>
 </body>
 </html>

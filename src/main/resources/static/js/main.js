@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 const pagePath = window.location.pathname;
 
+// HÀM 1 ĐÃ ĐƯỢC CHỈNH SỬA: Xử lý Avatar trên thẻ Cây Gia Phả
 /** Đọc thông báo lỗi từ response API (JSON Spring { message } / { detail } hoặc text thuần). */
 async function readFetchErrorMessage(res, fallback) {
   const raw = await res.text();
@@ -656,12 +657,22 @@ function ensureTreeMemberModalBindings() {
 
 function cardMemberHtml(member) {
   const femaleCls = member.gender === "FEMALE" ? " female" : "";
-  const initials = (member.name || "U").slice(0, 2).toUpperCase();
-  const years = `${member.birthYear || ""} - ${member.deathYear || "nay"}`;
+  const initials = (member.name || member.fullName || "U").slice(0, 2).toUpperCase();
+  const nameToDisplay = member.name || member.fullName || "Chưa rõ";
+  const years = `${member.birthYear || "?"} - ${member.deathYear || "nay"}`;
+
+  let avatarHtml = '';
+  // Kiểm tra nếu có link ảnh từ DB
+  if (member.avatar && member.avatar.trim() !== "") {
+    avatarHtml = `<div class="pcard-avatar" style="background-image: url('${member.avatar}'); background-size: cover; background-position: center; color: transparent;"></div>`;
+  } else {
+    avatarHtml = `<div class="pcard-avatar"><span>${initials}</span></div>`;
+  }
+
   return `
     <div class="pcard${femaleCls}" data-member-id="${member.id}" data-gen="${member.generation}">
-      <div class="pcard-avatar"><span>${initials}</span></div>
-      <div class="pcard-name">${member.name}</div>
+      ${avatarHtml}
+      <div class="pcard-name">${nameToDisplay}</div>
       <div class="pcard-years"><i class="fas fa-birthday-cake" style="font-size:.6rem;"></i><span>${years}</span></div>
       ${member.occupation ? `<div class="pcard-job">${member.occupation}</div>` : ""}
     </div>
@@ -755,6 +766,7 @@ async function loadFamilyTree() {
     id: m.id || m.user_id,
     parentId: m.parentId != null && String(m.parentId).trim() ? String(m.parentId).trim() : null,
     spouseId: m.spouseId != null && String(m.spouseId).trim() ? String(m.spouseId).trim() : null,
+    name: m.name || m.fullName // Đồng bộ tên biến nếu BE gửi fullName
   }));
   const maxGen = data.totalGenerations || 1;
 
@@ -975,6 +987,7 @@ async function loadFamilyTree() {
   const detailPanel = document.getElementById("treeDetailPanel");
   const detailClose = document.getElementById("treeDetailClose");
   const treeLayout = document.getElementById("treeLayout");
+
   const compareModeToggle = document.getElementById("compareModeToggle");
   const compareModal = document.getElementById("compareModal");
   const compareModalClose = document.getElementById("compareModalClose");
@@ -982,6 +995,7 @@ async function loadFamilyTree() {
   const compareB = document.getElementById("compareB");
   const compareRelationText = document.getElementById("compareRelationText");
   const compareCommonAncestors = document.getElementById("compareCommonAncestors");
+
   const expandAllBtn = document.getElementById("expandAll");
   const collapseAllBtn = document.getElementById("collapseAll");
   const exportPdfBtn = document.getElementById("exportPdf");
@@ -990,6 +1004,7 @@ async function loadFamilyTree() {
   const treeFullscreenContent = document.getElementById("treeFullscreenContent");
   const treeCanvas = document.getElementById("treeCanvas");
   const treeFullscreenCanvas = document.querySelector(".tree-fullscreen-canvas");
+
   const treeDetailPopupModal = document.getElementById("treeDetailPopupModal");
   const treeDetailPopupClose = document.getElementById("treeDetailPopupClose");
   const detailPopupInitial = document.getElementById("detailPopupInitial");
@@ -1132,6 +1147,7 @@ async function loadFamilyTree() {
     treeDetailPopupModal.setAttribute("aria-hidden", "false");
   };
 
+  // HÀM 2 ĐÃ ĐƯỢC CHỈNH SỬA: Xử lý hiển thị Ảnh lên Thanh Panel và Popup
   const fillDetailElements = (els, member) => {
     if (!member || !els?.initial) return;
     const spouse = member.spouseId ? byId.get(member.spouseId) : null;
@@ -1139,7 +1155,18 @@ async function loadFamilyTree() {
       (m) => m.fatherId === member.id || m.motherId === member.id || m.parentId === member.id
     );
 
-    els.initial.textContent = (member.name || "--").slice(0, 2).toUpperCase();
+    // Lấy Element <span> chứa chữ bên trong cục Avatar
+    const textSpan = els.initial.querySelector("span") || els.initial;
+
+    if (member.avatar && member.avatar.trim() !== '') {
+        els.initial.style.backgroundImage = `url('${member.avatar}')`;
+        textSpan.style.display = 'none'; // Ẩn chữ đi
+    } else {
+        els.initial.style.backgroundImage = 'none';
+        textSpan.style.display = 'block';
+        textSpan.textContent = (member.name || "--").slice(0, 2).toUpperCase();
+    }
+
     els.name.textContent = member.name || "Không rõ";
     els.years.textContent = `${member.birthYear || "?"} - ${member.deathYear || "nay"}`;
     els.generation.textContent = `Thế hệ ${member.generation || "-"}`;
@@ -1148,14 +1175,15 @@ async function loadFamilyTree() {
     els.bio.textContent = `Thành viên ${member.name || ""} thuộc ${member.branch || "dòng họ"}, dữ liệu đang được quản trị viên cập nhật.`;
     els.spouse.textContent = spouse ? spouse.name : "Không có";
     els.children.textContent = children.length ? children.map((c) => c.name).join(", ") : "Không có";
-    els.profileLink.href = `/member/${member.id}`;
+    if (els.profileLink) els.profileLink.href = `/member/${member.id}`;
   };
 
   const getMemberInitials = (name) => (name || "--").slice(0, 2).toUpperCase();
   const genderClass = (m) => m?.gender === "FEMALE" ? "female" : "male";
 
+  // Sửa hiển thị lúc so sánh (Nếu bạn muốn, có thể thêm bg-image vào đây luôn)
   const renderCompareMember = (m) => `
-    <div class="compare-avatar ${genderClass(m)}">${getMemberInitials(m?.name)}</div>
+    <div class="compare-avatar ${genderClass(m)}" style="${m?.avatar ? `background-image:url('${m.avatar}');background-size:cover;color:transparent;` : ''}">${getMemberInitials(m?.name)}</div>
     <div class="compare-name">${m?.name || "Không rõ"}</div>
     <div class="compare-years">${m?.birthYear || "?"} - ${m?.deathYear || "nay"}</div>
     <div class="compare-job">${m?.occupation || "Chưa cập nhật"}</div>
@@ -1233,7 +1261,7 @@ async function loadFamilyTree() {
       compareModeToggle.innerHTML = '<i class="fas fa-code-compare"></i> So sánh quan hệ';
     }
     setDetailPanelVisible(true);
-    renderDetail(selectedMemberId);
+    if(selectedMemberId) renderDetail(selectedMemberId);
   };
 
   const renderDetail = (memberId) => {
@@ -1291,7 +1319,7 @@ async function loadFamilyTree() {
     });
   };
   bindCompareCardClicks(treeContent);
-  
+
   if (detailClose && detailPanel) {
     detailClose.addEventListener("click", () => {
       setDetailPanelVisible(false);

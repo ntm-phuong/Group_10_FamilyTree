@@ -18,4 +18,33 @@
 .relation-item-name{font-size:.875rem;font-weight:600;}
 .relation-item-sub{font-size:.75rem;color:var(--text-500);}
 
+/* Nút chứa icon máy ảnh */
+.member-avatar-upload-btn {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #1B4332; /* Màu xanh lá đậm cho hợp theme */
+    color: #ffffff; /* Icon màu trắng */
+    font-size: 0.9rem;
+    box-shadow: 0 4px 10px rgba(27,67,50,0.3); /* Đổ bóng cho nổi bật */
+    cursor: pointer;
+    z-index: 10; /* Đảm bảo icon luôn nổi lên trên cùng, không bị ảnh che khuất */
+    transition: background 0.2s;
+}
+
+.member-avatar-upload-btn:hover {
+    background: #2D6A4F; /* Đổi màu khi di chuột vào */
+}
+
+/* Ẩn cái nút "Choose file" mặc định xấu xí của trình duyệt đi */
+.member-avatar-upload-input {
+    display: none !important;
+}
+
 @media(max-width:1024px){.profile-body{grid-template-columns:1fr;}}
