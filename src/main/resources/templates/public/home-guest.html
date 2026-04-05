@@ -385,10 +385,13 @@
             const btnSubmit = document.getElementById('btnLoginSubmit');
             btnSubmit.innerText = "Đang xác thực..."; btnSubmit.disabled = true;
 
+            // 1. Lấy email người dùng vừa nhập trên form
+            const inputEmail = document.getElementById('email').value.trim();
+
             fetch('/api/auth/login', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    email: document.getElementById('email').value,
+                    email: inputEmail,
                     password: document.getElementById('password').value
                 })
             })
@@ -398,6 +401,18 @@
                 localStorage.setItem('user_id', data.userId);
                 localStorage.setItem('full_name', data.fullName);
                 localStorage.setItem('family_id', data.familyId);
+
+                // =======================================================
+                // MẸO FRONTEND: TỰ PHÂN QUYỀN TRƯỞNG HỌ DỰA VÀO EMAIL
+                // =======================================================
+                // Do Backend không trả về role, ta tự kiểm tra email.
+                // Thay thế email dưới đây bằng các email trưởng họ của bạn.
+                if (inputEmail.toLowerCase() === 'truongho@giapha.vn' || inputEmail.toLowerCase() === 'admin@gmail.com') {
+                    localStorage.setItem('role_id', 'role-head');
+                } else {
+                    localStorage.setItem('role_id', 'role-member');
+                }
+                // =======================================================
 
                 if (Number(data.status) === 1) {
                     closeModal('loginModal');

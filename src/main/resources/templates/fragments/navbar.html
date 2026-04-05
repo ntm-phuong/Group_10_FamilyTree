@@ -15,6 +15,7 @@
 
     <a th:href="@{/family-head}"
        id="navAdmin"
+       style="display: none;"
        th:classappend="${activeMenu == 'dashboard' ? 'active' : ''}"
        class="sidebar-link"><i class="fas fa-th-large"></i> Quản Trị</a>
   </nav>
@@ -36,7 +37,7 @@
 
       <div class="dropdown-menu">
         <a href="/profile" class="dropdown-item">Hồ sơ cá nhân</a>
-        <a href="/admin" class="dropdown-item">Trang quản trị</a>
+        <a href="/admin" class="dropdown-item" id="navAdminDropdown" style="display: none;">Trang quản trị</a>
         <a href="#" class="dropdown-item logout-btn" id="navLogoutBtn">Đăng xuất</a>
       </div>
     </div>
@@ -49,36 +50,40 @@
             // Lấy thông tin từ trình duyệt
             const token = localStorage.getItem('token');
             const fullName = localStorage.getItem('full_name');
+            const userId = localStorage.getItem('user_id');
+            const roleId = localStorage.getItem('role_id'); // <-- LẤY ROLE ID TỪ LOCAL STORAGE
 
             // Lấy các phần tử DOM
             const navLogo = document.getElementById('navLogo');
             const navHome = document.getElementById('navHome');
             const navFamilyTree = document.getElementById('navFamilyTree');
             const navAdmin = document.getElementById('navAdmin');
+            const navAdminDropdown = document.getElementById('navAdminDropdown'); // <-- Khai báo nút admin menu
             const navLoginBtn = document.getElementById('navLoginBtn');
             const navUserDropdown = document.getElementById('navUserDropdown');
             const navFullName = document.getElementById('navFullName');
             const navAvatarInitials = document.getElementById('navAvatarInitials');
             const navLogoutBtn = document.getElementById('navLogoutBtn');
+            const profileLink = document.getElementById('profileLink');
+
+            // XỬ LÝ NÚT ĐĂNG NHẬP (Chuyển trang nếu không có Modal)
             if (navLoginBtn) {
                 navLoginBtn.addEventListener('click', function(e) {
                     const loginModal = document.getElementById('loginModal');
-                    // Nếu trang hiện tại KHÔNG có modal đăng nhập (tức là đang ở trang Tin tức, Giới thiệu...)
                     if (!loginModal) {
                         e.preventDefault();
-                        // Chuyển hướng về trang chủ và gắn cờ ?login=true
                         window.location.href = '/?login=true';
                     }
                 });
             }
 
+            // XỬ LÝ MENU MOBILE
             const toggleBtn = document.querySelector('.nav-toggle-btn');
             const navLinks = document.querySelector('.nav-links-figma');
 
             if (toggleBtn && navLinks) {
                 toggleBtn.addEventListener('click', function() {
                     navLinks.classList.toggle('active');
-                    // Đổi icon 3 gạch thành dấu X khi mở
                     const icon = this.querySelector('i');
                     if(navLinks.classList.contains('active')){
                         icon.classList.remove('fa-bars');
@@ -90,42 +95,44 @@
                 });
             }
 
-            // NẾU ĐÃ ĐĂNG NHẬP (Có Token)
+            // XỬ LÝ GIAO DIỆN KHI ĐÃ ĐĂNG NHẬP
             if (token && fullName) {
-                // 1. Đổi link Logo và Trang chủ sang /home
                 navLogo.href = '/home';
                 navHome.href = '/home';
+                if (navFamilyTree) navFamilyTree.style.display = 'flex';
 
-                // 2. Hiện menu Gia Phả và Quản Trị
-                navFamilyTree.style.display = 'flex';
-                navAdmin.style.display = 'flex';
+                // ==========================================
+                // PHÂN QUYỀN: NẾU LÀ ROLE_HEAD THÌ MỚI HIỆN QUẢN TRỊ
+                // ==========================================
+                if (roleId && roleId.toLowerCase() === 'role-head') {
+                    if (navAdmin) navAdmin.style.display = 'flex';
+                    if (navAdminDropdown) navAdminDropdown.style.display = 'block';
+                }
 
-                // 3. Ẩn nút Đăng nhập, hiện Dropdown Profile
-                navLoginBtn.style.display = 'none';
-                navUserDropdown.style.display = 'inline-block';
+                if (navLoginBtn) navLoginBtn.style.display = 'none';
+                if (navUserDropdown) navUserDropdown.style.display = 'inline-block';
 
-                // 4. Hiển thị Tên
-                navFullName.innerText = fullName;
+                if (navFullName) navFullName.innerText = fullName;
 
-                // 5. Logic tạo Avatar chữ (VD: Nguyễn Hồng Sơn -> HS)
                 const nameParts = fullName.trim().split(' ');
                 let initials = '';
                 if (nameParts.length >= 2) {
-                    // Lấy chữ cái đầu của 2 từ cuối cùng
                     initials = nameParts[nameParts.length - 2].charAt(0) + nameParts[nameParts.length - 1].charAt(0);
                 } else {
                     initials = fullName.charAt(0);
                 }
-                navAvatarInitials.innerText = initials.toUpperCase();
+                if (navAvatarInitials) navAvatarInitials.innerText = initials.toUpperCase();
+
+                if (profileLink) {
+                    profileLink.href = (token && userId) ? `/member/${userId}` : '/profile';
+                }
             }
 
             // XỬ LÝ NÚT ĐĂNG XUẤT
             if (navLogoutBtn) {
                 navLogoutBtn.addEventListener('click', function(e) {
                     e.preventDefault();
-                    // Xóa sạch bộ nhớ
                     localStorage.clear();
-                    // Đá về trang chủ của khách
                     window.location.href = '/';
                 });
             }
