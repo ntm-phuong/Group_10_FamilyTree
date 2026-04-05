@@ -56,6 +56,9 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/auth/me").authenticated()
 
+                        .requestMatchers("/family-head/**").permitAll()
+
+                        // Tất cả các request khác (thường là API nghiệp vụ) mới cần login
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session

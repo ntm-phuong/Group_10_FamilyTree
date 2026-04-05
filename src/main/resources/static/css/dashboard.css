@@ -1,0 +1,90 @@
+/* Biến màu sắc đồng bộ với Navbar */
+:root {
+    --dash-bg: #f9fafb;
+    --card-bg: #e5e7eb; /* Màu xám đặc trưng trong ảnh của bạn */
+    --primary-green: #205A32;
+    --text-dark: #1a1a1a;
+    --text-light: #6b7280;
+}
+
+.dash-main-content {
+    background-color: #ffffff;
+    min-height: calc(100vh - 150px);
+}
+
+.dash-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.dash-header { margin-bottom: 2rem; }
+.dash-header h2 { font-weight: 700; color: var(--text-dark); margin-bottom: 5px; }
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.stat-box {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+}
+
+.stat-inner { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+.stat-label { font-weight: 600; font-size: 0.9rem; color: #4b5563; }
+.stat-value { font-size: 2rem; font-weight: 800; }
+.stat-footer { font-size: 0.85rem; font-weight: 600; }
+.txt-success { color: #27ae60; }
+
+/* Content Grids */
+.content-grid-middle {
+    display: grid;
+    grid-template-columns: 5fr 7fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.content-grid-bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.panel-card {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 20px;
+}
+
+.panel-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+.panel-subtitle { font-size: 0.85rem; color: var(--text-light); margin-bottom: 1.5rem; }
+
+/* Progress Bars */
+.gen-item { margin-bottom: 1rem; }
+.gen-info { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; }
+.progress-bar-bg { height: 8px; background: #d1d5db; border-radius: 10px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: #1e5128; border-radius: 10px; }
+
+/* List Styles */
+.list-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #d1d5db;
+}
+.list-row:last-child { border-bottom: none; }
+
+.badge { padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+.badge-nam { background: #e0f2fe; color: #0369a1; }
+.badge-nu { background: #fce7f3; color: #be185d; }
+.badge-success { background: var(--primary-green); color: white; }
+
+@media (max-width: 992px) {
+    .content-grid-middle, .content-grid-bottom { grid-template-columns: 1fr; }
+}
