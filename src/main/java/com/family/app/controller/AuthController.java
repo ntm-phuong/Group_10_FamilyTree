@@ -6,6 +6,7 @@ import com.family.app.service.AuthService;
 import com.family.app.security.JwtTokenProvider; // Thêm dòng import này để gọi công cụ Token
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -33,10 +34,20 @@ public class AuthController {
         response.put("userId", authData.get("userId"));
         response.put("fullName", authData.get("fullName"));
         response.put("role", authData.get("role"));
+        response.put("permissions", authData.get("permissions"));
         response.put("familyId", authData.get("familyId"));
-
+        response.put("familyName", authData.get("familyName"));
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> me() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof User u)) {
+            return ResponseEntity.status(401).body(Map.of("error", "Chưa đăng nhập hoặc token không hợp lệ"));
+        }
+        return ResponseEntity.ok(authService.buildSessionProfile(u.getUserId()));
     }
 
     @PostMapping("/active")

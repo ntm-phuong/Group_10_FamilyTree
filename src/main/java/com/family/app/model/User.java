@@ -1,6 +1,7 @@
 package com.family.app.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
@@ -36,6 +37,7 @@ public class User {
     private String fullName;
 
     private String email;
+    @JsonIgnore
     private String password;
     private String gender;
     private LocalDate dob;

@@ -7,17 +7,20 @@ import com.family.app.model.User;
 import com.family.app.repository.FamilyRepository;
 import com.family.app.repository.RelationshipRepository;
 import com.family.app.repository.UserRepository;
+import com.family.app.config.AppClanProperties;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
+import com.family.app.model.Family;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,28 +30,33 @@ public class MemberService {
     private final UserRepository userRepository;
     private final RelationshipRepository relationshipRepository;
     private final FamilyRepository familyRepository;
+    private final AppClanProperties clanProperties;
 
     public FamilyTreeResponse getFamilyTreeDataForPublic(String familyId) {
         String resolvedFamilyId = familyId;
         if (resolvedFamilyId == null || resolvedFamilyId.isBlank()) {
-            resolvedFamilyId = familyRepository.findAll(PageRequest.of(0, 1))
-                    .stream()
-                    .findFirst()
-                    .map(family -> family.getFamilyId())
-                    .orElseThrow(() -> new IllegalStateException("Không tìm thấy dữ liệu dòng họ"));
+            resolvedFamilyId = clanProperties.getFamilyId();
+        }
+        if (!clanProperties.getFamilyId().equals(resolvedFamilyId)) {
+            throw new IllegalStateException("Chỉ hỗ trợ dòng họ đã cấu hình.");
         }
         return getFamilyTreeData(resolvedFamilyId);
     }
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public FamilyTreeResponse getFamilyTreeData(String familyId) {
-        // 1. Lấy thông tin dòng họ
+        // 1. Lấy thông tin dòng họ (gốc được yêu cầu — gồm cả các chi con)
         String familyName = familyRepository.findById(familyId)
                 .map(f -> f.getFamilyName()).orElse("Gia phả");
 
-        // 2. Lấy tất cả thành viên và quan hệ
-        List<User> users = userRepository.findByFamily_FamilyIdOrderByOrderInFamilyAsc(familyId);
-        List<Relationship> relationships = relationshipRepository.findAllByFamilyId(familyId);
+        Set<String> scopeIds = subtreeFamilyIds(familyId);
+        if (scopeIds.isEmpty()) {
+            scopeIds.add(familyId);
+        }
+
+        // 2. Thành viên + quan hệ trên toàn bộ nhánh (root và các family phụ thuộc)
+        List<User> users = userRepository.findByFamily_FamilyIdInOrderByGenerationAscOrderInFamilyAsc(scopeIds);
+        List<Relationship> relationships = relationshipRepository.findAllWhereBothPersonsInFamilyIds(scopeIds);
 
         // 3. Chuyển đổi User thành MemberNode và gắn logic quan hệ
         List<FamilyTreeResponse.MemberNode> nodes = users.stream().map(user -> {
@@ -63,6 +71,7 @@ public class MemberService {
                     .branch(user.getBranch())
                     .orderInFamily(user.getOrderInFamily())
                     .avatar(user.getAvatar())
+                    .parentId(user.getParentId())
                     .isDead(user.getDod() != null)
                     .build();
 
@@ -109,18 +118,26 @@ public class MemberService {
             throw new IllegalArgumentException("Bắt buộc truyền memberAId/memberBId");
         }
 
-        String resolvedFamilyId = familyId;
-        if (resolvedFamilyId == null || resolvedFamilyId.isBlank()) {
-            resolvedFamilyId = userRepository.findById(memberAId)
-                    .map(u -> u.getFamily() != null ? u.getFamily().getFamilyId() : null)
-                    .orElse(null);
-        }
-        if (resolvedFamilyId == null || resolvedFamilyId.isBlank()) {
-            throw new IllegalStateException("Không thể xác định familyId");
+        String clanRoot = clanProperties.getFamilyId();
+        Set<String> clanScope = subtreeFamilyIds(clanRoot);
+        if (familyId != null && !familyId.isBlank() && !clanRoot.equals(familyId.trim())) {
+            throw new IllegalArgumentException("Chỉ hỗ trợ dòng họ đã cấu hình.");
         }
 
-        List<User> users = userRepository.findByFamily_FamilyIdOrderByOrderInFamilyAsc(resolvedFamilyId);
-        List<Relationship> relationships = relationshipRepository.findAllByFamilyId(resolvedFamilyId);
+        User ua = userRepository.findByIdWithFamily(memberAId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thành viên A"));
+        User ub = userRepository.findByIdWithFamily(memberBId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thành viên B"));
+        if (ua.getFamily() == null || ub.getFamily() == null) {
+            throw new IllegalArgumentException("Thành viên chưa gắn dòng họ");
+        }
+        if (!clanScope.contains(ua.getFamily().getFamilyId())
+                || !clanScope.contains(ub.getFamily().getFamilyId())) {
+            throw new IllegalArgumentException("Thành viên không thuộc dòng họ đã cấu hình.");
+        }
+
+        List<User> users = userRepository.findByFamily_FamilyIdInOrderByGenerationAscOrderInFamilyAsc(clanScope);
+        List<Relationship> relationships = relationshipRepository.findAllWhereBothPersonsInFamilyIds(clanScope);
 
         Map<String, User> userById = users.stream().collect(Collectors.toMap(User::getUserId, u -> u));
         if (!userById.containsKey(memberAId) || !userById.containsKey(memberBId)) {
@@ -610,5 +627,22 @@ public class MemberService {
             frontier = next;
         }
         return dist;
+    }
+
+    /** Một {@link Family} và mọi chi con (theo {@code parent_family_id}). */
+    private Set<String> subtreeFamilyIds(String rootFamilyId) {
+        Set<String> ids = new LinkedHashSet<>();
+        ArrayDeque<String> q = new ArrayDeque<>();
+        q.add(rootFamilyId);
+        while (!q.isEmpty()) {
+            String id = q.poll();
+            if (!ids.add(id)) {
+                continue;
+            }
+            for (Family c : familyRepository.findByParentFamily_FamilyId(id)) {
+                q.add(c.getFamilyId());
+            }
+        }
+        return ids;
     }
 }

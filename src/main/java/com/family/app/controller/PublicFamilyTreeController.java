@@ -1,7 +1,9 @@
 package com.family.app.controller;
 
+import com.family.app.config.AppClanProperties;
 import com.family.app.dto.FamilyTreeResponse;
 import com.family.app.dto.RelationshipCompareResponse;
+import com.family.app.repository.FamilyRepository;
 import com.family.app.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +18,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class PublicFamilyTreeController {
 
     private final MemberService memberService;
+    private final AppClanProperties clanProperties;
+    private final FamilyRepository familyRepository;
 
     @GetMapping("/family-tree")
     public String familyTreePage(Model model) {
+        String fid = clanProperties.getFamilyId();
+        String name = familyRepository.findById(fid)
+                .map(f -> f.getFamilyName())
+                .orElse(clanProperties.getDisplayName());
+        model.addAttribute("clanFamilyId", fid);
+        model.addAttribute("clanFamilyName", name);
         model.addAttribute("activeMenu", "family-tree");
         return "public/family-tree";
     }

@@ -1,0 +1,119 @@
+/* Bảng / form dùng chung (trang quản trị tin site, v.v.) — tách khỏi cổng /family-head đã gỡ */
+.fh-page-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.fh-table-wrap {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: auto;
+}
+
+.fh-news-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.fh-news-table th,
+.fh-news-table td {
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.fh-news-table th {
+  background: #f8faf8;
+  font-weight: 600;
+  color: var(--text-700);
+  white-space: nowrap;
+}
+
+.fh-news-table tr:last-child td {
+  border-bottom: none;
+}
+
+.fh-news-table .fh-title {
+  font-weight: 600;
+  color: var(--text-900);
+  max-width: 280px;
+}
+
+.fh-news-table .fh-muted {
+  color: var(--text-500);
+  font-size: 0.8rem;
+}
+
+.fh-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.fh-alert {
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius);
+  margin-bottom: 0.85rem;
+  font-size: 0.86rem;
+}
+
+.fh-alert.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.fh-alert.success {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+}
+
+.fh-alert.info {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+}
+
+#snModal .modal {
+  max-width: 640px;
+}
+
+.fh-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem 1rem;
+}
+
+@media (max-width: 640px) {
+  .fh-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fh-form-grid .fh-span-2 {
+  grid-column: 1 / -1;
+}
+
+.fh-form-grid label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-700);
+  margin-bottom: 0.2rem;
+}
+
+.fh-form-grid .form-control,
+.fh-form-grid textarea.form-control {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.fh-form-grid textarea.form-control {
+  min-height: 72px;
+  resize: vertical;
+}

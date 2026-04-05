@@ -19,13 +19,15 @@
 
   <h1 style="font-size:1.4rem;font-weight:700;margin-bottom:.3rem;">Cây gia phả dòng họ</h1>
   <p style="font-size:.85rem;color:var(--text-500);margin-bottom:1.25rem;">
-    Khám phá mối quan hệ giữa các thành viên qua nhiều thế hệ. Nhấn vào mỗi thành viên để xem chi tiết.
+    Một dòng họ (<strong th:text="${clanFamilyName}">—</strong>). Khám phá quan hệ qua các thế hệ; nhấn thành viên để xem chi tiết.
   </p>
 
   <div class="tree-toolbar">
-    <select id="familyFilter" class="form-control form-select" style="width:220px;">
-      <option value="">Chọn dòng họ</option>
-    </select>
+    <div id="familyFilterWrap" class="family-filter-wrap" style="display:none;" aria-hidden="true">
+      <select id="familyFilter" class="form-control form-select" style="width:220px;" aria-label="Chọn dòng họ">
+        <option value="">Chọn dòng họ</option>
+      </select>
+    </div>
     <div class="search-input" style="min-width:200px;max-width:260px;">
       <i class="fas fa-search"></i>
       <input id="treeSearch" type="text" class="form-control" placeholder="Tìm kiếm thành viên..."/>
@@ -41,7 +43,10 @@
       <button id="zoomReset" class="btn btn-white btn-icon" title="Đặt lại"><i class="fas fa-redo"></i></button>
     </div>
 
-    <div style="margin-left:auto;display:flex;gap:.5rem;">
+    <div style="margin-left:auto;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+      <button type="button" id="treeMemberAddBtn" class="btn btn-primary btn-sm" hidden>
+        <i class="fas fa-user-plus"></i> Thêm thành viên
+      </button>
       <button id="compareModeToggle" class="btn btn-white btn-sm"><i class="fas fa-code-compare"></i> So sánh quan hệ</button>
       <button id="expandAll" class="btn btn-white btn-sm"><i class="fas fa-expand-alt"></i> Mở rộng</button>
       <button id="collapseAll" class="btn btn-white btn-sm"><i class="fas fa-compress-alt"></i> Thu gọn</button>
@@ -50,7 +55,7 @@
   </div>
 
   <div class="tree-layout detail-open" id="treeLayout">
-    <div class="tree-container" id="treeCanvas">
+    <div class="tree-container" id="treeCanvas" th:attr="data-clan-family-id=${clanFamilyId}">
       <div id="treeContent"></div>
       <div id="treeEmptyState" class="empty-state" style="display:none;">
         <i class="fas fa-sitemap"></i>
@@ -80,7 +85,163 @@
         <div><strong>Con:</strong> <span id="detailChildren">-</span></div>
       </div>
       <a id="detailProfileLink" class="btn btn-primary btn-sm mt-4" href="#">Xem hồ sơ đầy đủ</a>
+      <div id="treeDetailManageActions" class="tree-detail-manage" hidden>
+        <div class="divider"></div>
+        <p class="text-xs text-muted" style="margin:0 0 .5rem;">Quản trị (cần quyền thành viên dòng họ)</p>
+        <div class="tree-detail-manage-btns">
+          <button type="button" id="treeMemberLinkSpouseBtn" class="btn btn-outline btn-sm"><i class="fas fa-heart"></i> Thêm vợ/chồng</button>
+          <button type="button" id="treeMemberAddChildBtn" class="btn btn-primary btn-sm"><i class="fas fa-user-plus"></i> Thêm con</button>
+          <button type="button" id="treeMemberEditBtn" class="btn btn-outline btn-sm"><i class="fas fa-pen"></i> Sửa</button>
+          <button type="button" id="treeMemberDeleteBtn" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i> Xóa</button>
+        </div>
+        <p id="treeAddChildHint" class="text-xs text-muted" style="margin:.35rem 0 0;" hidden>Thêm con chỉ bật sau khi đã tạo hồ sơ vợ/chồng (nam–nữ) bằng nút Thêm vợ/chồng.</p>
+      </div>
     </aside>
+  </div>
+
+  <div id="treeMemberEditModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal" style="max-width:560px;">
+      <div class="modal-header">
+        <div>
+          <h3 id="treeMemberModalTitle">Sửa thành viên</h3>
+          <p style="font-size:.82rem;color:var(--text-500);margin-top:.2rem;">Lưu qua API quản lý thành viên (gia phả).</p>
+        </div>
+        <button type="button" class="modal-close" id="treeMemberModalClose" aria-label="Đóng"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="treeMemberForm">
+        <input type="hidden" id="tmMemberEditId" value=""/>
+        <div class="fh-form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem 1rem;">
+          <div style="grid-column:1/-1;">
+            <label for="tmMemFullName">Họ và tên <span style="color:#b91c1c;">*</span></label>
+            <input type="text" id="tmMemFullName" class="form-control" required maxlength="200"/>
+          </div>
+          <div>
+            <label for="tmMemEmail">Email</label>
+            <input type="email" id="tmMemEmail" class="form-control"/>
+          </div>
+          <div>
+            <label for="tmMemPhone">Điện thoại</label>
+            <input type="text" id="tmMemPhone" class="form-control" maxlength="20"/>
+          </div>
+          <div>
+            <label for="tmMemGender">Giới tính</label>
+            <select id="tmMemGender" class="form-control form-select">
+              <option value="">—</option>
+              <option value="MALE">Nam</option>
+              <option value="FEMALE">Nữ</option>
+            </select>
+          </div>
+          <div>
+            <label for="tmMemDob">Ngày sinh</label>
+            <input type="date" id="tmMemDob" class="form-control"/>
+          </div>
+          <div style="grid-column:1/-1;">
+            <label for="tmMemFamilyId">Dòng họ <span style="color:#b91c1c;">*</span></label>
+            <select id="tmMemFamilyId" class="form-control form-select" required></select>
+          </div>
+          <div style="grid-column:1/-1;">
+            <label for="tmMemParentId">Cha / mẹ (trong dòng họ)</label>
+            <select id="tmMemParentId" class="form-control form-select">
+              <option value="">— Không (đời đầu) —</option>
+            </select>
+            <p class="text-xs text-muted" style="margin:.35rem 0 0;">Chọn người làm cha hoặc mẹ trực tiếp; thế hệ và thứ tự được tính tự động. Chỉ được thêm con khi người đó đã có vợ/chồng (nút &quot;Thêm vợ/chồng&quot; tạo hồ sơ vợ/chồng mới).</p>
+          </div>
+          <div>
+            <label for="tmMemGeneration">Thế hệ <span class="text-muted" style="font-weight:400;">(tự tính)</span></label>
+            <input type="number" id="tmMemGeneration" class="form-control" min="1" step="1" readonly tabindex="-1" style="background:var(--bg);cursor:not-allowed;"/>
+          </div>
+          <div>
+            <label for="tmMemOrder">Thứ tự trong chi <span class="text-muted" style="font-weight:400;">(tự tính)</span></label>
+            <input type="number" id="tmMemOrder" class="form-control" min="1" step="1" readonly tabindex="-1" style="background:var(--bg);cursor:not-allowed;"/>
+          </div>
+          <div style="grid-column:1/-1;">
+            <label for="tmMemHometown">Quê quán</label>
+            <input type="text" id="tmMemHometown" class="form-control"/>
+          </div>
+          <div style="grid-column:1/-1;">
+            <label for="tmMemCurrentAddress">Chỗ ở hiện tại</label>
+            <input type="text" id="tmMemCurrentAddress" class="form-control"/>
+          </div>
+          <div style="grid-column:1/-1;">
+            <label for="tmMemOccupation">Nghề nghiệp</label>
+            <input type="text" id="tmMemOccupation" class="form-control"/>
+          </div>
+          <div style="grid-column:1/-1;">
+            <label for="tmMemBio">Tiểu sử</label>
+            <textarea id="tmMemBio" class="form-control" rows="3"></textarea>
+          </div>
+          <div style="grid-column:1/-1;">
+            <label for="tmMemRoleId">Vai trò &amp; quyền</label>
+            <select id="tmMemRoleId" class="form-control form-select">
+              <option value="">Đang tải…</option>
+            </select>
+            <p class="text-xs text-muted" style="margin:.35rem 0 0;">Thành viên: xem gia phả; phụ trách tin: quản lý tin/sự kiện; trưởng họ: thêm quản lý thành viên và tin.</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-white" id="treeMemberModalCancel">Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="treeSpouseLinkModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal" style="max-width:560px;">
+      <div class="modal-header">
+        <div>
+          <h3 id="treeSpouseLinkModalTitle">Thêm vợ/chồng</h3>
+          <p id="tsSpouseIntro" class="text-xs text-muted" style="margin-top:.35rem;line-height:1.45;"></p>
+        </div>
+        <button type="button" class="modal-close" id="treeSpouseLinkModalClose" aria-label="Đóng"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="treeSpouseLinkForm">
+        <input type="hidden" id="tsSpouseGenderHidden" value=""/>
+        <div class="fh-form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem 1rem;">
+          <div style="grid-column:1/-1;">
+            <label for="tsSpouseFullName">Họ và tên <span style="color:#b91c1c;">*</span></label>
+            <input type="text" id="tsSpouseFullName" class="form-control" required maxlength="200"/>
+          </div>
+          <div>
+            <label for="tsSpouseEmail">Email</label>
+            <input type="email" id="tsSpouseEmail" class="form-control"/>
+          </div>
+          <div>
+            <label for="tsSpousePhone">Điện thoại</label>
+            <input type="text" id="tsSpousePhone" class="form-control" maxlength="20"/>
+          </div>
+          <div>
+            <label for="tsSpouseDob">Ngày sinh</label>
+            <input type="date" id="tsSpouseDob" class="form-control"/>
+          </div>
+          <div style="grid-column:1/-1;">
+            <label>Giới tính (vợ/chồng)</label>
+            <input type="text" id="tsSpouseGenderLabel" class="form-control" readonly tabindex="-1" style="background:var(--bg);cursor:not-allowed;"/>
+          </div>
+          <div style="grid-column:1/-1;">
+            <label for="tsSpouseHometown">Quê quán</label>
+            <input type="text" id="tsSpouseHometown" class="form-control"/>
+          </div>
+          <div style="grid-column:1/-1;">
+            <label for="tsSpouseAddress">Chỗ ở hiện tại</label>
+            <input type="text" id="tsSpouseAddress" class="form-control"/>
+          </div>
+          <div style="grid-column:1/-1;">
+            <label for="tsSpouseOccupation">Nghề nghiệp</label>
+            <input type="text" id="tsSpouseOccupation" class="form-control"/>
+          </div>
+          <div style="grid-column:1/-1;">
+            <label for="tsSpouseBio">Tiểu sử</label>
+            <textarea id="tsSpouseBio" class="form-control" rows="2"></textarea>
+          </div>
+        </div>
+        <p class="text-xs text-muted" style="margin:.5rem 0 0;">Chỉ nam–nữ; hệ thống tạo tài khoản mới và mật khẩu mặc định như thêm thành viên.</p>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-white" id="treeSpouseLinkCancel">Hủy</button>
+          <button type="submit" class="btn btn-primary">Tạo và gắn vợ/chồng</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <div id="compareModal" class="modal-overlay" aria-hidden="true">

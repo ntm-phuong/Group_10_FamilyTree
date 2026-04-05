@@ -21,8 +21,8 @@ public class NewsEvent {
     @Column(name = "id", length = 36)
     private String id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "family_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "family_id", nullable = false)
     private Family family;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -36,7 +36,7 @@ public class NewsEvent {
     @Column(nullable = false)
     private String title;
 
-    /** Slug cho URL /news/{slug} khi visibility = PUBLIC_SITE; duy nhất khi có giá trị. */
+    /** Slug cho URL /news/{slug} khi visibility = PUBLIC_SITE hoặc FAMILY_ONLY; duy nhất khi có giá trị. */
     @Column(length = 500, unique = true)
     private String slug;
 

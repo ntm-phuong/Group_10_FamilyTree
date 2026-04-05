@@ -12,6 +12,9 @@ public class NewsResponse {
     private String imageUrl;
     private LocalDateTime createdAt;
     private LocalDateTime startAt;
+    private LocalDateTime endAt;
+    private String location;
+    private Integer remindBefore;
 
     private String categoryId;
     private String categoryName;
@@ -24,4 +27,7 @@ public class NewsResponse {
     private Integer viewCount;
     private String coverImage;
     private String publicCategory;
+
+    private String familyId;
+    private String familyName;
 }

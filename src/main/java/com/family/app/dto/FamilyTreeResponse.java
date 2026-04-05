@@ -27,6 +27,8 @@ public class FamilyTreeResponse {
         private String avatar;
 
         // Các trường quan hệ để FE vẽ cây
+        /** Cha/mẹ trực tiếp (cột user.parent_id) — dùng khi chưa có bản ghi Relationship PARENT_CHILD. */
+        private String parentId;
         private String fatherId;
         private String motherId;
         private String spouseId;
