@@ -11,13 +11,15 @@
 
     <a href="/family-tree" id="navFamilyTree" style="display: none;"><i class="fas fa-sitemap"></i> Gia Phả</a>
 
-    <a href="/news" id="navNews"><i class="far fa-newspaper"></i> Tin Tức</a>
+    <a href="/family-head" id="navFamilyHead" style="display: none;"><i class="fas fa-tachometer-alt"></i> Quản trị họ</a>
 
     <a th:href="@{/family-head}"
        id="navAdmin"
        style="display: none;"
        th:classappend="${activeMenu == 'dashboard' ? 'active' : ''}"
        class="sidebar-link"><i class="fas fa-th-large"></i> Quản Trị</a>
+
+    <a href="/news" id="navNews"><i class="far fa-newspaper"></i> Tin Tức</a>
   </nav>
 
   <div class="nav-right-actions">
@@ -36,7 +38,7 @@
       </div>
 
       <div class="dropdown-menu">
-        <a href="/profile" class="dropdown-item">Hồ sơ cá nhân</a>
+        <a href="/profile" class="dropdown-item" id="profileLink">Hồ sơ cá nhân</a>
         <a href="/admin" class="dropdown-item" id="navAdminDropdown" style="display: none;">Trang quản trị</a>
         <a href="#" class="dropdown-item logout-btn" id="navLogoutBtn">Đăng xuất</a>
       </div>
@@ -51,22 +53,24 @@
             const token = localStorage.getItem('token');
             const fullName = localStorage.getItem('full_name');
             const userId = localStorage.getItem('user_id');
-            const roleId = localStorage.getItem('role_id'); // <-- LẤY ROLE ID TỪ LOCAL STORAGE
+            const roleId = localStorage.getItem('role_id');
 
             // Lấy các phần tử DOM
             const navLogo = document.getElementById('navLogo');
             const navHome = document.getElementById('navHome');
             const navFamilyTree = document.getElementById('navFamilyTree');
+            const navFamilyHead = document.getElementById('navFamilyHead');
             const navAdmin = document.getElementById('navAdmin');
-            const navAdminDropdown = document.getElementById('navAdminDropdown'); // <-- Khai báo nút admin menu
+            const navAdminDropdown = document.getElementById('navAdminDropdown');
             const navLoginBtn = document.getElementById('navLoginBtn');
             const navUserDropdown = document.getElementById('navUserDropdown');
             const navFullName = document.getElementById('navFullName');
             const navAvatarInitials = document.getElementById('navAvatarInitials');
             const navLogoutBtn = document.getElementById('navLogoutBtn');
             const profileLink = document.getElementById('profileLink');
+            const navNews = document.getElementById('navNews');
 
-            // XỬ LÝ NÚT ĐĂNG NHẬP (Chuyển trang nếu không có Modal)
+            // XỬ LÝ NÚT ĐĂNG NHẬP (Từ nhánh responsive)
             if (navLoginBtn) {
                 navLoginBtn.addEventListener('click', function(e) {
                     const loginModal = document.getElementById('loginModal');
@@ -77,7 +81,7 @@
                 });
             }
 
-            // XỬ LÝ MENU MOBILE
+            // XỬ LÝ MENU MOBILE (Từ nhánh responsive)
             const toggleBtn = document.querySelector('.nav-toggle-btn');
             const navLinks = document.querySelector('.nav-links-figma');
 
@@ -97,18 +101,37 @@
 
             // XỬ LÝ GIAO DIỆN KHI ĐÃ ĐĂNG NHẬP
             if (token && fullName) {
-                navLogo.href = '/home';
-                navHome.href = '/home';
+                if (navLogo) navLogo.href = '/home';
+                if (navHome) navHome.href = '/home';
                 if (navFamilyTree) navFamilyTree.style.display = 'flex';
 
                 // ==========================================
-                // PHÂN QUYỀN: NẾU LÀ ROLE_HEAD THÌ MỚI HIỆN QUẢN TRỊ
+                // PHÂN QUYỀN KIỂU 1 (Từ nhánh responsive)
                 // ==========================================
                 if (roleId && roleId.toLowerCase() === 'role-head') {
                     if (navAdmin) navAdmin.style.display = 'flex';
                     if (navAdminDropdown) navAdminDropdown.style.display = 'block';
                 }
 
+                // ==========================================
+                // PHÂN QUYỀN KIỂU 2 (Từ nhánh master)
+                // ==========================================
+                try {
+                    const role = (localStorage.getItem('role') || '').trim();
+                    const perms = JSON.parse(localStorage.getItem('permissions') || '[]');
+                    const p = Array.isArray(perms) ? perms : [];
+                    const showHead =
+                        role === 'FAMILY_BRANCH_MANAGER' ||
+                        role === 'ADMIN' ||
+                        p.indexOf('MANAGE_FAMILY_MEMBERS') >= 0 ||
+                        p.indexOf('MANAGE_CLAN') >= 0 ||
+                        p.indexOf('FAMILY_HEAD') >= 0;
+                    if (navFamilyHead && showHead) {
+                        navFamilyHead.style.display = 'flex';
+                    }
+                } catch (e) { /* ignore */ }
+
+                // Cập nhật UI Navbar
                 if (navLoginBtn) navLoginBtn.style.display = 'none';
                 if (navUserDropdown) navUserDropdown.style.display = 'inline-block';
 
@@ -123,15 +146,19 @@
                 }
                 if (navAvatarInitials) navAvatarInitials.innerText = initials.toUpperCase();
 
+                if (navNews) {
+                    navNews.href = '/news';
+                }
                 if (profileLink) {
                     profileLink.href = (token && userId) ? `/member/${userId}` : '/profile';
                 }
             }
 
-            // XỬ LÝ NÚT ĐĂNG XUẤT
+            // XỬ LÝ NÚT ĐĂNG XUẤT (Gộp cả xóa cookie của nhánh master)
             if (navLogoutBtn) {
                 navLogoutBtn.addEventListener('click', function(e) {
                     e.preventDefault();
+                    document.cookie = 'accessToken=; path=/; max-age=0';
                     localStorage.clear();
                     window.location.href = '/';
                 });
