@@ -1,6 +1,7 @@
 package com.family.app.service;
 
 import com.family.app.model.User;
+import com.family.app.security.UserRoleSupport;
 import com.family.app.repository.UserRepository;
 import com.family.app.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class AuthService {
@@ -106,15 +106,17 @@ public class AuthService {
                 authData.put("familyName", user.getFamily().getFamilyName());
             }
 
-            if (user.getRole() != null) {
-                authData.put("role", user.getRole().getRoleName());
-                if (user.getRole().getPermissions() != null) {
-                    List<String> permNames = user.getRole().getPermissions().stream()
-                            .map(Permission::getName)
-                            .filter(n -> n != null && !n.isBlank())
-                            .collect(Collectors.toList());
-                    authData.put("permissions", permNames);
-                }
+            List<String> permNames = UserRoleSupport.mergedPermissionNames(user);
+            if (!permNames.isEmpty()) {
+                authData.put("permissions", permNames);
+            }
+            List<String> roleNames = UserRoleSupport.roleNames(user);
+            if (!roleNames.isEmpty()) {
+                authData.put("roles", roleNames);
+            }
+            String primary = UserRoleSupport.primaryRoleNameForFe(user);
+            if (primary != null) {
+                authData.put("role", primary);
             }
 
             return authData;
@@ -150,14 +152,17 @@ public class AuthService {
         m.put("userId", user.getUserId());
         m.put("fullName", user.getFullName());
         m.put("email", user.getEmail());
-        if (user.getRole() != null) {
-            m.put("role", user.getRole().getRoleName());
-            if (user.getRole().getPermissions() != null) {
-                m.put("permissions", user.getRole().getPermissions().stream()
-                        .map(Permission::getName)
-                        .filter(n -> n != null && !n.isBlank())
-                        .collect(Collectors.toList()));
-            }
+        List<String> permNames = UserRoleSupport.mergedPermissionNames(user);
+        if (!permNames.isEmpty()) {
+            m.put("permissions", permNames);
+        }
+        List<String> roleNames = UserRoleSupport.roleNames(user);
+        if (!roleNames.isEmpty()) {
+            m.put("roles", roleNames);
+        }
+        String primary = UserRoleSupport.primaryRoleNameForFe(user);
+        if (primary != null) {
+            m.put("role", primary);
         }
         if (user.getFamily() != null) {
             m.put("familyId", user.getFamily().getFamilyId());

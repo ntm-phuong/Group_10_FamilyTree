@@ -20,6 +20,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -40,6 +43,10 @@ public class DataInitializer implements CommandLineRunner {
     /** Chi lồng — thế hệ IX–X. */
     private static final String SEED_CHI_DOI_TRE = "seed-chi-doi-tre";
 
+    /** Một tài khoản ADMIN duy nhất (quản trị toàn cây phả hệ + tin site). */
+    private static final String SEED_ADMIN_USER_ID = "seed-system-admin-01";
+    private static final String SEED_ADMIN_EMAIL = "admin@giapha.vn";
+
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -55,10 +62,13 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     private AppClanProperties clanProperties;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @Override
     @Transactional
     public void run(String... args) {
-        ensurePermission(
+        Permission siteNewsPerm = ensurePermission(
                 AppPermissions.MANAGE_SITE_NEWS,
                 "Tin /news toàn site (ADMIN)."
         );
@@ -70,27 +80,30 @@ public class DataInitializer implements CommandLineRunner {
                 AppPermissions.MANAGE_FAMILY_MEMBERS,
                 "Quản lý thành viên trong phạm vi dòng họ."
         );
+        Permission manageClan = ensurePermission(
+                AppPermissions.MANAGE_CLAN,
+                "Toàn bộ chi trong cây phả hệ (gốc app.clan.family-id) — chỉ role ADMIN."
+        );
 
         Role headRole = ensureRoleWithPermissions("FAMILY_HEAD", "role-head", Set.of(manageNews, manageMembers));
-        ensureRoleWithPermissions("FAMILY_NEWS_MANAGER", "role-news-mgr", Set.of(manageNews));
+        Role newsMgrRole = ensureRoleWithPermissions("FAMILY_NEWS_MANAGER", "role-news-mgr", Set.of(manageNews));
         Role memberRole = ensureRoleWithPermissions("MEMBER", "role-member", Set.of());
+        Role adminRole = ensureRoleWithPermissions("ADMIN", "role-admin",
+                Set.of(siteNewsPerm, manageNews, manageMembers, manageClan));
 
         String fid = clanProperties.getFamilyId();
         Family clan = familyRepository.findById(fid).orElseGet(() -> {
             Family f = new Family();
             f.setFamilyId(fid);
             f.setFamilyName(clanProperties.getDisplayName());
-            f.setDescription(
-                    "Tổ tông chung — Họ Nguyễn Đông Anh (Hà Nội). Các chi đăng ký phụ thuộc theo parent_family_id."
-            );
+            f.setDescription(ClanBranding.rootClanDescription(clanProperties.getDisplayName()));
             f.setPrivacySetting("PUBLIC");
             f.setParentFamily(null);
             return familyRepository.saveAndFlush(f);
         });
         clan.setParentFamily(null);
-        if (clan.getFamilyName() == null || clan.getFamilyName().isBlank()) {
-            clan.setFamilyName(clanProperties.getDisplayName());
-        }
+        clan.setFamilyName(clanProperties.getDisplayName());
+        clan.setDescription(ClanBranding.rootClanDescription(clanProperties.getDisplayName()));
         familyRepository.save(clan);
 
         Family chiPhuKe = ensureBranchFamily(
@@ -112,9 +125,75 @@ public class DataInitializer implements CommandLineRunner {
                 chiTieu
         );
 
-        seedTenGenerations(clan, chiPhuKe, chiTieu, chiDoiTre, headRole, memberRole);
+        seedTenGenerations(clan, chiPhuKe, chiTieu, chiDoiTre, headRole, newsMgrRole, memberRole);
 
-        log.info("[DataInitializer] Dòng họ {} + 3 chi + nhánh song song. Trưởng họ: truongho@giapha.vn / 123456", fid);
+        ensureSingleAdminAccount(clan, adminRole);
+
+        migrateLegacySingleRoleColumnToUserRoles();
+
+        long adminCount = userRepository.countDistinctByRoleName("ADMIN");
+        if (adminCount > 1) {
+            log.warn("[DataInitializer] Cảnh báo: có {} tài khoản ADMIN — hệ thống thiết kế chỉ 1. Kiểm tra DB.", adminCount);
+        }
+
+        log.info("[DataInitializer] Dòng họ {} + 3 chi. Trưởng họ: truongho@giapha.vn / 123456 | ADMIN: {} / 123456",
+                fid, SEED_ADMIN_EMAIL);
+    }
+
+    /**
+     * Tạo hoặc đồng bộ đúng một user ADMIN nếu chưa có ai có role ADMIN.
+     */
+    private void ensureSingleAdminAccount(Family clanRoot, Role adminRole) {
+        long existingAdmins = userRepository.countDistinctByRoleName("ADMIN");
+        if (existingAdmins >= 1) {
+            return;
+        }
+        userRepository.findById(SEED_ADMIN_USER_ID).map(u -> {
+            u.setEmail(SEED_ADMIN_EMAIL);
+            u.setFullName(u.getFullName() != null && !u.getFullName().isBlank() ? u.getFullName() : "Quản trị hệ thống");
+            u.setFamily(clanRoot);
+            u.setRoles(new HashSet<>(Set.of(adminRole)));
+            u.setPassword(passwordEncoder.encode("123456"));
+            u.setStatus(2);
+            return userRepository.save(u);
+        }).orElseGet(() -> userRepository.save(User.builder()
+                .userId(SEED_ADMIN_USER_ID)
+                .fullName("Quản trị hệ thống")
+                .email(SEED_ADMIN_EMAIL)
+                .password(passwordEncoder.encode("123456"))
+                .gender("MALE")
+                .family(clanRoot)
+                .generation(1)
+                .orderInFamily(0)
+                .roles(new HashSet<>(Set.of(adminRole)))
+                .status(2)
+                .build()));
+    }
+
+    /**
+     * Copy cột users.role_id (mô hình cũ) sang user_roles chỉ khi cột đó còn tồn tại.
+     * Nếu Hibernate đã drop role_id thì không chạy INSERT — tránh SQL 1054 và transaction rollback-only.
+     */
+    private void migrateLegacySingleRoleColumnToUserRoles() {
+        try {
+            Object colCnt = entityManager.createNativeQuery(
+                    "SELECT COUNT(*) FROM information_schema.COLUMNS "
+                            + "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'role_id'"
+            ).getSingleResult();
+            long hasLegacyColumn = colCnt instanceof Number ? ((Number) colCnt).longValue() : 0L;
+            if (hasLegacyColumn == 0) {
+                return;
+            }
+            int n = entityManager.createNativeQuery(
+                    "INSERT IGNORE INTO user_roles (user_id, role_id) "
+                            + "SELECT user_id, role_id FROM users WHERE role_id IS NOT NULL"
+            ).executeUpdate();
+            if (n > 0) {
+                log.info("[DataInitializer] Đã copy {} dòng từ users.role_id sang user_roles.", n);
+            }
+        } catch (Exception e) {
+            log.warn("[DataInitializer] Migrate user_roles bỏ qua: {}", e.getMessage());
+        }
     }
 
     private Family ensureBranchFamily(String familyId, String name, String description, Family parent) {
@@ -170,6 +249,7 @@ public class DataInitializer implements CommandLineRunner {
             Family chiTieu,
             Family chiDoiTre,
             Role headRole,
+            Role newsMgrRole,
             Role memberRole
     ) {
         final int n = 10;
@@ -210,7 +290,9 @@ public class DataInitializer implements CommandLineRunner {
             String emailM = loginEmail != null ? loginEmail : ("nguyen.th" + gen + ".nam@donganh.clan.local");
             LocalDate dobM = LocalDate.parse(mr[2]);
             LocalDate dodM = (mr[3] != null && !mr[3].isBlank()) ? LocalDate.parse(mr[3]) : null;
-            Role rM = (i == 6) ? headRole : memberRole;
+            Set<Role> maleRoles = (i == 6)
+                    ? new HashSet<>(Set.of(headRole, newsMgrRole))
+                    : new HashSet<>(Set.of(memberRole));
 
             m[i] = upsertPerson(
                     mr[0],
@@ -229,9 +311,9 @@ public class DataInitializer implements CommandLineRunner {
                     1,
                     i > 0 ? males[i - 1][0] : null,
                     fam,
-                    rM,
+                    maleRoles,
                     passwordEncoder.encode("123456"),
-                    1
+                    2
             );
 
             LocalDate dobF = LocalDate.parse(fr[2]);
@@ -255,9 +337,9 @@ public class DataInitializer implements CommandLineRunner {
                     2,
                     null,
                     fam,
-                    memberRole,
+                    new HashSet<>(Set.of(memberRole)),
                     passwordEncoder.encode("123456"),
-                    1
+                    2
             );
         }
 
@@ -558,9 +640,9 @@ public class DataInitializer implements CommandLineRunner {
                 orderInFamily,
                 null,
                 family,
-                role,
+                new HashSet<>(Set.of(role)),
                 passwordEncoder.encode("123456"),
-                1
+                2
         );
     }
 
@@ -597,9 +679,9 @@ public class DataInitializer implements CommandLineRunner {
                 orderInFamily,
                 null,
                 family,
-                role,
+                new HashSet<>(Set.of(role)),
                 passwordEncoder.encode("123456"),
-                1
+                2
         );
     }
 
@@ -637,7 +719,7 @@ public class DataInitializer implements CommandLineRunner {
             int orderInFamily,
             String parentId,
             Family family,
-            Role role,
+            Set<Role> roles,
             String encodedPassword,
             int status
     ) {
@@ -649,6 +731,8 @@ public class DataInitializer implements CommandLineRunner {
             if (branch != null && !branch.isBlank()) {
                 existing.setBranch(branch);
             }
+            existing.setStatus(status);
+            existing.setRoles(new HashSet<>(roles));
             return userRepository.save(existing);
         }).orElseGet(() -> {
             User u = User.builder()
@@ -669,7 +753,7 @@ public class DataInitializer implements CommandLineRunner {
                     .orderInFamily(orderInFamily)
                     .parentId(parentId)
                     .family(family)
-                    .role(role)
+                    .roles(new HashSet<>(roles))
                     .status(status)
                     .build();
             return userRepository.save(u);

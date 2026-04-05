@@ -7,11 +7,13 @@ import com.family.app.dto.MemberRoleOptionResponse;
 import com.family.app.dto.UserRequest;
 import com.family.app.dto.UserResponse;
 import com.family.app.model.User;
+import com.family.app.security.AppPermissions;
 import com.family.app.service.FamilyHeadService;
 import com.family.app.service.FamilyScopeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,8 +31,12 @@ public class FamilyHeadController {
     /** Danh sách chi trong phạm vi — dùng cho cả lọc tin (MANAGE_FAMILY_NEWS) và quản lý chi (MANAGE_FAMILY_MEMBERS). */
     @GetMapping("/families")
     @PreAuthorize("hasAnyAuthority('MANAGE_FAMILY_MEMBERS','MANAGE_FAMILY_NEWS')")
-    public ResponseEntity<List<FamilyResponse>> listFamilies(@AuthenticationPrincipal User principal) {
-        return ResponseEntity.ok(familyHeadService.listFamiliesInScope(principal.getUserId()));
+    public ResponseEntity<List<FamilyResponse>> listFamilies(
+            @AuthenticationPrincipal User principal,
+            Authentication authentication) {
+        boolean memberScope = authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(a -> AppPermissions.MANAGE_FAMILY_MEMBERS.equals(a.getAuthority()));
+        return ResponseEntity.ok(familyHeadService.listFamiliesInScope(principal.getUserId(), memberScope));
     }
 
     @PostMapping("/families")
@@ -72,7 +78,7 @@ public class FamilyHeadController {
         String fid = (familyId != null && !familyId.isBlank())
                 ? familyId.trim()
                 : familyScopeService.requireManagedFamilyId(principal.getUserId());
-        familyScopeService.assertCanManageFamily(principal.getUserId(), fid);
+        familyScopeService.assertCanManageFamilyMembers(principal.getUserId(), fid);
         return ResponseEntity.ok(familyHeadService.getMembersForManagedFamily(fid));
     }
 

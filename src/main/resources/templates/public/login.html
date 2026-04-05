@@ -179,13 +179,22 @@
                 localStorage.setItem('full_name', data.fullName);
                 localStorage.setItem('user_id', data.userId);
                 if (data.role) localStorage.setItem('role', data.role);
+                else localStorage.removeItem('role');
+                if (data.roles) localStorage.setItem('roles', JSON.stringify(data.roles));
+                else localStorage.removeItem('roles');
                 if (data.permissions) localStorage.setItem('permissions', JSON.stringify(data.permissions));
                 if (data.familyId) localStorage.setItem('my_family_id', data.familyId);
                 else localStorage.removeItem('my_family_id');
                 if (data.familyName) localStorage.setItem('my_family_name', data.familyName);
                 else localStorage.removeItem('my_family_name');
                 const userStatus = data.status !== null ? Number(data.status) : 0;
-                window.location.href = userStatus === 1 ? '/active' : '/home';
+                // status === 1: chưa đổi mật khẩu lần đầu — mở modal trên trang chủ (GET /active không tồn tại).
+                if (userStatus === 1) {
+                    sessionStorage.setItem('needsPasswordSetup', '1');
+                    window.location.href = '/';
+                } else {
+                    window.location.href = '/home';
+                }
             }
         })
         .catch(error => {
@@ -346,6 +355,9 @@
                 localStorage.setItem('full_name', data.fullName);
                 localStorage.setItem('user_id', data.userId);
                 if (data.role) localStorage.setItem('role', data.role);
+                else localStorage.removeItem('role');
+                if (data.roles) localStorage.setItem('roles', JSON.stringify(data.roles));
+                else localStorage.removeItem('roles');
                 if (data.permissions) localStorage.setItem('permissions', JSON.stringify(data.permissions));
                 if (data.familyId) localStorage.setItem('my_family_id', data.familyId);
                 else localStorage.removeItem('my_family_id');

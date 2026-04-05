@@ -227,6 +227,12 @@
     function openModal(id) { document.getElementById(id).classList.add('open'); }
     function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
+    function setAccessTokenCookie(token) {
+        if (!token) return;
+        document.cookie = 'accessToken=' + encodeURIComponent(token)
+            + '; path=/; max-age=' + (86400 * 7) + '; SameSite=Lax';
+    }
+
     function togglePw(id, el) {
         const input = document.getElementById(id);
         if (input.type === "password") {
@@ -243,6 +249,11 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+
+        if (sessionStorage.getItem('needsPasswordSetup') === '1' && localStorage.getItem('token')) {
+            sessionStorage.removeItem('needsPasswordSetup');
+            openModal('activeModal');
+        }
 
         // ==================================================
         // A. GỌI API LẤY DỮ LIỆU CÔNG KHAI (GUEST)
@@ -380,9 +391,24 @@
             .then(res => res.ok ? res.json() : Promise.reject("Email hoặc mật khẩu sai!"))
             .then(data => {
                 localStorage.setItem('token', data.accessToken);
+                setAccessTokenCookie(data.accessToken);
                 localStorage.setItem('user_id', data.userId);
                 localStorage.setItem('full_name', data.fullName);
-                localStorage.setItem('family_id', data.familyId);
+                if (data.role) localStorage.setItem('role', data.role);
+                else localStorage.removeItem('role');
+                if (data.roles) localStorage.setItem('roles', JSON.stringify(data.roles));
+                else localStorage.removeItem('roles');
+                if (data.permissions) localStorage.setItem('permissions', JSON.stringify(data.permissions));
+                else localStorage.removeItem('permissions');
+                if (data.familyId) {
+                    localStorage.setItem('my_family_id', data.familyId);
+                    localStorage.setItem('family_id', data.familyId);
+                } else {
+                    localStorage.removeItem('my_family_id');
+                    localStorage.removeItem('family_id');
+                }
+                if (data.familyName) localStorage.setItem('my_family_name', data.familyName);
+                else localStorage.removeItem('my_family_name');
 
                 if (Number(data.status) === 1) {
                     closeModal('loginModal');
@@ -467,7 +493,10 @@
             })
             .then(res => res.ok ? res.json() : Promise.reject("Lỗi cập nhật dữ liệu!"))
             .then(data => {
-                if(data.accessToken) localStorage.setItem('token', data.accessToken);
+                if (data.accessToken) {
+                    localStorage.setItem('token', data.accessToken);
+                    setAccessTokenCookie(data.accessToken);
+                }
                 showPopup("Thành công! Đang vào Gia Phả...", 'success', 'activeAlertContainer');
                 setTimeout(() => window.location.href = '/home', 1500);
             })
@@ -582,9 +611,13 @@
             .then(res => res.ok ? res.json() : Promise.reject("Lỗi đổi mật khẩu!"))
             .then(data => {
                 localStorage.setItem('token', data.accessToken);
+                setAccessTokenCookie(data.accessToken);
                 localStorage.setItem('full_name', data.fullName);
                 localStorage.setItem('user_id', data.userId);
-                localStorage.setItem('family_id', data.familyId);
+                if (data.familyId) {
+                    localStorage.setItem('my_family_id', data.familyId);
+                    localStorage.setItem('family_id', data.familyId);
+                }
                 showPopup("Đổi mật khẩu thành công!", 'success', 'forgotAlertContainer');
                 setTimeout(() => window.location.href = '/home', 1500);
             })

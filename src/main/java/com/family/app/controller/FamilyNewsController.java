@@ -31,7 +31,7 @@ public class FamilyNewsController {
     public ResponseEntity<List<NewsResponse>> getByFamily(
             @PathVariable String familyId,
             @AuthenticationPrincipal User principal) {
-        familyScopeService.assertCanManageFamily(principal.getUserId(), familyId);
+        familyScopeService.assertCanManageFamilyNews(principal.getUserId(), familyId);
         return ResponseEntity.ok(newsService.getNewsByFamily(familyId));
     }
 
@@ -42,7 +42,7 @@ public class FamilyNewsController {
         if (request.getFamilyId() == null || request.getFamilyId().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Thiếu familyId.");
         }
-        familyScopeService.assertCanManageFamily(principal.getUserId(), request.getFamilyId().trim());
+        familyScopeService.assertCanManageFamilyNews(principal.getUserId(), request.getFamilyId().trim());
         return ResponseEntity.ok(newsService.createNews(request));
     }
 
@@ -59,9 +59,9 @@ public class FamilyNewsController {
         if (existing.getFamilyId() == null) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Tin không gắn dòng họ.");
         }
-        familyScopeService.assertCanManageFamily(principal.getUserId(), existing.getFamilyId());
+        familyScopeService.assertCanManageFamilyNews(principal.getUserId(), existing.getFamilyId());
         if (request.getFamilyId() != null && !request.getFamilyId().isBlank()) {
-            familyScopeService.assertCanManageFamily(principal.getUserId(), request.getFamilyId().trim());
+            familyScopeService.assertCanManageFamilyNews(principal.getUserId(), request.getFamilyId().trim());
         }
         if (request.getFamilyId() == null || request.getFamilyId().isBlank()) {
             request.setFamilyId(existing.getFamilyId());
@@ -78,7 +78,7 @@ public class FamilyNewsController {
         if (existing.getFamilyId() == null) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Không xóa được tin này.");
         }
-        familyScopeService.assertCanManageFamily(principal.getUserId(), existing.getFamilyId());
+        familyScopeService.assertCanManageFamilyNews(principal.getUserId(), existing.getFamilyId());
         newsService.deleteNews(id);
         return ResponseEntity.ok("Xóa tin tức thành công.");
     }

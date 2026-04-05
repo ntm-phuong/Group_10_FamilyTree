@@ -1,6 +1,8 @@
 package com.family.app.controller;
 
 import com.family.app.model.User;
+import com.family.app.security.AppPermissions;
+import com.family.app.security.UserRoleSupport;
 import com.family.app.service.ProfileService;
 import com.family.app.dto.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,26 +39,27 @@ public class ProfileController {
             @RequestBody UserResponse updateData) {
 
         String currentUserId = null;
-        boolean isHead = false;
+        boolean canEditOthers = false;
         if (authentication != null) {
             Object principal = authentication.getPrincipal();
             if (principal instanceof User) {
                 User user = (User) principal;
                 currentUserId = user.getUserId();
-                if (user.getRole() != null && "role-head".equals(user.getRole().getRoleId())) {
-                    isHead = true;
+                if (UserRoleSupport.hasRoleId(user, "role-head")
+                        || UserRoleSupport.hasPermissionViaRoles(user, AppPermissions.MANAGE_CLAN)) {
+                    canEditOthers = true;
                 }
             } else {
                 currentUserId = authentication.getName();
             }
-            // Fallback: check authorities for ROLE_FAMILY_HEAD
-            if (!isHead && authentication.getAuthorities() != null) {
-                isHead = authentication.getAuthorities().stream()
-                        .anyMatch(a -> "ROLE_FAMILY_HEAD".equals(a.getAuthority()));
+            if (!canEditOthers && authentication.getAuthorities() != null) {
+                canEditOthers = authentication.getAuthorities().stream()
+                        .anyMatch(a -> "ROLE_FAMILY_HEAD".equals(a.getAuthority())
+                                || AppPermissions.MANAGE_CLAN.equals(a.getAuthority()));
             }
         }
 
-        if (currentUserId == null || (!currentUserId.equals(id) && !isHead)) {
+        if (currentUserId == null || (!currentUserId.equals(id) && !canEditOthers)) {
             return ResponseEntity.status(403).body("Bạn không có quyền chỉnh sửa hồ sơ của người khác!");
         }
 
@@ -74,25 +77,27 @@ public class ProfileController {
             @RequestParam("file") MultipartFile file) {
 
         String currentUserId = null;
-        boolean isHead = false;
+        boolean canEditOthers = false;
         if (authentication != null) {
             Object principal = authentication.getPrincipal();
             if (principal instanceof User) {
                 User user = (User) principal;
                 currentUserId = user.getUserId();
-                if (user.getRole() != null && "role-head".equals(user.getRole().getRoleId())) {
-                    isHead = true;
+                if (UserRoleSupport.hasRoleId(user, "role-head")
+                        || UserRoleSupport.hasPermissionViaRoles(user, AppPermissions.MANAGE_CLAN)) {
+                    canEditOthers = true;
                 }
             } else {
                 currentUserId = authentication.getName();
             }
-            if (!isHead && authentication.getAuthorities() != null) {
-                isHead = authentication.getAuthorities().stream()
-                        .anyMatch(a -> "ROLE_FAMILY_HEAD".equals(a.getAuthority()));
+            if (!canEditOthers && authentication.getAuthorities() != null) {
+                canEditOthers = authentication.getAuthorities().stream()
+                        .anyMatch(a -> "ROLE_FAMILY_HEAD".equals(a.getAuthority())
+                                || AppPermissions.MANAGE_CLAN.equals(a.getAuthority()));
             }
         }
 
-        if (currentUserId == null || (!currentUserId.equals(id) && !isHead)) {
+        if (currentUserId == null || (!currentUserId.equals(id) && !canEditOthers)) {
             return ResponseEntity.status(403).body("Không có quyền!");
         }
         try {

@@ -56,10 +56,14 @@ async function readFetchErrorMessage(res, fallback) {
 
 function canManageFamilyMembersGlobal() {
   try {
+    const role = (localStorage.getItem("role") || "").trim();
     const perms = JSON.parse(localStorage.getItem("permissions") || "[]");
+    const p = Array.isArray(perms) ? perms : [];
     return (
-      localStorage.getItem("role") === "FAMILY_HEAD" ||
-      (Array.isArray(perms) && perms.indexOf("MANAGE_FAMILY_MEMBERS") >= 0)
+      role === "FAMILY_HEAD" ||
+      role === "ADMIN" ||
+      p.indexOf("MANAGE_FAMILY_MEMBERS") >= 0 ||
+      p.indexOf("MANAGE_CLAN") >= 0
     );
   } catch (e) {
     return false;
@@ -284,7 +288,11 @@ function ensureTreeMemberModalBindings() {
     document.getElementById("tmMemOccupation").value = "";
     document.getElementById("tmMemBio").value = "";
     const rSel = document.getElementById("tmMemRoleId");
-    if (rSel && tmDefaultMemberRoleId) rSel.value = tmDefaultMemberRoleId;
+    if (rSel) {
+      Array.from(rSel.options).forEach(function (o) {
+        o.selected = !!(tmDefaultMemberRoleId && o.value === tmDefaultMemberRoleId);
+      });
+    }
   }
 
   function openTreeMemberModal() {
@@ -506,8 +514,23 @@ function ensureTreeMemberModalBindings() {
       await ensureTreeMemberRolesLoaded();
       const rSel = document.getElementById("tmMemRoleId");
       if (rSel) {
-        if (u.roleId) rSel.value = u.roleId;
-        else if (tmDefaultMemberRoleId) rSel.value = tmDefaultMemberRoleId;
+        Array.from(rSel.options).forEach(function (o) {
+          o.selected = false;
+        });
+        const ids =
+          u.roleIds && u.roleIds.length
+            ? u.roleIds
+            : u.roleId
+              ? [u.roleId]
+              : tmDefaultMemberRoleId
+                ? [tmDefaultMemberRoleId]
+                : [];
+        ids.forEach(function (rid) {
+          const opt = Array.from(rSel.options).find(function (x) {
+            return x.value === rid;
+          });
+          if (opt) opt.selected = true;
+        });
       }
       document.getElementById("treeMemberModalTitle").textContent = "Sửa thành viên";
       openTreeMemberModal();
@@ -592,8 +615,15 @@ function ensureTreeMemberModalBindings() {
       occupation: document.getElementById("tmMemOccupation").value.trim() || null,
       bio: document.getElementById("tmMemBio").value.trim() || null,
     };
-    const rid = (document.getElementById("tmMemRoleId")?.value || "").trim();
-    if (rid) body.roleId = rid;
+    const rSelEl = document.getElementById("tmMemRoleId");
+    if (rSelEl) {
+      const roleIds = Array.from(rSelEl.selectedOptions)
+        .map(function (o) {
+          return o.value;
+        })
+        .filter(Boolean);
+      if (roleIds.length) body.roleIds = roleIds;
+    }
     if (!body.fullName) {
       alert("Nhập họ tên.");
       return;

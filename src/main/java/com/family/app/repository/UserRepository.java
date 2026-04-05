@@ -14,11 +14,17 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     Optional<User> findByEmail(String email);
 
-    @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.family WHERE u.email = :email")
+    /**
+     * Chỉ FETCH {@code family} + {@code roles}. Quyền từng role tải qua {@link com.family.app.model.Role#permissions}
+     * (EAGER) — tránh JOIN FETCH hai collection (roles + permissions) gây nhân bản hàng và mất quyền trên một số role.
+     */
+    @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.family "
+            + "LEFT JOIN FETCH u.roles WHERE u.email = :email")
     Optional<User> findByEmailWithFamily(@Param("email") String email);
 
-    /** Dùng cho phạm vi quản trị — load luôn family để tránh lazy ngoài transaction. */
-    @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.family WHERE u.userId = :userId")
+    /** Dùng cho phạm vi quản trị, JWT — load family + roles; permissions của role hydrate trong cùng transaction. */
+    @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.family "
+            + "LEFT JOIN FETCH u.roles WHERE u.userId = :userId")
     Optional<User> findByIdWithFamily(@Param("userId") String userId);
 
     List<User> findByFamily_FamilyIdOrderByOrderInFamilyAsc(String familyId);
@@ -40,4 +46,10 @@ public interface UserRepository extends JpaRepository<User, String> {
     // 3. Tính tổng số đời (Lấy số lớn nhất trong cột generation)
     @Query("SELECT MAX(u.generation) FROM User u WHERE u.family.familyId = :familyId")
     Integer findMaxGenerationByFamilyId(@Param("familyId") String familyId);
+
+    @Query("SELECT COUNT(DISTINCT u) FROM User u JOIN u.roles r WHERE r.roleName = :roleName")
+    long countDistinctByRoleName(@Param("roleName") String roleName);
+
+    @Query("SELECT COUNT(DISTINCT u) FROM User u JOIN u.roles r WHERE r.roleName = :roleName AND u.userId <> :userId")
+    long countDistinctByRoleNameExcludingUser(@Param("roleName") String roleName, @Param("userId") String userId);
 }

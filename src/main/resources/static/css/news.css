@@ -35,7 +35,6 @@
 .news-page-wrap .fh-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.65rem 1rem;}
 .news-page-wrap .fh-span-2{grid-column:1/-1;}
 .news-page-wrap .fh-form-grid label{display:block;font-size:.8rem;font-weight:500;margin-bottom:.25rem;color:var(--text-700);}
-#npNewsFormModal{z-index:600;}
 .news-all-toolbar{
   display:flex;
   flex-wrap:wrap;

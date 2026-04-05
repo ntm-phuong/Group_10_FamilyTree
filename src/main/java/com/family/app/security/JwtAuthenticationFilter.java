@@ -1,6 +1,7 @@
 package com.family.app.security;
 
 import com.family.app.model.Permission;
+import com.family.app.model.Role;
 import com.family.app.model.User;
 import com.family.app.repository.UserRepository;
 import jakarta.servlet.FilterChain;
@@ -60,10 +61,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     static List<GrantedAuthority> buildAuthorities(User user) {
         List<GrantedAuthority> authorities = new ArrayList<>();
-        if (user.getRole() != null && user.getRole().getRoleName() != null) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().getRoleName()));
-            if (user.getRole().getPermissions() != null) {
-                for (Permission p : user.getRole().getPermissions()) {
+        if (user.getRoles() == null) {
+            return authorities;
+        }
+        for (Role role : user.getRoles()) {
+            if (role == null || role.getRoleName() == null || role.getRoleName().isBlank()) {
+                continue;
+            }
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRoleName()));
+            if (role.getPermissions() != null) {
+                for (Permission p : role.getPermissions()) {
                     if (p != null && p.getName() != null && !p.getName().isBlank()) {
                         authorities.add(new SimpleGrantedAuthority(p.getName().trim()));
                     }

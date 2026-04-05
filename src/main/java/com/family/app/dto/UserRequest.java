@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Builder
@@ -39,6 +40,10 @@ public class UserRequest {
     @NotBlank(message = "Phải xác định dòng họ")
     private String familyId;
 
+    /** Một hoặc nhiều vai trò (ưu tiên dùng khi gán nhiều quyền). */
+    private List<String> roleIds;
+
+    /** Tương thích cũ: một roleId — map sang {@code roleIds} nếu list rỗng. */
     private String roleId;
 
     // parentId có thể null nếu là người đời thứ nhất (Tổ tiên)

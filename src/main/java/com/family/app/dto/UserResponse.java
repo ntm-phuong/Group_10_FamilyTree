@@ -20,6 +20,9 @@ public class UserResponse {
     /** ID dòng họ (FK) — tiện cho màn quản trị. */
     private String familyId;
     private String familyName;
+    private List<String> roleIds;
+    private List<String> roleNames;
+
     private String roleId;
     private String roleName;
     /** Tên quyền (GrantedAuthority) gắn với vai trò — tiện hiển thị. */

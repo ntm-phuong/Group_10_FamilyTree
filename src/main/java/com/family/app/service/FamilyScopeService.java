@@ -1,9 +1,12 @@
 package com.family.app.service;
 
+import com.family.app.config.AppClanProperties;
 import com.family.app.model.Family;
 import com.family.app.model.User;
 import com.family.app.repository.FamilyRepository;
 import com.family.app.repository.UserRepository;
+import com.family.app.security.AppPermissions;
+import com.family.app.security.UserRoleSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -12,12 +15,15 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayDeque;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
- * Phạm vi quản lý: trưởng họ có {@code MANAGE_FAMILY_NEWS} / {@code MANAGE_FAMILY_MEMBERS}
- * chỉ thao tác trên dòng họ của tài khoản và mọi chi con (đi xuống theo {@link Family#getParentFamily()}).
+ * Phạm vi quản lý theo dòng họ:
+ * <ul>
+ *   <li><b>Thành viên / chi</b>: nhánh từ {@code user.family} xuống (không sang nhánh anh em).</li>
+ *   <li><b>Tin</b>: cùng nhánh; có {@code FAMILY_NEWS_MANAGER} thì leo lên tổ tông rồi toàn bộ chi con.</li>
+ *   <li><b>Toàn cây</b> ({@link AppPermissions#MANAGE_CLAN} hoặc role {@code ADMIN}): mọi chi từ {@code app.clan.family-id}.</li>
+ * </ul>
  */
 @Service
 public class FamilyScopeService {
@@ -28,13 +34,16 @@ public class FamilyScopeService {
     @Autowired
     private FamilyRepository familyRepository;
 
-    /**
-     * @return family_id gốc của tài khoản (bắt buộc đã gắn dòng họ)
-     */
+    @Autowired
+    private AppClanProperties clanProperties;
+
     @Transactional(readOnly = true)
     public String requireManagedFamilyId(String userId) {
         User u = userRepository.findByIdWithFamily(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Không tìm thấy người dùng."));
+        if (UserRoleSupport.hasClanWideAdminAccess(u)) {
+            return clanProperties.getFamilyId();
+        }
         if (u.getFamily() == null) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Tài khoản chưa gắn dòng họ — không thể quản trị.");
         }
@@ -42,23 +51,70 @@ public class FamilyScopeService {
     }
 
     /**
-     * Mọi {@code family_id} mà user được phép quản lý: chi của họ + đệ quy mọi chi con.
-     * Trưởng họ ({@code FAMILY_HEAD}): leo lên tổ tông (parent_family null) rồi gom toàn bộ chi con —
-     * để quản trị được cả các chi phụ thuộc dưới một dòng họ gốc.
+     * Phạm vi quản lý <strong>thành viên và cấu trúc chi</strong> — chỉ nhánh từ {@code user.family} đi xuống.
      */
     @Transactional(readOnly = true)
-    public Set<String> manageableFamilyIds(String userId) {
+    public Set<String> manageableFamilyIdsForMembers(String userId) {
+        User u = loadUserForScope(userId);
+        if (UserRoleSupport.hasClanWideAdminAccess(u)) {
+            return allFamilyIdsUnderClanRoot();
+        }
+        String start = u.getFamily().getFamilyId();
+        return collectDescendantsFrom(start);
+    }
+
+    /**
+     * Phạm vi quản lý <strong>tin nội bộ dòng họ</strong> — có {@code FAMILY_NEWS_MANAGER} thì mở rộng theo tổ tông.
+     */
+    @Transactional(readOnly = true)
+    public Set<String> manageableFamilyIdsForNews(String userId) {
+        User u = loadUserForScope(userId);
+        if (UserRoleSupport.hasClanWideAdminAccess(u)) {
+            return allFamilyIdsUnderClanRoot();
+        }
+        String start = u.getFamily().getFamilyId();
+        String anchor = UserRoleSupport.hasRoleName(u, "FAMILY_NEWS_MANAGER")
+                ? climbToRootFamilyId(start)
+                : start;
+        return collectDescendantsFrom(anchor);
+    }
+
+    private Set<String> allFamilyIdsUnderClanRoot() {
+        String root = clanProperties.getFamilyId();
+        if (root == null || root.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Chưa cấu hình app.clan.family-id.");
+        }
+        return collectDescendantsFrom(root.trim());
+    }
+
+    private User loadUserForScope(String userId) {
         User u = userRepository.findByIdWithFamily(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Không tìm thấy người dùng."));
+        if (UserRoleSupport.hasClanWideAdminAccess(u)) {
+            return u;
+        }
         if (u.getFamily() == null) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Tài khoản chưa gắn dòng họ — không thể quản trị.");
         }
-        String start = u.getFamily().getFamilyId();
-        String roleName = u.getRole() != null && u.getRole().getRoleName() != null
-                ? u.getRole().getRoleName()
-                : "";
-        String anchor = "FAMILY_HEAD".equals(roleName) ? climbToRootFamilyId(start) : start;
-        return collectDescendantsFrom(anchor);
+        return u;
+    }
+
+    public void assertCanManageFamilyMembers(String userId, String targetFamilyId) {
+        assertInSet(targetFamilyId, manageableFamilyIdsForMembers(userId), "Không được quản lý dòng họ này (ngoài phạm vi nhánh của bạn).");
+    }
+
+    public void assertCanManageFamilyNews(String userId, String targetFamilyId) {
+        assertInSet(targetFamilyId, manageableFamilyIdsForNews(userId), "Không được quản lý tin của dòng họ này (ngoài phạm vi được phép).");
+    }
+
+    private static void assertInSet(String targetFamilyId, Set<String> allowed, String message) {
+        if (targetFamilyId == null || targetFamilyId.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Thiếu hoặc sai familyId.");
+        }
+        String t = targetFamilyId.trim();
+        if (!allowed.contains(t)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, message);
+        }
     }
 
     private String climbToRootFamilyId(String familyId) {
@@ -87,15 +143,5 @@ public class FamilyScopeService {
             }
         }
         return ids;
-    }
-
-    public void assertCanManageFamily(String userId, String targetFamilyId) {
-        if (targetFamilyId == null || targetFamilyId.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Thiếu hoặc sai familyId.");
-        }
-        String t = targetFamilyId.trim();
-        if (!manageableFamilyIds(userId).contains(t)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Không được quản lý dòng họ này (ngoài phạm vi nhánh của bạn).");
-        }
     }
 }

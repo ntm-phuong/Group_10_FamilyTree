@@ -10,6 +10,8 @@ import org.hibernate.annotations.Where;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -55,7 +57,8 @@ public class User {
 
     private String avatar;
 
-    private Integer status; // 0: Pending, 1: Active
+    /** 0: chờ duyệt; 1: đã đăng nhập nhưng chưa đặt mật khẩu lần đầu; 2: đã kích hoạt (đồng bộ AuthService.activateUser). */
+    private Integer status;
 
     @Column(name = "generation")
     private Integer generation;
@@ -70,9 +73,14 @@ public class User {
     @JoinColumn(name = "family_id")
     private Family family;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "role_id")
-    private Role role;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    @Builder.Default
+    private Set<Role> roles = new HashSet<>();
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

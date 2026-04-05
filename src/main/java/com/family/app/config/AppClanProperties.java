@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 public class AppClanProperties {
 
     /** Mã dòng họ duy nhất (FK users.family_id, news_events, …). */
-    private String familyId = "fam-001";
+    private String familyId = "fam-nguyen-001";
 
-    /** Tên hiển thị trên tin tức / gia phả. */
-    private String displayName = "Họ Nguyễn Đông Anh";
+    /** Tên hiển thị trên tin tức / gia phả (mặc định an toàn encoding). */
+    private String displayName = ClanBranding.DISPLAY_NAME;
 }

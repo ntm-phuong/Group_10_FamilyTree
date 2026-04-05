@@ -139,6 +139,7 @@
           if (me.permissions) {
             localStorage.setItem("permissions", JSON.stringify(me.permissions));
             if (me.role) localStorage.setItem("role", me.role);
+            if (me.roles) localStorage.setItem("roles", JSON.stringify(me.roles));
           }
         }
       } catch (ignore) {}

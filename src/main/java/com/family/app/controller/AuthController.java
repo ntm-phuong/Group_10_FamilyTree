@@ -34,6 +34,7 @@ public class AuthController {
         response.put("userId", authData.get("userId"));
         response.put("fullName", authData.get("fullName"));
         response.put("role", authData.get("role"));
+        response.put("roles", authData.get("roles"));
         response.put("permissions", authData.get("permissions"));
         response.put("familyId", authData.get("familyId"));
         response.put("familyName", authData.get("familyName"));

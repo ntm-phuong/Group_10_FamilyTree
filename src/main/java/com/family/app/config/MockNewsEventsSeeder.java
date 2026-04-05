@@ -70,7 +70,8 @@ public class MockNewsEventsSeeder implements CommandLineRunner {
         List<NewsEvent> batch = List.of(
                 site("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0001", author, fam,
                         "Lễ giỗ cụ tổ xuân 2026", "le-gio-to-xuan-2026",
-                        "Họ Nguyễn Đông Anh — lịch lễ và phân công nấu cỗ, tiếp khách.",
+                        clanProperties.getDisplayName()
+                                + " \u2014 l\u1ecbch l\u1ec5 v\u00e0 ph\u00e2n c\u00f4ng n\u1ea5u c\u1ed5, ti\u1ebfp kh\u00e1ch.",
                         "<p>6h sáng làm lễ tại nhà thờ họ; trưa cỗ chung. Liên hệ ban tổ chức: <strong>0903000007</strong>.</p>",
                         NewsCategory.HISTORY,
                         LocalDateTime.of(2026, 4, 5, 6, 0),

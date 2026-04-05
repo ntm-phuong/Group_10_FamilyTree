@@ -11,6 +11,7 @@ import com.family.app.model.Permission;
 import com.family.app.model.Relationship;
 import com.family.app.model.Role;
 import com.family.app.model.User;
+import com.family.app.security.UserRoleSupport;
 import com.family.app.security.AppPermissions;
 import com.family.app.repository.FamilyRepository;
 import com.family.app.repository.RelationshipRepository;
@@ -26,7 +27,9 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -38,6 +41,9 @@ public class FamilyHeadService {
 
     private static final Set<String> ASSIGNABLE_MEMBER_ROLE_NAMES = Set.of(
             "MEMBER", "FAMILY_NEWS_MANAGER", "FAMILY_HEAD");
+
+    /** Không gán qua màn trưởng họ (quản trị hệ thống). */
+    private static final Set<String> NON_ASSIGNABLE_FAMILY_UI_ROLE_NAMES = Set.of("ADMIN");
 
     @Autowired
     private UserRepository userRepository;
@@ -53,9 +59,15 @@ public class FamilyHeadService {
     private RelationshipRepository relationshipRepository;
 
     /** Chi của tài khoản và mọi chi con (cho dropdown / lọc). */
+    /**
+     * @param forMemberAdmin true: phạm vi quản lý thành viên/chi; false: phạm vi tin (mở rộng nếu có FAMILY_NEWS_MANAGER).
+     */
     @Transactional(readOnly = true)
-    public List<FamilyResponse> listFamiliesInScope(String managerUserId) {
-        return familyScopeService.manageableFamilyIds(managerUserId).stream()
+    public List<FamilyResponse> listFamiliesInScope(String managerUserId, boolean forMemberAdmin) {
+        Set<String> ids = forMemberAdmin
+                ? familyScopeService.manageableFamilyIdsForMembers(managerUserId)
+                : familyScopeService.manageableFamilyIdsForNews(managerUserId);
+        return ids.stream()
                 .map(id -> familyRepository.findByIdWithParentFamily(id).orElse(null))
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(Family::getFamilyName, Comparator.nullsLast(String::compareToIgnoreCase)))
@@ -72,7 +84,7 @@ public class FamilyHeadService {
      */
     @Transactional
     public FamilyResponse updateFamily(String id, FamilyWriteRequest req, String managerUserId) {
-        familyScopeService.assertCanManageFamily(managerUserId, id);
+        familyScopeService.assertCanManageFamilyMembers(managerUserId, id);
         Family f = familyRepository.findByIdWithParentFamily(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy dòng họ: " + id));
         if (req.getFamilyName() != null && !req.getFamilyName().isBlank()) {
@@ -88,7 +100,7 @@ public class FamilyHeadService {
     }
 
     public void deleteFamily(String id, String managerUserId) {
-        familyScopeService.assertCanManageFamily(managerUserId, id);
+        familyScopeService.assertCanManageFamilyMembers(managerUserId, id);
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Không thể xóa dòng họ từ tài khoản trưởng họ.");
     }
 
@@ -129,7 +141,7 @@ public class FamilyHeadService {
         if (user.getFamily() == null) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Thành viên không gắn dòng họ.");
         }
-        familyScopeService.assertCanManageFamily(managerUserId, user.getFamily().getFamilyId());
+        familyScopeService.assertCanManageFamilyMembers(managerUserId, user.getFamily().getFamilyId());
         Map<String, String> spouseByUser = buildSpousePartnerMap(user.getFamily().getFamilyId());
         return mapToResponse(user, spouseByUser);
     }
@@ -153,7 +165,7 @@ public class FamilyHeadService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Thành viên chưa gắn dòng họ.");
         }
         String familyId = partner.getFamily().getFamilyId();
-        familyScopeService.assertCanManageFamily(managerUserId, familyId);
+        familyScopeService.assertCanManageFamilyMembers(managerUserId, familyId);
 
         String partnerGender = partner.getGender() != null ? partner.getGender().trim() : "";
         if (!"MALE".equals(partnerGender) && !"FEMALE".equals(partnerGender)) {
@@ -205,7 +217,7 @@ public class FamilyHeadService {
 
         Role memberRole = roleRepository.findByRoleName("MEMBER")
                 .orElseThrow(() -> new RuntimeException("Chưa cấu hình Role MEMBER trong DB!"));
-        spouse.setRole(memberRole);
+        spouse.setRoles(new LinkedHashSet<>(Set.of(memberRole)));
 
         User savedSpouse = userRepository.save(spouse);
 
@@ -246,7 +258,7 @@ public class FamilyHeadService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Thiếu familyId.");
         }
         validateRequiredMemberFieldsForCreate(request);
-        familyScopeService.assertCanManageFamily(managerUserId, request.getFamilyId().trim());
+        familyScopeService.assertCanManageFamilyMembers(managerUserId, request.getFamilyId().trim());
 
         String managedFamilyId = request.getFamilyId().trim();
         User user = new User();
@@ -286,9 +298,9 @@ public class FamilyHeadService {
         if (user.getFamily() == null) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Không thể sửa thành viên ngoài dòng họ.");
         }
-        familyScopeService.assertCanManageFamily(managerUserId, user.getFamily().getFamilyId());
+        familyScopeService.assertCanManageFamilyMembers(managerUserId, user.getFamily().getFamilyId());
         if (request.getFamilyId() != null && !request.getFamilyId().isBlank()) {
-            familyScopeService.assertCanManageFamily(managerUserId, request.getFamilyId().trim());
+            familyScopeService.assertCanManageFamilyMembers(managerUserId, request.getFamilyId().trim());
         }
         request.setFamilyId(request.getFamilyId() != null && !request.getFamilyId().isBlank()
                 ? request.getFamilyId().trim()
@@ -327,7 +339,7 @@ public class FamilyHeadService {
         if (user.getFamily() == null) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Không thể xóa thành viên ngoài dòng họ.");
         }
-        familyScopeService.assertCanManageFamily(managerUserId, user.getFamily().getFamilyId());
+        familyScopeService.assertCanManageFamilyMembers(managerUserId, user.getFamily().getFamilyId());
 
         if (userRepository.existsByParentId(id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
@@ -398,8 +410,14 @@ public class FamilyHeadService {
     }
 
     private void assertAssignableFamilyMemberRole(Role role) {
-        if (role == null || role.getRoleName() == null
-                || !ASSIGNABLE_MEMBER_ROLE_NAMES.contains(role.getRoleName())) {
+        if (role == null || role.getRoleName() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vai trò không hợp lệ.");
+        }
+        if (NON_ASSIGNABLE_FAMILY_UI_ROLE_NAMES.contains(role.getRoleName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Vai trò hệ thống (ADMIN) không gán qua màn trưởng họ.");
+        }
+        if (!ASSIGNABLE_MEMBER_ROLE_NAMES.contains(role.getRoleName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Vai trò này không được phép gán cho thành viên dòng họ.");
         }
@@ -423,24 +441,45 @@ public class FamilyHeadService {
     private void applyMemberRole(User user, UserRequest request, String editingUserId, String managerUserId) {
         Role memberRole = roleRepository.findByRoleName("MEMBER")
                 .orElseThrow(() -> new RuntimeException("Chưa cấu hình Role MEMBER trong DB!"));
-        String rid = request.getRoleId() != null ? request.getRoleId().trim() : "";
-        if (rid.isEmpty()) {
+        List<String> idList = request.getRoleIds();
+        if (idList != null && idList.isEmpty() && editingUserId != null) {
+            return;
+        }
+        if ((idList == null || idList.isEmpty()) && request.getRoleId() != null && !request.getRoleId().isBlank()) {
+            idList = List.of(request.getRoleId().trim());
+        }
+        if (idList == null || idList.isEmpty()) {
             if (editingUserId == null) {
-                user.setRole(memberRole);
+                user.setRoles(new LinkedHashSet<>(Set.of(memberRole)));
             }
             return;
         }
-        Role newRole = roleRepository.findById(rid)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Không tìm thấy vai trò."));
-        assertAssignableFamilyMemberRole(newRole);
+        Set<Role> next = new LinkedHashSet<>();
+        for (String rid : idList) {
+            if (rid == null || rid.isBlank()) {
+                continue;
+            }
+            Role newRole = roleRepository.findById(rid.trim())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Không tìm thấy vai trò."));
+            if ("ADMIN".equals(newRole.getRoleName())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        "Role ADMIN chỉ do hệ thống cấp — không gán qua quản lý thành viên.");
+            }
+            assertAssignableFamilyMemberRole(newRole);
+            next.add(newRole);
+        }
+        if (next.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Chọn ít nhất một vai trò hợp lệ.");
+        }
         if (editingUserId != null && editingUserId.equals(managerUserId)) {
-            if (roleHasPermission(user.getRole(), AppPermissions.MANAGE_FAMILY_MEMBERS)
-                    && !roleHasPermission(newRole, AppPermissions.MANAGE_FAMILY_MEMBERS)) {
+            boolean had = UserRoleSupport.hasPermissionViaRoles(user, AppPermissions.MANAGE_FAMILY_MEMBERS);
+            boolean will = next.stream().anyMatch(r -> roleHasPermission(r, AppPermissions.MANAGE_FAMILY_MEMBERS));
+            if (had && !will) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "Không thể gỡ quyền quản trị thành viên của chính mình.");
             }
         }
-        user.setRole(newRole);
+        user.setRoles(next);
     }
 
     private UserResponse mapToResponse(User user, Map<String, String> spouseByUserId) {
@@ -465,16 +504,13 @@ public class FamilyHeadService {
             response.setFamilyName(user.getFamily().getFamilyName());
         }
 
-        if (user.getRole() != null) {
-            response.setRoleId(user.getRole().getRoleId());
-            response.setRoleName(user.getRole().getRoleName());
-            if (user.getRole().getPermissions() != null) {
-                response.setPermissions(user.getRole().getPermissions().stream()
-                        .map(Permission::getName)
-                        .filter(Objects::nonNull)
-                        .sorted()
-                        .collect(Collectors.toList()));
-            }
+        List<Role> sorted = UserRoleSupport.sortedRoles(user);
+        if (!sorted.isEmpty()) {
+            response.setRoleIds(sorted.stream().map(Role::getRoleId).collect(Collectors.toList()));
+            response.setRoleNames(sorted.stream().map(Role::getRoleName).collect(Collectors.toList()));
+            response.setRoleId(sorted.get(0).getRoleId());
+            response.setRoleName(sorted.get(0).getRoleName());
+            response.setPermissions(UserRoleSupport.mergedPermissionNames(user));
         }
 
         if (spouseByUserId != null && user.getUserId() != null) {
