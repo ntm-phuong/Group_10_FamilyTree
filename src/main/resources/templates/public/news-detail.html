@@ -85,9 +85,13 @@
           <div th:if="${#lists.isEmpty(relatedArticles)}" class="text-sm text-muted">Chưa có bài liên quan.</div>
           <div th:each="r : ${relatedArticles}"
                style="margin-bottom:.75rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);">
-            <a th:href="@{/news/{slug}(slug=${r.slug})}"
+            <a th:if="${r.slug != null and !#strings.isEmpty(r.slug)}"
+               th:href="@{/news/{slug}(slug=${r.slug})}"
                style="font-size:.83rem;font-weight:600;color:var(--text-900);line-height:1.4;display:block;"
                th:text="${r.title}">Tiêu đề</a>
+            <span th:unless="${r.slug != null and !#strings.isEmpty(r.slug)}"
+                  style="font-size:.83rem;font-weight:600;color:var(--text-500);"
+                  th:text="${r.title}">Tiêu đề</span>
           </div>
         </div>
       </div>

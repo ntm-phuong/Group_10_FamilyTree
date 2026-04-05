@@ -1,10 +1,10 @@
 package com.family.app.config;
 
-import com.family.app.security.JwtAuthenticationFilter; // Import Filter của bạn
+import com.family.app.security.AppPermissions;
+import com.family.app.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -43,11 +43,24 @@ public class SecurityConfig {
                 }))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                         // Cho phép các tài nguyên tĩnh
                         .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
 
-                        // Cho phép các route của PageController (Các trang giao diện public)
-                        .requestMatchers("/login", "/about", "/family-tree", "/family-head", "/site-news-manage", "/news/**", "/member/**").permitAll()
+                        // Trang public (không gồm /family-head — cần quyền FAMILY_HEAD)
+                        .requestMatchers("/login", "/about", "/family-tree", "/site-news-manage", "/news/**", "/member/**").permitAll()
+
+                        // Trang dashboard quản trị họ: chỉ FAMILY_HEAD (+ JWT)
+                        .requestMatchers("/family-head", "/family-head/**", "/admin", "/admin/**")
+                                .hasAuthority(AppPermissions.FAMILY_HEAD)
+
+                        // API thống kê dashboard: chỉ FAMILY_HEAD
+                        .requestMatchers("/api/family-head/dashboard", "/api/family-head/dashboard/**")
+                                .hasAuthority(AppPermissions.FAMILY_HEAD)
+
+                        // API thành viên / chi / tin: đã đăng nhập — chi tiết quyền @PreAuthorize trên controller
+                        .requestMatchers("/api/family-head/**").authenticated()
 
                         // Cho phép API login/register (trừ /me — cần JWT)
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
@@ -56,9 +69,6 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/auth/me").authenticated()
 
-                        .requestMatchers("/family-head/**").permitAll()
-
-                        // Tất cả các request khác (thường là API nghiệp vụ) mới cần login
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session

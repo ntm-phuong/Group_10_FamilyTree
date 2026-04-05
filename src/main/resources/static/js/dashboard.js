@@ -29,6 +29,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             });
 
+            if (response.status === 401 || response.status === 403) {
+                window.location.href = "/login";
+                return;
+            }
             if (!response.ok) throw new Error("Không thể tải dữ liệu Dashboard");
 
             const data = await response.json();

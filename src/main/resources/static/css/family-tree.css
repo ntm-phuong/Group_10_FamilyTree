@@ -67,6 +67,15 @@
 .tree-detail-popup-modal{max-width:360px;width:100%;padding:0;overflow:hidden;}
 .tree-detail-popup-modal .tree-detail-popup{margin:0;border-radius:var(--radius-xl);max-height:85vh;overflow-y:auto;}
 .compare-modal{max-width:680px;padding:0;overflow:hidden;}
+
+/* Form thêm thành viên: trường khóa khi thêm con (cha/mẹ + chi cố định) */
+select.tm-field-locked.form-select,
+select.tm-field-locked{
+  background:var(--bg)!important;
+  color:var(--text-700);
+  cursor:not-allowed;
+  opacity:0.92;
+}
 .compare-modal-head{display:flex;align-items:center;justify-content:space-between;background:var(--green-800);color:#fff;padding:.9rem 1rem;}
 .compare-modal-head h3{font-size:1rem;font-weight:700;}
 .compare-modal-head .modal-close{color:#fff;}

@@ -16,9 +16,11 @@
     const r = (localStorage.getItem("role") || "").trim();
     return (
       hasPerm("MANAGE_FAMILY_NEWS") ||
+      hasPerm("MANAGE_CLAN") ||
+      hasPerm("FAMILY_HEAD") ||
       r === "FAMILY_BRANCH_MANAGER" ||
-      r === "ADMIN" ||
-      hasPerm("FAMILY_HEAD")
+      r === "FAMILY_NEWS_MANAGER" ||
+      r === "ADMIN"
     );
   }
 
@@ -27,6 +29,35 @@
     const h = { "Content-Type": "application/json" };
     if (token) h["Authorization"] = "Bearer " + token;
     return h;
+  }
+
+  async function syncNewsPagePermissionsFromMe() {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    try {
+      const res = await fetch("/api/auth/me", { headers: authHeaders() });
+      if (!res.ok) return;
+      const me = await res.json();
+      if (me.permissions) localStorage.setItem("permissions", JSON.stringify(me.permissions));
+      if (me.role != null) localStorage.setItem("role", String(me.role));
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
+  function applyNewsPagePermissionUi() {
+    const wrap = document.querySelector(".news-page-wrap");
+    const can = canManageNews();
+    const toolbar = document.getElementById("newsManageToolbar");
+    if (toolbar) {
+      toolbar.hidden = !can;
+      toolbar.classList.toggle("d-none", !can);
+      toolbar.setAttribute("aria-hidden", can ? "false" : "true");
+    }
+    if (wrap) {
+      wrap.classList.toggle("news-page--no-manage-perm", !can);
+      if (!can) wrap.classList.remove("news-page--edit-mode", "news-page--delete-mode");
+    }
   }
 
   async function npReadFetchError(res, fallback) {
@@ -243,12 +274,11 @@
     }
   }
 
-  function init() {
+  async function init() {
     if (!window.location.pathname.startsWith("/news")) return;
+    await syncNewsPagePermissionsFromMe();
+    applyNewsPagePermissionUi();
     if (!canManageNews()) return;
-
-    const toolbar = document.getElementById("newsManageToolbar");
-    if (toolbar) toolbar.hidden = false;
 
     loadNpCategories().catch(function () {});
 

@@ -100,12 +100,20 @@
       return;
     }
     if (empty) empty.style.display = "none";
+    const allowRowActions = hasSiteNewsPermission();
     tbody.innerHTML = rows
       .map((row) => {
         const cat = row.publicCategory || "";
         const vis = row.visibility || "";
         const visLabel = vis === "PUBLIC_SITE" ? "Đã đăng" : vis === "DRAFT" ? "Nháp" : vis;
         const feat = row.featured ? "Có" : "Không";
+        const actionsCell = allowRowActions
+          ? `<td class="fh-actions">
+            <button type="button" class="btn btn-white btn-sm sn-toggle" data-id="${escapeHtml(row.id)}" title="Đăng / gỡ"><i class="fas fa-toggle-on"></i></button>
+            <button type="button" class="btn btn-white btn-sm sn-edit" data-id="${escapeHtml(row.id)}"><i class="fas fa-pen"></i></button>
+            <button type="button" class="btn btn-white btn-sm sn-del" data-id="${escapeHtml(row.id)}"><i class="fas fa-trash-alt"></i></button>
+          </td>`
+          : '<td class="fh-muted">—</td>';
         return `
         <tr data-id="${escapeHtml(row.id)}">
           <td class="fh-title">${escapeHtml(row.title || "")}<div class="fh-muted">${escapeHtml((row.summary || "").slice(0, 72))}${(row.summary || "").length > 72 ? "…" : ""}</div></td>
@@ -113,11 +121,7 @@
           <td>${escapeHtml(visLabel)}</td>
           <td>${feat}</td>
           <td>${formatDate(row.createdAt)}</td>
-          <td class="fh-actions">
-            <button type="button" class="btn btn-white btn-sm sn-toggle" data-id="${escapeHtml(row.id)}" title="Đăng / gỡ"><i class="fas fa-toggle-on"></i></button>
-            <button type="button" class="btn btn-white btn-sm sn-edit" data-id="${escapeHtml(row.id)}"><i class="fas fa-pen"></i></button>
-            <button type="button" class="btn btn-white btn-sm sn-del" data-id="${escapeHtml(row.id)}"><i class="fas fa-trash-alt"></i></button>
-          </td>
+          ${actionsCell}
         </tr>`;
       })
       .join("");
@@ -145,10 +149,24 @@
       } catch (ignore) {}
     }
     if (!hasSiteNewsPermission()) {
-      showAlert("snAlert", "Cần đăng nhập bằng tài khoản có quyền MANAGE_SITE_NEWS (ví dụ truongho@giapha.vn).", "error");
-      setTimeout(() => {
-        window.location.href = "/login?redirect=" + encodeURIComponent("/site-news-manage");
-      }, 2500);
+      showAlert(
+        "snAlert",
+        "Tài khoản của bạn không có quyền MANAGE_SITE_NEWS. Chỉ xem giao diện; không thể thêm / sửa / xóa tin toàn site.",
+        "error"
+      );
+      const addBtn = document.getElementById("snAdd");
+      if (addBtn) addBtn.hidden = true;
+      const reloadBtn = document.getElementById("snReload");
+      if (reloadBtn) reloadBtn.hidden = true;
+      ["snSearch", "snCategory", "snStatus"].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) el.disabled = true;
+      });
+      const tbody = document.getElementById("snBody");
+      if (tbody) {
+        tbody.innerHTML =
+          '<tr><td colspan="6" class="fh-muted">Không có quyền tải danh sách. Đăng nhập bằng tài khoản quản trị site nếu cần.</td></tr>';
+      }
       return;
     }
 

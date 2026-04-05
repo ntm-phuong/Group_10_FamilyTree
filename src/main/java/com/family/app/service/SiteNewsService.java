@@ -22,8 +22,7 @@ import java.util.Set;
 
 /**
  * Trang /news: hợp nhất tin {@link NewsVisibility#PUBLIC_SITE} (ai cũng xem được) và
- * {@link NewsVisibility#FAMILY_ONLY} (chỉ khi người xem và chi gắn bài nằm trên cùng một đường
- * tổ tiên–hậu duệ: xem lên tổ tiên hoặc xuống con cháu; hai chi cùng cấp không xem tin nội bộ của nhau).
+ * {@link NewsVisibility#FAMILY_ONLY} (cùng nhánh dòng: tổ tiên / con cháu; không xem tin nội bộ chi anh em).
  */
 @Service
 public class SiteNewsService {
@@ -80,9 +79,8 @@ public class SiteNewsService {
     }
 
     /**
-     * Tin nội bộ (FAMILY_ONLY) chỉ xem được khi chi của người xem và chi gắn bài nằm trên cùng một
-     * đường dòng (một là tổ tiên của kia): con/cháu xem tin tổ tiên; cha/ông xem tin chi con; hai chi
-     * cùng cấp (anh em) không xem được tin nội bộ của nhau.
+     * Tin nội bộ (FAMILY_ONLY): người xem và chi gắn bài nằm trên cùng một đường tổ tiên–hậu duệ
+     * (con/cháu xem tin tổ/ông; cha xem tin chi con). Hai chi cùng cấp không xem tin nội bộ của nhau.
      */
     public boolean viewerMaySeeFamilyOnlyNews(User viewer, Family articleFamily) {
         if (viewer == null || viewer.getFamily() == null || articleFamily == null) {
@@ -93,6 +91,8 @@ public class SiteNewsService {
         if (vf == null || af == null) {
             return false;
         }
+        vf = vf.trim();
+        af = af.trim();
         if (vf.equals(af)) {
             return true;
         }
@@ -141,7 +141,7 @@ public class SiteNewsService {
 
     /**
      * @param scopeFamilyId lọc theo một chi (giống ?familyId=); null = không lọc theo chi.
-     * @param viewer         null = khách; chỉ thấy PUBLIC_SITE. Có user = thêm FAMILY_ONLY nếu trong phạm vi nhánh.
+     * @param viewer         null = khách; chỉ thấy PUBLIC_SITE. Có user = thêm FAMILY_ONLY trong phạm vi nhánh người đó.
      * @param visibilityFilter null = mọi loại; hoặc chỉ PUBLIC_SITE / FAMILY_ONLY.
      */
     @Transactional(readOnly = true)
@@ -165,22 +165,29 @@ public class SiteNewsService {
 
         if (viewer != null && viewer.getFamily() != null) {
             String vf = viewer.getFamily().getFamilyId();
-            Set<String> viewerReach = new HashSet<>(ancestorFamilyIds(vf));
-            viewerReach.addAll(descendantFamilyIds(vf));
-
-            List<String> allowedForInternal;
-            if (scope != null) {
-                Set<String> scopeReach = new HashSet<>(ancestorFamilyIds(scope));
-                scopeReach.addAll(descendantFamilyIds(scope));
-                allowedForInternal = viewerReach.stream()
-                        .filter(scopeReach::contains)
-                        .toList();
+            if (vf == null || vf.isBlank()) {
+                vf = null;
             } else {
-                allowedForInternal = new ArrayList<>(viewerReach);
+                vf = vf.trim();
             }
-            if (!allowedForInternal.isEmpty()) {
-                merged.addAll(newsEventRepository.findByVisibilityAndFamilyFamilyIdIn(
-                        NewsVisibility.FAMILY_ONLY, allowedForInternal));
+            if (vf != null) {
+                Set<String> viewerReach = new HashSet<>(ancestorFamilyIds(vf));
+                viewerReach.addAll(descendantFamilyIds(vf));
+
+                List<String> allowedForInternal;
+                if (scope != null) {
+                    Set<String> scopeReach = new HashSet<>(ancestorFamilyIds(scope));
+                    scopeReach.addAll(descendantFamilyIds(scope));
+                    allowedForInternal = viewerReach.stream()
+                            .filter(scopeReach::contains)
+                            .toList();
+                } else {
+                    allowedForInternal = new ArrayList<>(viewerReach);
+                }
+                if (!allowedForInternal.isEmpty()) {
+                    merged.addAll(newsEventRepository.findByVisibilityAndFamilyFamilyIdIn(
+                            NewsVisibility.FAMILY_ONLY, allowedForInternal));
+                }
             }
         }
 
