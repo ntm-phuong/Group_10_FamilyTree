@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang Chủ - Gia Phả Dòng Họ Nguyễn</title>
+    <title>Trang Chủ - Gia Phả Dòng Họ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <link rel="stylesheet" th:href="@{/css/style.css}">
@@ -18,11 +18,11 @@
 <section class="guest-hero">
     <div class="hero-overlay"></div>
     <div class="hero-content">
-        <h1>Gia Phả Dòng Họ Nguyễn</h1>
+        <h1 id="heroFamilyName">Gia Phả Dòng Họ...</h1>
         <p class="hero-quote">"Mộc bản hồ thủy, vạn cổ tầm tông"</p>
-        <p class="hero-desc">Cây có gốc mới nở cành xanh ngọn, nước có nguồn mới bể rộng sông sâu. Nơi lưu giữ truyền thống và kết nối các thế hệ con cháu họ Nguyễn.</p>
+        <p class="hero-desc">Cây có gốc mới nở cành xanh ngọn, nước có nguồn mới bể rộng sông sâu. Nơi lưu giữ truyền thống và kết nối các thế hệ con cháu.</p>
         <div class="hero-buttons">
-            <a href="#" class="btn btn-outline"><i class="fas fa-sitemap"></i> Xem Gia Phả</a>
+            <a href="#" class="btn btn-outline btn-open-login"><i class="fas fa-sitemap"></i> Xem Gia Phả</a>
             <a th:href="@{/news}" class="btn btn-outline"><i class="far fa-newspaper"></i> Tin Tức Dòng Họ</a>
         </div>
     </div>
@@ -31,30 +31,30 @@
 <section class="guest-stats container">
     <div class="stat-card">
         <i class="fas fa-users" style="color: #2E7D32;"></i>
-        <h3>22</h3>
+        <h3 id="statTotalMembers">0</h3>
         <p>Thành viên</p>
     </div>
     <div class="stat-card">
         <i class="fas fa-seedling" style="color: #D84315;"></i>
-        <h3>4</h3>
+        <h3 id="statGenerations">0</h3>
         <p>Thế hệ</p>
     </div>
     <div class="stat-card">
         <i class="fas fa-male" style="color: #1976D2;"></i>
-        <h3>11</h3>
+        <h3 id="statMaleCount">0</h3>
         <p>Nam giới</p>
     </div>
     <div class="stat-card">
         <i class="fas fa-female" style="color: #C2185B;"></i>
-        <h3>11</h3>
+        <h3 id="statFemaleCount">0</h3>
         <p>Nữ giới</p>
     </div>
 </section>
 
 <section class="guest-about">
     <div class="container">
-        <h2>Về Dòng Họ</h2>
-        <p>Dòng họ Nguyễn có lịch sử lâu đời, bắt nguồn từ vùng đất Hà Tây, nay là Hà Nội. Qua nhiều thế hệ, con cháu đã lan tỏa khắp nơi và có nhiều đóng góp trong các lĩnh vực khác nhau.</p>
+        <h2 id="aboutFamilyTitle">Về Dòng Họ...</h2>
+        <p id="aboutFamilyDesc">Đang tải thông tin dòng họ...</p>
         <p>Với mục tiêu bảo tồn và phát huy truyền thống gia đình, hệ thống gia phả trực tuyến được xây dựng để giúp các thành viên dễ dàng tra cứu thông tin, kết nối với nhau và lưu giữ những kỷ niệm quý báu.</p>
         <a th:href="@{/about}" class="btn btn-outline-dark">Tìm hiểu lịch sử dòng họ <i class="fas fa-arrow-right"></i></a>
     </div>
@@ -65,43 +65,8 @@
         <h2>Sự kiện sắp tới</h2>
         <p>Đừng bỏ lỡ các sự kiện quan trọng của dòng họ</p>
     </div>
-    <div class="grid-4">
-        <div class="event-card">
-            <div class="event-date"><span>Tháng 3</span><strong>15</strong></div>
-            <div class="event-info">
-                <span class="badge badge-warning">Lễ giỗ - 6 ngày nữa</span>
-                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
-                <p><i class="fas fa-map-marker-alt"></i> Nhà thờ họ Nguyễn, Hà Nội</p>
-                <p><i class="far fa-clock"></i> 08:00</p>
-            </div>
-        </div>
-        <div class="event-card">
-            <div class="event-date"><span>Tháng 3</span><strong>15</strong></div>
-            <div class="event-info">
-                <span class="badge badge-warning">Lễ giỗ - 6 ngày nữa</span>
-                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
-                <p><i class="fas fa-map-marker-alt"></i> Nhà thờ họ Nguyễn, Hà Nội</p>
-                <p><i class="far fa-clock"></i> 08:00</p>
-            </div>
-        </div>
-        <div class="event-card">
-            <div class="event-date"><span>Tháng 3</span><strong>15</strong></div>
-            <div class="event-info">
-                <span class="badge badge-warning">Lễ giỗ - 6 ngày nữa</span>
-                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
-                <p><i class="fas fa-map-marker-alt"></i> Nhà thờ họ Nguyễn, Hà Nội</p>
-                <p><i class="far fa-clock"></i> 08:00</p>
-            </div>
-        </div>
-        <div class="event-card">
-            <div class="event-date"><span>Tháng 3</span><strong>15</strong></div>
-            <div class="event-info">
-                <span class="badge badge-warning">Lễ giỗ - 6 ngày nữa</span>
-                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
-                <p><i class="fas fa-map-marker-alt"></i> Nhà thờ họ Nguyễn, Hà Nội</p>
-                <p><i class="far fa-clock"></i> 08:00</p>
-            </div>
-        </div>
+    <div class="grid-4" id="eventsContainer">
+        <p style="grid-column: span 4; text-align: center; color: gray;">Đang tải sự kiện...</p>
     </div>
 </section>
 
@@ -111,31 +76,8 @@
             <h2>Tin Tức Mới Nhất</h2>
             <p>Cập nhật các hoạt động và sự kiện của dòng họ</p>
         </div>
-        <div class="grid-4">
-            <div class="news-card">
-                <span class="badge badge-success">Sự kiện</span> <span class="news-time">5 ngày trước</span>
-                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
-                <p>Thông báo về việc tổ chức Lễ Giỗ Tổ hàng năm của dòng họ Nguyễn. Sự kiện dự kiến diễn ra vào ngày 15 tháng 3 âm lịch...</p>
-                <a href="#" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-            </div>
-            <div class="news-card">
-                <span class="badge badge-success">Sự kiện</span> <span class="news-time">5 ngày trước</span>
-                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
-                <p>Thông báo về việc tổ chức Lễ Giỗ Tổ hàng năm của dòng họ Nguyễn. Sự kiện dự kiến diễn ra vào ngày 15 tháng 3 âm lịch...</p>
-                <a href="#" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-            </div>
-            <div class="news-card">
-                <span class="badge badge-success">Sự kiện</span> <span class="news-time">5 ngày trước</span>
-                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
-                <p>Thông báo về việc tổ chức Lễ Giỗ Tổ hàng năm của dòng họ Nguyễn. Sự kiện dự kiến diễn ra vào ngày 15 tháng 3 âm lịch...</p>
-                <a href="#" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-            </div>
-            <div class="news-card">
-                <span class="badge badge-success">Sự kiện</span> <span class="news-time">5 ngày trước</span>
-                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
-                <p>Thông báo về việc tổ chức Lễ Giỗ Tổ hàng năm của dòng họ Nguyễn. Sự kiện dự kiến diễn ra vào ngày 15 tháng 3 âm lịch...</p>
-                <a href="#" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-            </div>
+        <div class="grid-4" id="newsContainer">
+            <p style="grid-column: span 4; text-align: center; color: gray;">Đang tải tin tức...</p>
         </div>
     </div>
 </section>
@@ -301,7 +243,100 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        // --- 2. XỬ LÝ MỞ/ĐÓNG MODAL TỪ NÚT BẤM ---
+
+        // ==================================================
+        // A. GỌI API LẤY DỮ LIỆU CÔNG KHAI (GUEST)
+        // ==================================================
+        // Chọn dòng họ mặc định hiển thị ra trang chủ khi chưa đăng nhập
+        const defaultPublicFamilyId = 'fam-nguyen-001';
+
+        // Không truyền Token vì là Guest
+        fetch(`/api/families/${defaultPublicFamilyId}/home`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Lỗi tải dữ liệu trang chủ");
+            return response.json();
+        })
+        .then(data => {
+            if (data.familyName) {
+                document.getElementById('heroFamilyName').innerText = 'Gia Phả ' + data.familyName;
+                document.getElementById('aboutFamilyTitle').innerText = 'Về ' + data.familyName;
+                document.title = 'Trang Chủ - ' + data.familyName;
+            }
+            if (data.description) {
+                document.getElementById('aboutFamilyDesc').innerText = data.description;
+            }
+            document.getElementById('statTotalMembers').innerText = data.totalMembers || 0;
+            document.getElementById('statGenerations').innerText = data.totalGenerations || 0;
+            document.getElementById('statMaleCount').innerText = data.maleCount || 0;
+            document.getElementById('statFemaleCount').innerText = data.femaleCount || 0;
+
+            renderEvents(data.upcomingEvents);
+            renderNews(data.latestNews);
+        })
+        .catch(error => {
+            console.error("Lỗi API trang Guest:", error);
+            // Nếu lỗi 403 (Cấm truy cập), hãy cấu hình lại SecurityConfig bên Java
+        });
+
+        function renderEvents(events) {
+            const container = document.getElementById('eventsContainer');
+            if (!events || events.length === 0) {
+                container.innerHTML = '<p style="grid-column: span 4; text-align: center; color: #6B7280;">Hiện không có sự kiện nào sắp tới.</p>';
+                return;
+            }
+            container.innerHTML = events.map(event => {
+                const dateObj = event.startAt ? new Date(event.startAt) : new Date();
+                const monthStr = 'Tháng ' + (dateObj.getMonth() + 1);
+                const dayStr = dateObj.getDate();
+                const timeStr = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                const diffTime = dateObj - new Date();
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                let daysLeftStr = diffDays > 0 ? `${diffDays} ngày nữa` : (diffDays === 0 ? 'Hôm nay' : 'Đã qua');
+
+                return `
+                <div class="event-card">
+                    <div class="event-date"><span>${monthStr}</span><strong>${dayStr}</strong></div>
+                    <div class="event-info">
+                        <span class="badge badge-warning">${event.categoryName || 'Sự kiện'} - ${daysLeftStr}</span>
+                        <h4>${event.title}</h4>
+                        <p><i class="fas fa-map-marker-alt"></i> ${event.location || 'Tại nhà thờ họ'}</p>
+                        <p><i class="far fa-clock"></i> ${timeStr}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderNews(newsList) {
+            const container = document.getElementById('newsContainer');
+            if (!newsList || newsList.length === 0) {
+                container.innerHTML = '<p style="grid-column: span 4; text-align: center; color: #6B7280;">Chưa có tin tức nào.</p>';
+                return;
+            }
+            container.innerHTML = newsList.map(news => {
+                const dateObj = news.createdAt ? new Date(news.createdAt) : new Date();
+                const diffDays = Math.floor((new Date() - dateObj) / (1000 * 60 * 60 * 24));
+                const timeAgo = diffDays === 0 ? 'Hôm nay' : `${diffDays} ngày trước`;
+
+                return `
+                <div class="news-card">
+                    <span class="badge badge-success">${news.categoryName || 'Tin tức'}</span>
+                    <span class="news-time">${timeAgo}</span>
+                    <h4>${news.title}</h4>
+                    <p>${news.summary || 'Nhấn đọc thêm để xem chi tiết nội dung...'}</p>
+                    <a href="/news/${news.id || ''}" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+                </div>`;
+            }).join('');
+        }
+
+
+        // ==================================================
+        // B. XỬ LÝ MỞ/ĐÓNG MODAL TỪ NÚT BẤM & LOGIC LOGIN
+        // ==================================================
         document.querySelectorAll('.btn-open-login').forEach(btn => {
             btn.addEventListener('click', e => {
                 e.preventDefault();
@@ -322,7 +357,6 @@
             document.getElementById('forgotAlertContainer').innerHTML = '';
         });
 
-        // Đóng khi click nền đen
         window.addEventListener('click', e => {
             if (e.target.classList.contains('modal-overlay')) {
                 e.target.classList.remove('open');
@@ -331,7 +365,6 @@
 
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-        // --- 3. LOGIC ĐĂNG NHẬP ---
         document.getElementById('loginForm').addEventListener('submit', function (e) {
             e.preventDefault();
             const btnSubmit = document.getElementById('btnLoginSubmit');
@@ -349,20 +382,15 @@
                 localStorage.setItem('token', data.accessToken);
                 localStorage.setItem('user_id', data.userId);
                 localStorage.setItem('full_name', data.fullName);
+                localStorage.setItem('family_id', data.familyId);
 
-                // NẾU TÀI KHOẢN MỚI (Status = 1) -> Đóng Login, Mở Active
                 if (Number(data.status) === 1) {
                     closeModal('loginModal');
                     openModal('activeModal');
-
-                    // 👇 THÊM 2 DÒNG NÀY ĐỂ MỞ KHÓA NÚT
                     btnSubmit.innerText = "Đăng nhập";
                     btnSubmit.disabled = false;
-
-                    // Xóa rỗng luôn 2 ô input để lần sau mở ra form sạch sẽ
                     document.getElementById('loginForm').reset();
                 } else {
-                    // NẾU BÌNH THƯỜNG -> Vào Home
                     window.location.href = '/home';
                 }
             })
@@ -372,13 +400,10 @@
             });
         });
 
-        // --- 4. LOGIC KÍCH HOẠT (ACTIVE) ---
         const actPass = document.getElementById('activePassword');
         const actConf = document.getElementById('activeConfirmPassword');
-
-        const actPassWrap = document.getElementById('activePasswordWrap'); // Thêm mới
-        const actPassError = document.getElementById('activePasswordError'); // Thêm mới
-
+        const actPassWrap = document.getElementById('activePasswordWrap');
+        const actPassError = document.getElementById('activePasswordError');
         const actWrap = document.getElementById('activeConfirmWrap');
         const actMsg = document.getElementById('activeMatchMessage');
         const btnActSubmit = document.getElementById('btnActiveSubmit');
@@ -386,73 +411,51 @@
         let isFormatValid = false;
         let isMatchValid = false;
 
-        // Hàm 1: Kiểm tra định dạng Regex realtime
         function checkActivePasswordFormat() {
             const pwd = actPass.value;
-
             if (pwd.length === 0) {
                 actPassWrap.classList.remove('error', 'success');
                 actPassError.textContent = 'Ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số & ký tự đặc biệt.';
-                actPassError.className = '';
-                actPassError.style.color = '#6B7280'; // Màu xám mặc định
+                actPassError.className = ''; actPassError.style.color = '#6B7280';
                 isFormatValid = false;
             } else if (!passwordRegex.test(pwd)) {
                 actPassWrap.classList.replace('success', 'error') || actPassWrap.classList.add('error');
                 actPassError.textContent = 'Mật khẩu yếu: Thiếu chữ hoa, thường, số hoặc ký tự đặc biệt!';
-                actPassError.className = 'validation-msg error';
-                actPassError.style.color = ''; // Xóa màu nội tuyến để CSS ăn màu đỏ
+                actPassError.className = 'validation-msg error'; actPassError.style.color = '';
                 isFormatValid = false;
             } else {
                 actPassWrap.classList.replace('error', 'success') || actPassWrap.classList.add('success');
-                actPassError.textContent = '';
-                actPassError.className = 'validation-msg success';
-                actPassError.style.color = ''; // Xóa màu nội tuyến để CSS ăn màu xanh
+                actPassError.textContent = ''; actPassError.className = 'validation-msg success'; actPassError.style.color = '';
                 isFormatValid = true;
             }
             updateActiveSubmitBtn();
         }
 
-        // Hàm 2: Kiểm tra khớp mật khẩu
         function checkActiveMatch() {
             if (actConf.value.length === 0) {
-                actWrap.classList.remove('error', 'success'); actMsg.textContent = '';
-                isMatchValid = false;
+                actWrap.classList.remove('error', 'success'); actMsg.textContent = ''; isMatchValid = false;
             } else if (actPass.value !== actConf.value) {
                 actWrap.classList.replace('success', 'error') || actWrap.classList.add('error');
-                actMsg.textContent = 'Mật khẩu chưa khớp!'; actMsg.className = 'validation-msg error';
-                isMatchValid = false;
+                actMsg.textContent = 'Mật khẩu chưa khớp!'; actMsg.className = 'validation-msg error'; isMatchValid = false;
             } else {
                 actWrap.classList.replace('error', 'success') || actWrap.classList.add('success');
-                actMsg.textContent = '';
-                isMatchValid = true;
+                actMsg.textContent = ''; isMatchValid = true;
             }
             updateActiveSubmitBtn();
         }
 
-        // Hàm 3: Nút submit chỉ sáng lên khi CẢ 2 điều kiện đều đúng
         function updateActiveSubmitBtn() {
-            if (isFormatValid && isMatchValid) {
-                btnActSubmit.disabled = false;
-            } else {
-                btnActSubmit.disabled = true;
-            }
+            if (isFormatValid && isMatchValid) btnActSubmit.disabled = false;
+            else btnActSubmit.disabled = true;
         }
 
-        // Gắn sự kiện lắng nghe bàn phím
-        actPass.addEventListener('input', () => {
-            checkActivePasswordFormat();
-            checkActiveMatch(); // Gọi luôn hàm check match phòng trường hợp người dùng sửa lại pass phía trên
-        });
+        actPass.addEventListener('input', () => { checkActivePasswordFormat(); checkActiveMatch(); });
         actConf.addEventListener('input', checkActiveMatch);
 
-        // Submit form
         document.getElementById('activeForm').addEventListener('submit', function(e) {
             e.preventDefault();
-
-            // Code an toàn thêm 1 lớp (dù nút bấm đã bị khóa nếu sai form)
             if (!passwordRegex.test(actPass.value)) {
-                showPopup("Mật khẩu yếu! Cần đủ 8 ký tự, chữ Hoa, Thường, Số và Ký tự đặc biệt.", 'error', 'activeAlertContainer');
-                return;
+                showPopup("Mật khẩu yếu! Cần đủ 8 ký tự, chữ Hoa, Thường, Số và Ký tự đặc biệt.", 'error', 'activeAlertContainer'); return;
             }
 
             btnActSubmit.innerText = "Đang xử lý..."; btnActSubmit.disabled = true;
@@ -474,10 +477,7 @@
             });
         });
 
-        // --- 5. LOGIC QUÊN MẬT KHẨU (FORGOT PW) ---
         let emailReset = "", otpReset = "";
-
-        // Bước 1
         document.getElementById('step1Form').addEventListener('submit', function(e) {
             e.preventDefault();
             emailReset = document.getElementById('forgotEmail').value;
@@ -498,7 +498,6 @@
             .finally(() => { btn.innerText = "Gửi mã xác thực"; btn.disabled = false; });
         });
 
-        // Bước 2
         document.getElementById('step2Form').addEventListener('submit', function(e) {
             e.preventDefault();
             otpReset = document.getElementById('otpCode').value;
@@ -519,15 +518,10 @@
             .finally(() => { btn.innerText = "Xác nhận mã OTP"; btn.disabled = false; });
         });
 
-        // ==========================================
-        // Bước 3 Validation (Quên mật khẩu)
-        // ==========================================
         const fgPass = document.getElementById('newForgotPass');
         const fgConf = document.getElementById('confirmForgotPass');
-
-        const fgPassWrap = document.getElementById('forgotPasswordWrap'); // Thêm mới
-        const fgPassError = document.getElementById('forgotPasswordError'); // Thêm mới
-
+        const fgPassWrap = document.getElementById('forgotPasswordWrap');
+        const fgPassError = document.getElementById('forgotPasswordError');
         const fgWrap = document.getElementById('forgotConfirmWrap');
         const fgMsg = document.getElementById('forgotMatchMessage');
         const btnReset = document.getElementById('btnResetPass');
@@ -535,65 +529,45 @@
         let isFgFormatValid = false;
         let isFgMatchValid = false;
 
-        // Hàm kiểm tra định dạng
         function checkForgotFormat() {
             const pwd = fgPass.value;
             if (pwd.length === 0) {
                 fgPassWrap.classList.remove('error', 'success');
                 fgPassError.textContent = 'Ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số & ký tự đặc biệt.';
-                fgPassError.className = '';
-                fgPassError.style.color = '#6B7280';
-                isFgFormatValid = false;
+                fgPassError.className = ''; fgPassError.style.color = '#6B7280'; isFgFormatValid = false;
             } else if (!passwordRegex.test(pwd)) {
                 fgPassWrap.classList.replace('success', 'error') || fgPassWrap.classList.add('error');
                 fgPassError.textContent = 'Mật khẩu yếu: Thiếu chữ hoa, thường, số hoặc ký tự đặc biệt!';
-                fgPassError.className = 'validation-msg error';
-                fgPassError.style.color = '';
-                isFgFormatValid = false;
+                fgPassError.className = 'validation-msg error'; fgPassError.style.color = ''; isFgFormatValid = false;
             } else {
                 fgPassWrap.classList.replace('error', 'success') || fgPassWrap.classList.add('success');
-                fgPassError.textContent = 'Mật khẩu hợp lệ!';
-                fgPassError.className = 'validation-msg success';
-                fgPassError.style.color = '';
-                isFgFormatValid = true;
+                fgPassError.textContent = 'Mật khẩu hợp lệ!'; fgPassError.className = 'validation-msg success';
+                fgPassError.style.color = ''; isFgFormatValid = true;
             }
             updateForgotSubmitBtn();
         }
 
-        // Hàm kiểm tra khớp mật khẩu
         function checkForgotMatch() {
             if (fgConf.value.length === 0) {
-                fgWrap.classList.remove('error', 'success'); fgMsg.textContent = '';
-                isFgMatchValid = false;
+                fgWrap.classList.remove('error', 'success'); fgMsg.textContent = ''; isFgMatchValid = false;
             } else if (fgPass.value !== fgConf.value) {
                 fgWrap.classList.replace('success', 'error') || fgWrap.classList.add('error');
-                fgMsg.textContent = 'Mật khẩu chưa khớp!'; fgMsg.className = 'validation-msg error';
-                isFgMatchValid = false;
+                fgMsg.textContent = 'Mật khẩu chưa khớp!'; fgMsg.className = 'validation-msg error'; isFgMatchValid = false;
             } else {
                 fgWrap.classList.replace('error', 'success') || fgWrap.classList.add('success');
-                fgMsg.textContent = '';
-                isFgMatchValid = true;
+                fgMsg.textContent = ''; isFgMatchValid = true;
             }
             updateForgotSubmitBtn();
         }
 
         function updateForgotSubmitBtn() {
-            if (isFgFormatValid && isFgMatchValid) {
-                btnReset.disabled = false;
-            } else {
-                btnReset.disabled = true;
-            }
+            if (isFgFormatValid && isFgMatchValid) btnReset.disabled = false;
+            else btnReset.disabled = true;
         }
 
-        fgPass.addEventListener('input', () => {
-            checkForgotFormat();
-            checkForgotMatch();
-        });
+        fgPass.addEventListener('input', () => { checkForgotFormat(); checkForgotMatch(); });
         fgConf.addEventListener('input', checkForgotMatch);
 
-        // ==========================================
-        // Bước 3 Submit (Đổi mật khẩu)
-        // ==========================================
         document.getElementById('step3Form').addEventListener('submit', function(e) {
             e.preventDefault();
             if(!passwordRegex.test(fgPass.value)) {
@@ -607,11 +581,10 @@
             })
             .then(res => res.ok ? res.json() : Promise.reject("Lỗi đổi mật khẩu!"))
             .then(data => {
-                // 👇 ĐÃ FIX LỖI NAVBAR: Lấy full_name và user_id do Backend trả về 👇
                 localStorage.setItem('token', data.accessToken);
                 localStorage.setItem('full_name', data.fullName);
                 localStorage.setItem('user_id', data.userId);
-
+                localStorage.setItem('family_id', data.familyId);
                 showPopup("Đổi mật khẩu thành công!", 'success', 'forgotAlertContainer');
                 setTimeout(() => window.location.href = '/home', 1500);
             })
