@@ -33,6 +33,8 @@ public class AuthController {
         response.put("userId", authData.get("userId"));
         response.put("fullName", authData.get("fullName"));
         response.put("role", authData.get("role"));
+        response.put("familyId", authData.get("familyId"));
+
 
         return ResponseEntity.ok(response);
     }
@@ -89,6 +91,7 @@ public class AuthController {
             response.put("accessToken", newToken);
             response.put("fullName", user.getFullName());
             response.put("userId", user.getUserId());
+            response.put("familyId", user.getFamily() != null ? user.getFamily().getFamilyId() : null);
 
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {

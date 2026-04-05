@@ -94,6 +94,8 @@ public class AuthService {
             authData.put("token", token);
             authData.put("userId", user.getUserId());
             authData.put("fullName", user.getFullName());
+            authData.put("status", user.getStatus());
+            authData.put("familyId", user.getFamily() != null ? user.getFamily().getFamilyId() : null);
 
             // if (user.getRole() != null) {
             //     authData.put("role", user.getRole().getRoleName());

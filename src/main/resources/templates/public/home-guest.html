@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang Chủ - Gia Phả Dòng Họ Nguyễn</title>
+    <title>Trang Chủ - Gia Phả Dòng Họ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/home-guest.css}">
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+
 </head>
 <body>
 
@@ -16,11 +18,11 @@
 <section class="guest-hero">
     <div class="hero-overlay"></div>
     <div class="hero-content">
-        <h1>Gia Phả Dòng Họ Nguyễn</h1>
+        <h1 id="heroFamilyName">Gia Phả Dòng Họ...</h1>
         <p class="hero-quote">"Mộc bản hồ thủy, vạn cổ tầm tông"</p>
-        <p class="hero-desc">Cây có gốc mới nở cành xanh ngọn, nước có nguồn mới bể rộng sông sâu. Nơi lưu giữ truyền thống và kết nối các thế hệ con cháu họ Nguyễn.</p>
+        <p class="hero-desc">Cây có gốc mới nở cành xanh ngọn, nước có nguồn mới bể rộng sông sâu. Nơi lưu giữ truyền thống và kết nối các thế hệ con cháu.</p>
         <div class="hero-buttons">
-            <a href="#" class="btn btn-outline"><i class="fas fa-sitemap"></i> Xem Gia Phả</a>
+            <a href="#" class="btn btn-outline btn-open-login"><i class="fas fa-sitemap"></i> Xem Gia Phả</a>
             <a th:href="@{/news}" class="btn btn-outline"><i class="far fa-newspaper"></i> Tin Tức Dòng Họ</a>
         </div>
     </div>
@@ -29,30 +31,30 @@
 <section class="guest-stats container">
     <div class="stat-card">
         <i class="fas fa-users" style="color: #2E7D32;"></i>
-        <h3>22</h3>
+        <h3 id="statTotalMembers">0</h3>
         <p>Thành viên</p>
     </div>
     <div class="stat-card">
         <i class="fas fa-seedling" style="color: #D84315;"></i>
-        <h3>4</h3>
+        <h3 id="statGenerations">0</h3>
         <p>Thế hệ</p>
     </div>
     <div class="stat-card">
         <i class="fas fa-male" style="color: #1976D2;"></i>
-        <h3>11</h3>
+        <h3 id="statMaleCount">0</h3>
         <p>Nam giới</p>
     </div>
     <div class="stat-card">
         <i class="fas fa-female" style="color: #C2185B;"></i>
-        <h3>11</h3>
+        <h3 id="statFemaleCount">0</h3>
         <p>Nữ giới</p>
     </div>
 </section>
 
 <section class="guest-about">
     <div class="container">
-        <h2>Về Dòng Họ</h2>
-        <p>Dòng họ Nguyễn có lịch sử lâu đời, bắt nguồn từ vùng đất Hà Tây, nay là Hà Nội. Qua nhiều thế hệ, con cháu đã lan tỏa khắp nơi và có nhiều đóng góp trong các lĩnh vực khác nhau.</p>
+        <h2 id="aboutFamilyTitle">Về Dòng Họ...</h2>
+        <p id="aboutFamilyDesc">Đang tải thông tin dòng họ...</p>
         <p>Với mục tiêu bảo tồn và phát huy truyền thống gia đình, hệ thống gia phả trực tuyến được xây dựng để giúp các thành viên dễ dàng tra cứu thông tin, kết nối với nhau và lưu giữ những kỷ niệm quý báu.</p>
         <a th:href="@{/about}" class="btn btn-outline-dark">Tìm hiểu lịch sử dòng họ <i class="fas fa-arrow-right"></i></a>
     </div>
@@ -63,43 +65,8 @@
         <h2>Sự kiện sắp tới</h2>
         <p>Đừng bỏ lỡ các sự kiện quan trọng của dòng họ</p>
     </div>
-    <div class="grid-4">
-        <div class="event-card">
-            <div class="event-date"><span>Tháng 3</span><strong>15</strong></div>
-            <div class="event-info">
-                <span class="badge badge-warning">Lễ giỗ - 6 ngày nữa</span>
-                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
-                <p><i class="fas fa-map-marker-alt"></i> Nhà thờ họ Nguyễn, Hà Nội</p>
-                <p><i class="far fa-clock"></i> 08:00</p>
-            </div>
-        </div>
-        <div class="event-card">
-            <div class="event-date"><span>Tháng 3</span><strong>15</strong></div>
-            <div class="event-info">
-                <span class="badge badge-warning">Lễ giỗ - 6 ngày nữa</span>
-                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
-                <p><i class="fas fa-map-marker-alt"></i> Nhà thờ họ Nguyễn, Hà Nội</p>
-                <p><i class="far fa-clock"></i> 08:00</p>
-            </div>
-        </div>
-        <div class="event-card">
-            <div class="event-date"><span>Tháng 3</span><strong>15</strong></div>
-            <div class="event-info">
-                <span class="badge badge-warning">Lễ giỗ - 6 ngày nữa</span>
-                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
-                <p><i class="fas fa-map-marker-alt"></i> Nhà thờ họ Nguyễn, Hà Nội</p>
-                <p><i class="far fa-clock"></i> 08:00</p>
-            </div>
-        </div>
-        <div class="event-card">
-            <div class="event-date"><span>Tháng 3</span><strong>15</strong></div>
-            <div class="event-info">
-                <span class="badge badge-warning">Lễ giỗ - 6 ngày nữa</span>
-                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
-                <p><i class="fas fa-map-marker-alt"></i> Nhà thờ họ Nguyễn, Hà Nội</p>
-                <p><i class="far fa-clock"></i> 08:00</p>
-            </div>
-        </div>
+    <div class="grid-4" id="eventsContainer">
+        <p style="grid-column: span 4; text-align: center; color: gray;">Đang tải sự kiện...</p>
     </div>
 </section>
 
@@ -109,31 +76,8 @@
             <h2>Tin Tức Mới Nhất</h2>
             <p>Cập nhật các hoạt động và sự kiện của dòng họ</p>
         </div>
-        <div class="grid-4">
-            <div class="news-card">
-                <span class="badge badge-success">Sự kiện</span> <span class="news-time">5 ngày trước</span>
-                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
-                <p>Thông báo về việc tổ chức Lễ Giỗ Tổ hàng năm của dòng họ Nguyễn. Sự kiện dự kiến diễn ra vào ngày 15 tháng 3 âm lịch...</p>
-                <a href="#" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-            </div>
-            <div class="news-card">
-                <span class="badge badge-success">Sự kiện</span> <span class="news-time">5 ngày trước</span>
-                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
-                <p>Thông báo về việc tổ chức Lễ Giỗ Tổ hàng năm của dòng họ Nguyễn. Sự kiện dự kiến diễn ra vào ngày 15 tháng 3 âm lịch...</p>
-                <a href="#" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-            </div>
-            <div class="news-card">
-                <span class="badge badge-success">Sự kiện</span> <span class="news-time">5 ngày trước</span>
-                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
-                <p>Thông báo về việc tổ chức Lễ Giỗ Tổ hàng năm của dòng họ Nguyễn. Sự kiện dự kiến diễn ra vào ngày 15 tháng 3 âm lịch...</p>
-                <a href="#" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-            </div>
-            <div class="news-card">
-                <span class="badge badge-success">Sự kiện</span> <span class="news-time">5 ngày trước</span>
-                <h4>Lễ Giỗ Tổ Dòng Họ Nguyễn Năm 2026</h4>
-                <p>Thông báo về việc tổ chức Lễ Giỗ Tổ hàng năm của dòng họ Nguyễn. Sự kiện dự kiến diễn ra vào ngày 15 tháng 3 âm lịch...</p>
-                <a href="#" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-            </div>
+        <div class="grid-4" id="newsContainer">
+            <p style="grid-column: span 4; text-align: center; color: gray;">Đang tải tin tức...</p>
         </div>
     </div>
 </section>
@@ -142,11 +86,514 @@
     <div class="container text-center">
         <h2>Kết Nối Với Gia Đình</h2>
         <p>Hãy cùng nhau xây dựng và gìn giữ gia phả dòng họ. Mỗi thành viên đều là một phần quan trọng trong lịch sử gia đình.</p>
-        <a th:href="@{/login}" class="btn btn-light"><i class="fas fa-sign-in-alt"></i> Đăng Nhập</a>
+
+        <a href="#" class="btn btn-light btn-open-login"><i class="fas fa-sign-in-alt"></i> Đăng Nhập</a>
     </div>
 </section>
 
 <th:block th:replace="~{fragments/footer :: footer}"/>
+<div id="loginModal" class="modal-overlay">
+    <div class="modal-card">
+        <span class="modal-close-btn" onclick="closeModal('loginModal')">&times;</span>
+        <div class="login-header-figma" style="margin-top: 10px;">
+            <h2 style="color: var(--green-900); font-size: 1.6rem; font-weight: 700;">Đăng nhập</h2>
+            <p style="font-size: 0.95rem; color: #4B5563;">Hệ thống quản lý gia phả họ Nguyễn</p>
+        </div>
 
+        <div id="loginAlertContainer"></div>
+
+        <form id="loginForm">
+            <div class="form-group-figma">
+                <label for="email" style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Email</label>
+                <div class="input-icon-wrap-figma">
+                    <i class="far fa-envelope"></i>
+                    <input type="email" id="email" required placeholder="Nhập email của bạn">
+                </div>
+            </div>
+
+            <div class="form-group-figma">
+                <div class="label-flex" style="display: flex; justify-content: space-between;">
+                    <label for="password" style="font-weight: 600;">Mật khẩu</label>
+                    <a href="#" class="forgot-pw" id="openForgotModal">Quên mật khẩu?</a>
+                </div>
+                <div class="input-icon-wrap-figma">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" required placeholder="••••••••">
+                    <i class="far fa-eye-slash toggle-pw" onclick="togglePw('password', this)"></i>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login-submit" id="btnLoginSubmit">Đăng nhập</button>
+        </form>
+        <div class="login-contact-admin">
+            Chưa có tài khoản? Liên hệ <a href="#"><strong>Ban Quản Trị</strong></a> để được cấp quyền
+        </div>
+    </div>
+</div>
+
+<div id="forgotPwModal" class="modal-overlay">
+    <div class="modal-card">
+        <span class="modal-close-btn" onclick="closeModal('forgotPwModal')">&times;</span>
+        <h3>Khôi phục mật khẩu</h3>
+        <div id="forgotAlertContainer"></div>
+
+        <form id="step1Form">
+            <p>Nhập email tài khoản. Chúng tôi sẽ gửi mã OTP gồm 6 chữ số.</p>
+            <div class="form-group-figma">
+                <div class="input-icon-wrap-figma">
+                    <i class="far fa-envelope"></i>
+                    <input type="email" id="forgotEmail" required placeholder="Nhập email của bạn...">
+                </div>
+            </div>
+            <button type="submit" class="btn-login-submit" id="btnSendOtp">Gửi mã xác thực</button>
+        </form>
+
+        <form id="step2Form" style="display: none;">
+            <p style="color: #16A34A; font-weight: 500;">Mã OTP đã được gửi đến email!</p>
+            <div class="form-group-figma">
+                <div class="input-icon-wrap-figma">
+                    <i class="fas fa-keyboard"></i>
+                    <input type="text" id="otpCode" required placeholder="Nhập mã OTP 6 số" maxlength="6">
+                </div>
+            </div>
+            <button type="submit" class="btn-login-submit" id="btnVerifyOtp">Xác nhận mã OTP</button>
+        </form>
+
+        <form id="step3Form" style="display: none;">
+            <p>Mã chính xác. Vui lòng đặt mật khẩu mới.</p>
+
+            <div class="form-group-figma">
+                <div class="input-icon-wrap-figma" id="forgotPasswordWrap">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="newForgotPass" required placeholder="Nhập mật khẩu mới">
+                    <i class="far fa-eye-slash toggle-pw" onclick="togglePw('newForgotPass', this)"></i>
+                </div>
+                <span id="forgotPasswordError" style="font-size: 0.75rem; color: #6B7280; display: block; margin-top: 5px;">
+                    Ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số & ký tự đặc biệt.
+                </span>
+            </div>
+
+            <div class="form-group-figma" style="margin-bottom: 1.5rem;">
+                <div class="input-icon-wrap-figma" id="forgotConfirmWrap">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="confirmForgotPass" required placeholder="Nhập lại mật khẩu">
+                    <i class="far fa-eye-slash toggle-pw" onclick="togglePw('confirmForgotPass', this)"></i>
+                </div>
+                <span id="forgotMatchMessage" class="validation-msg"></span>
+            </div>
+
+            <button type="submit" class="btn-login-submit" id="btnResetPass" disabled>Đổi mật khẩu</button>
+        </form>
+    </div>
+</div>
+
+<div id="activeModal" class="modal-overlay">
+    <div class="modal-card">
+        <div style="text-align: center; margin-bottom: 1rem;">
+            <div style="width: 60px; height: 60px; background-color: #F0FDF4; color: #15803D; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem;">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+        </div>
+        <h3 style="margin-bottom: 0.5rem;">Thiết lập mật khẩu</h3>
+        <p style="margin-bottom: 1.5rem;">Đây là lần đăng nhập đầu tiên.<br>Vui lòng đổi mật khẩu để bảo mật.</p>
+
+        <div id="activeAlertContainer"></div>
+
+        <form id="activeForm">
+            <div class="form-group-figma">
+                <div class="input-icon-wrap-figma" id="activePasswordWrap">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="activePassword" required placeholder="Mật khẩu mới">
+                    <i class="far fa-eye-slash toggle-pw" onclick="togglePw('activePassword', this)"></i>
+                </div>
+                <span id="activePasswordError" style="font-size: 0.75rem; color: #6B7280; display: block; margin-top: 5px;">
+        Ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số & ký tự đặc biệt.
+    </span>
+            </div>
+            <div class="form-group-figma" style="margin-bottom: 1.5rem;">
+                <div class="input-icon-wrap-figma" id="activeConfirmWrap">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="activeConfirmPassword" required placeholder="Nhập lại mật khẩu">
+                    <i class="far fa-eye-slash toggle-pw" onclick="togglePw('activeConfirmPassword', this)"></i>
+                </div>
+                <span id="activeMatchMessage" class="validation-msg"></span>
+            </div>
+            <button type="submit" class="btn-login-submit" id="btnActiveSubmit" disabled>Vào Gia Phả</button>
+        </form>
+    </div>
+</div>
+<script th:inline="javascript">
+    // --- 1. HÀM TIỆN ÍCH CHUNG ---
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    function togglePw(id, el) {
+        const input = document.getElementById(id);
+        if (input.type === "password") {
+            input.type = "text"; el.classList.replace('fa-eye-slash', 'fa-eye');
+        } else {
+            input.type = "password"; el.classList.replace('fa-eye', 'fa-eye-slash');
+        }
+    }
+
+    function showPopup(message, type = 'error', containerId) {
+        const container = document.getElementById(containerId);
+        const iconClass = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+        container.innerHTML = `<div class="alert-popup ${type}"><i class="${iconClass}"></i><span>${message}</span></div>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // ==================================================
+        // A. GỌI API LẤY DỮ LIỆU CÔNG KHAI (GUEST)
+        // ==================================================
+        // Chọn dòng họ mặc định hiển thị ra trang chủ khi chưa đăng nhập
+        const defaultPublicFamilyId = 'fam-nguyen-001';
+
+        // Không truyền Token vì là Guest
+        fetch(`/api/families/${defaultPublicFamilyId}/home`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Lỗi tải dữ liệu trang chủ");
+            return response.json();
+        })
+        .then(data => {
+            if (data.familyName) {
+                document.getElementById('heroFamilyName').innerText = 'Gia Phả ' + data.familyName;
+                document.getElementById('aboutFamilyTitle').innerText = 'Về ' + data.familyName;
+                document.title = 'Trang Chủ - ' + data.familyName;
+            }
+            if (data.description) {
+                document.getElementById('aboutFamilyDesc').innerText = data.description;
+            }
+            document.getElementById('statTotalMembers').innerText = data.totalMembers || 0;
+            document.getElementById('statGenerations').innerText = data.totalGenerations || 0;
+            document.getElementById('statMaleCount').innerText = data.maleCount || 0;
+            document.getElementById('statFemaleCount').innerText = data.femaleCount || 0;
+
+            renderEvents(data.upcomingEvents);
+            renderNews(data.latestNews);
+        })
+        .catch(error => {
+            console.error("Lỗi API trang Guest:", error);
+            // Nếu lỗi 403 (Cấm truy cập), hãy cấu hình lại SecurityConfig bên Java
+        });
+
+        function renderEvents(events) {
+            const container = document.getElementById('eventsContainer');
+            if (!events || events.length === 0) {
+                container.innerHTML = '<p style="grid-column: span 4; text-align: center; color: #6B7280;">Hiện không có sự kiện nào sắp tới.</p>';
+                return;
+            }
+            container.innerHTML = events.map(event => {
+                const dateObj = event.startAt ? new Date(event.startAt) : new Date();
+                const monthStr = 'Tháng ' + (dateObj.getMonth() + 1);
+                const dayStr = dateObj.getDate();
+                const timeStr = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                const diffTime = dateObj - new Date();
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                let daysLeftStr = diffDays > 0 ? `${diffDays} ngày nữa` : (diffDays === 0 ? 'Hôm nay' : 'Đã qua');
+
+                return `
+                <div class="event-card">
+                    <div class="event-date"><span>${monthStr}</span><strong>${dayStr}</strong></div>
+                    <div class="event-info">
+                        <span class="badge badge-warning">${event.categoryName || 'Sự kiện'} - ${daysLeftStr}</span>
+                        <h4>${event.title}</h4>
+                        <p><i class="fas fa-map-marker-alt"></i> ${event.location || 'Tại nhà thờ họ'}</p>
+                        <p><i class="far fa-clock"></i> ${timeStr}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderNews(newsList) {
+            const container = document.getElementById('newsContainer');
+            if (!newsList || newsList.length === 0) {
+                container.innerHTML = '<p style="grid-column: span 4; text-align: center; color: #6B7280;">Chưa có tin tức nào.</p>';
+                return;
+            }
+            container.innerHTML = newsList.map(news => {
+                const dateObj = news.createdAt ? new Date(news.createdAt) : new Date();
+                const diffDays = Math.floor((new Date() - dateObj) / (1000 * 60 * 60 * 24));
+                const timeAgo = diffDays === 0 ? 'Hôm nay' : `${diffDays} ngày trước`;
+
+                return `
+                <div class="news-card">
+                    <span class="badge badge-success">${news.categoryName || 'Tin tức'}</span>
+                    <span class="news-time">${timeAgo}</span>
+                    <h4>${news.title}</h4>
+                    <p>${news.summary || 'Nhấn đọc thêm để xem chi tiết nội dung...'}</p>
+                    <a href="/news/${news.id || ''}" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+                </div>`;
+            }).join('');
+        }
+
+
+        // ==================================================
+        // B. XỬ LÝ MỞ/ĐÓNG MODAL TỪ NÚT BẤM & LOGIC LOGIN
+        // ==================================================
+        document.querySelectorAll('.btn-open-login').forEach(btn => {
+            btn.addEventListener('click', e => {
+                e.preventDefault();
+                localStorage.clear();
+
+                document.getElementById('loginAlertContainer').innerHTML = '';
+                openModal('loginModal');
+            });
+        });
+
+        document.getElementById('openForgotModal').addEventListener('click', e => {
+            e.preventDefault();
+            closeModal('loginModal');
+            openModal('forgotPwModal');
+            document.getElementById('step1Form').style.display = 'block';
+            document.getElementById('step2Form').style.display = 'none';
+            document.getElementById('step3Form').style.display = 'none';
+            document.getElementById('forgotAlertContainer').innerHTML = '';
+        });
+
+        window.addEventListener('click', e => {
+            if (e.target.classList.contains('modal-overlay')) {
+                e.target.classList.remove('open');
+            }
+        });
+
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const btnSubmit = document.getElementById('btnLoginSubmit');
+            btnSubmit.innerText = "Đang xác thực..."; btnSubmit.disabled = true;
+
+            fetch('/api/auth/login', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: document.getElementById('email').value,
+                    password: document.getElementById('password').value
+                })
+            })
+            .then(res => res.ok ? res.json() : Promise.reject("Email hoặc mật khẩu sai!"))
+            .then(data => {
+                localStorage.setItem('token', data.accessToken);
+                localStorage.setItem('user_id', data.userId);
+                localStorage.setItem('full_name', data.fullName);
+                localStorage.setItem('family_id', data.familyId);
+
+                if (Number(data.status) === 1) {
+                    closeModal('loginModal');
+                    openModal('activeModal');
+                    btnSubmit.innerText = "Đăng nhập";
+                    btnSubmit.disabled = false;
+                    document.getElementById('loginForm').reset();
+                } else {
+                    window.location.href = '/home';
+                }
+            })
+            .catch(err => {
+                showPopup(err, 'error', 'loginAlertContainer');
+                btnSubmit.innerText = "Đăng nhập"; btnSubmit.disabled = false;
+            });
+        });
+
+        const actPass = document.getElementById('activePassword');
+        const actConf = document.getElementById('activeConfirmPassword');
+        const actPassWrap = document.getElementById('activePasswordWrap');
+        const actPassError = document.getElementById('activePasswordError');
+        const actWrap = document.getElementById('activeConfirmWrap');
+        const actMsg = document.getElementById('activeMatchMessage');
+        const btnActSubmit = document.getElementById('btnActiveSubmit');
+
+        let isFormatValid = false;
+        let isMatchValid = false;
+
+        function checkActivePasswordFormat() {
+            const pwd = actPass.value;
+            if (pwd.length === 0) {
+                actPassWrap.classList.remove('error', 'success');
+                actPassError.textContent = 'Ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số & ký tự đặc biệt.';
+                actPassError.className = ''; actPassError.style.color = '#6B7280';
+                isFormatValid = false;
+            } else if (!passwordRegex.test(pwd)) {
+                actPassWrap.classList.replace('success', 'error') || actPassWrap.classList.add('error');
+                actPassError.textContent = 'Mật khẩu yếu: Thiếu chữ hoa, thường, số hoặc ký tự đặc biệt!';
+                actPassError.className = 'validation-msg error'; actPassError.style.color = '';
+                isFormatValid = false;
+            } else {
+                actPassWrap.classList.replace('error', 'success') || actPassWrap.classList.add('success');
+                actPassError.textContent = ''; actPassError.className = 'validation-msg success'; actPassError.style.color = '';
+                isFormatValid = true;
+            }
+            updateActiveSubmitBtn();
+        }
+
+        function checkActiveMatch() {
+            if (actConf.value.length === 0) {
+                actWrap.classList.remove('error', 'success'); actMsg.textContent = ''; isMatchValid = false;
+            } else if (actPass.value !== actConf.value) {
+                actWrap.classList.replace('success', 'error') || actWrap.classList.add('error');
+                actMsg.textContent = 'Mật khẩu chưa khớp!'; actMsg.className = 'validation-msg error'; isMatchValid = false;
+            } else {
+                actWrap.classList.replace('error', 'success') || actWrap.classList.add('success');
+                actMsg.textContent = ''; isMatchValid = true;
+            }
+            updateActiveSubmitBtn();
+        }
+
+        function updateActiveSubmitBtn() {
+            if (isFormatValid && isMatchValid) btnActSubmit.disabled = false;
+            else btnActSubmit.disabled = true;
+        }
+
+        actPass.addEventListener('input', () => { checkActivePasswordFormat(); checkActiveMatch(); });
+        actConf.addEventListener('input', checkActiveMatch);
+
+        document.getElementById('activeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!passwordRegex.test(actPass.value)) {
+                showPopup("Mật khẩu yếu! Cần đủ 8 ký tự, chữ Hoa, Thường, Số và Ký tự đặc biệt.", 'error', 'activeAlertContainer'); return;
+            }
+
+            btnActSubmit.innerText = "Đang xử lý..."; btnActSubmit.disabled = true;
+
+            fetch('/api/auth/active', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+                body: JSON.stringify({ userId: localStorage.getItem('user_id'), password: actPass.value })
+            })
+            .then(res => res.ok ? res.json() : Promise.reject("Lỗi cập nhật dữ liệu!"))
+            .then(data => {
+                if(data.accessToken) localStorage.setItem('token', data.accessToken);
+                showPopup("Thành công! Đang vào Gia Phả...", 'success', 'activeAlertContainer');
+                setTimeout(() => window.location.href = '/home', 1500);
+            })
+            .catch(err => {
+                showPopup(err, 'error', 'activeAlertContainer');
+                btnActSubmit.innerText = "Vào Gia Phả"; btnActSubmit.disabled = false;
+            });
+        });
+
+        let emailReset = "", otpReset = "";
+        document.getElementById('step1Form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            emailReset = document.getElementById('forgotEmail').value;
+            const btn = document.getElementById('btnSendOtp');
+            btn.innerText = "Đang gửi..."; btn.disabled = true;
+
+            fetch('/api/auth/forgot-password/send-otp', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: emailReset })
+            })
+            .then(res => {
+                if(res.ok) {
+                    this.style.display = 'none'; document.getElementById('step2Form').style.display = 'block';
+                    document.getElementById('forgotAlertContainer').innerHTML = '';
+                } else throw "Email không tồn tại!";
+            })
+            .catch(err => showPopup(err, 'error', 'forgotAlertContainer'))
+            .finally(() => { btn.innerText = "Gửi mã xác thực"; btn.disabled = false; });
+        });
+
+        document.getElementById('step2Form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            otpReset = document.getElementById('otpCode').value;
+            const btn = document.getElementById('btnVerifyOtp');
+            btn.innerText = "Đang kiểm tra..."; btn.disabled = true;
+
+            fetch('/api/auth/forgot-password/verify-otp', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: emailReset, otp: otpReset })
+            })
+            .then(res => {
+                if(res.ok) {
+                    this.style.display = 'none'; document.getElementById('step3Form').style.display = 'block';
+                    document.getElementById('forgotAlertContainer').innerHTML = '';
+                } else throw "Mã OTP sai hoặc hết hạn!";
+            })
+            .catch(err => showPopup(err, 'error', 'forgotAlertContainer'))
+            .finally(() => { btn.innerText = "Xác nhận mã OTP"; btn.disabled = false; });
+        });
+
+        const fgPass = document.getElementById('newForgotPass');
+        const fgConf = document.getElementById('confirmForgotPass');
+        const fgPassWrap = document.getElementById('forgotPasswordWrap');
+        const fgPassError = document.getElementById('forgotPasswordError');
+        const fgWrap = document.getElementById('forgotConfirmWrap');
+        const fgMsg = document.getElementById('forgotMatchMessage');
+        const btnReset = document.getElementById('btnResetPass');
+
+        let isFgFormatValid = false;
+        let isFgMatchValid = false;
+
+        function checkForgotFormat() {
+            const pwd = fgPass.value;
+            if (pwd.length === 0) {
+                fgPassWrap.classList.remove('error', 'success');
+                fgPassError.textContent = 'Ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số & ký tự đặc biệt.';
+                fgPassError.className = ''; fgPassError.style.color = '#6B7280'; isFgFormatValid = false;
+            } else if (!passwordRegex.test(pwd)) {
+                fgPassWrap.classList.replace('success', 'error') || fgPassWrap.classList.add('error');
+                fgPassError.textContent = 'Mật khẩu yếu: Thiếu chữ hoa, thường, số hoặc ký tự đặc biệt!';
+                fgPassError.className = 'validation-msg error'; fgPassError.style.color = ''; isFgFormatValid = false;
+            } else {
+                fgPassWrap.classList.replace('error', 'success') || fgPassWrap.classList.add('success');
+                fgPassError.textContent = 'Mật khẩu hợp lệ!'; fgPassError.className = 'validation-msg success';
+                fgPassError.style.color = ''; isFgFormatValid = true;
+            }
+            updateForgotSubmitBtn();
+        }
+
+        function checkForgotMatch() {
+            if (fgConf.value.length === 0) {
+                fgWrap.classList.remove('error', 'success'); fgMsg.textContent = ''; isFgMatchValid = false;
+            } else if (fgPass.value !== fgConf.value) {
+                fgWrap.classList.replace('success', 'error') || fgWrap.classList.add('error');
+                fgMsg.textContent = 'Mật khẩu chưa khớp!'; fgMsg.className = 'validation-msg error'; isFgMatchValid = false;
+            } else {
+                fgWrap.classList.replace('error', 'success') || fgWrap.classList.add('success');
+                fgMsg.textContent = ''; isFgMatchValid = true;
+            }
+            updateForgotSubmitBtn();
+        }
+
+        function updateForgotSubmitBtn() {
+            if (isFgFormatValid && isFgMatchValid) btnReset.disabled = false;
+            else btnReset.disabled = true;
+        }
+
+        fgPass.addEventListener('input', () => { checkForgotFormat(); checkForgotMatch(); });
+        fgConf.addEventListener('input', checkForgotMatch);
+
+        document.getElementById('step3Form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if(!passwordRegex.test(fgPass.value)) {
+                showPopup("Mật khẩu yếu!", 'error', 'forgotAlertContainer'); return;
+            }
+            btnReset.innerText = "Đang xử lý..."; btnReset.disabled = true;
+
+            fetch('/api/auth/forgot-password/reset', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: emailReset, otp: otpReset, newPassword: fgPass.value })
+            })
+            .then(res => res.ok ? res.json() : Promise.reject("Lỗi đổi mật khẩu!"))
+            .then(data => {
+                localStorage.setItem('token', data.accessToken);
+                localStorage.setItem('full_name', data.fullName);
+                localStorage.setItem('user_id', data.userId);
+                localStorage.setItem('family_id', data.familyId);
+                showPopup("Đổi mật khẩu thành công!", 'success', 'forgotAlertContainer');
+                setTimeout(() => window.location.href = '/home', 1500);
+            })
+            .catch(err => {
+                showPopup(err, 'error', 'forgotAlertContainer');
+                btnReset.innerText = "Đổi mật khẩu"; btnReset.disabled = false;
+            });
+        });
+    });
+</script>
 </body>
 </html>
