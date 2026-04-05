@@ -33,7 +33,7 @@
       </div>
 
       <div class="dropdown-menu">
-        <a href="/profile" class="dropdown-item">Hồ sơ cá nhân</a>
+        <a href="/profile" class="dropdown-item" id="profileLink">Hồ sơ cá nhân</a>
         <a href="/admin" class="dropdown-item">Trang quản trị</a>
         <a href="#" class="dropdown-item logout-btn" id="navLogoutBtn">Đăng xuất</a>
       </div>
@@ -58,6 +58,8 @@
             const navFullName = document.getElementById('navFullName');
             const navAvatarInitials = document.getElementById('navAvatarInitials');
             const navLogoutBtn = document.getElementById('navLogoutBtn');
+            const profileLink = document.getElementById('profileLink');
+            const navProfileLink = document.getElementById('navProfileLink');
 
             // NẾU ĐÃ ĐĂNG NHẬP (Có Token)
             if (token && fullName) {
@@ -86,6 +88,10 @@
                     initials = fullName.charAt(0);
                 }
                 navAvatarInitials.innerText = initials.toUpperCase();
+                if (profileLink) {
+                    const userId = localStorage.getItem('user_id');
+                    profileLink.href = (token && userId) ? `/member/${userId}` : '/profile';
+                }
             }
 
             // XỬ LÝ NÚT ĐĂNG XUẤT
