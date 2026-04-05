@@ -1,8 +1,7 @@
 <header class="pub-nav-figma" th:fragment="navbar" xmlns:th="http://www.thymeleaf.org">
   <link rel="stylesheet" th:href="@{/css/navbar.css}">
   <a href="/" class="nav-logo-figma" id="navLogo">
-    <img th:src="@{/images/logo-2.png}" alt="Logo" class="logo-img">
-    Gia Phả
+    <img th:src="@{/images/logo-2.svg}" alt="Logo" class="logo-img">
   </a>
 
   <nav class="nav-links-figma">
@@ -22,7 +21,10 @@
 
   <div class="nav-right-actions">
     <a href="#" class="btn btn-outline btn-open-login" id="navLoginBtn">
-      <i class="fas fa-sign-in-alt"></i> Đăng nhập
+      <img th:src="@{/images/profile-circle.svg}" alt="Login" class="login-icon-mobile">
+
+      <i class="fas fa-sign-in-alt login-icon-desktop"></i>
+      <span class="login-text">Đăng nhập</span>
     </a>
 
     <div class="dropdown" id="navUserDropdown" style="display: none;">
@@ -58,6 +60,35 @@
             const navFullName = document.getElementById('navFullName');
             const navAvatarInitials = document.getElementById('navAvatarInitials');
             const navLogoutBtn = document.getElementById('navLogoutBtn');
+            if (navLoginBtn) {
+                navLoginBtn.addEventListener('click', function(e) {
+                    const loginModal = document.getElementById('loginModal');
+                    // Nếu trang hiện tại KHÔNG có modal đăng nhập (tức là đang ở trang Tin tức, Giới thiệu...)
+                    if (!loginModal) {
+                        e.preventDefault();
+                        // Chuyển hướng về trang chủ và gắn cờ ?login=true
+                        window.location.href = '/?login=true';
+                    }
+                });
+            }
+
+            const toggleBtn = document.querySelector('.nav-toggle-btn');
+            const navLinks = document.querySelector('.nav-links-figma');
+
+            if (toggleBtn && navLinks) {
+                toggleBtn.addEventListener('click', function() {
+                    navLinks.classList.toggle('active');
+                    // Đổi icon 3 gạch thành dấu X khi mở
+                    const icon = this.querySelector('i');
+                    if(navLinks.classList.contains('active')){
+                        icon.classList.remove('fa-bars');
+                        icon.classList.add('fa-times');
+                    } else {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                });
+            }
 
             // NẾU ĐÃ ĐĂNG NHẬP (Có Token)
             if (token && fullName) {

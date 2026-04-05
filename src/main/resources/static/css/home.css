@@ -30,32 +30,43 @@
 }
 
 /* Nút "Tìm hiểu lịch sử dòng họ" có viền, mũi tên */
+/* =========================================
+   STYLE CHO NÚT "TÌM HIỂU LỊCH SỬ DÒNG HỌ"
+   ========================================= */
 .btn-about-outline {
     display: inline-flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 12px 20px;
-    background-color: #FFFFFF;
-    border: 1px solid #E5E7EB;
+    justify-content: center; /* Đổi thành center để chữ và icon gần nhau hơn */
+    gap: 12px;
+    padding: 12px 28px; /* Nút dài ra một chút cho cân đối */
+    background-color: transparent;
+    border: 2px solid #2D6A4F; /* Tạo khung viền màu xanh lá đậm rõ nét */
     border-radius: 8px;
     font-weight: 600;
-    color: #111;
+    color: #2D6A4F; /* Đổi màu chữ đồng bộ với viền */
     font-size: 0.95rem;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     text-decoration: none;
-    margin-top: 10px;
+    margin-top: 25px; /* Tăng khoảng cách đẩy nút cách xa đoạn văn bản phía trên */
 }
 
+/* Hiệu ứng khi di chuột vào nút */
 .btn-about-outline:hover {
-    background-color: #F9FAFB;
-    border-color: #D1D5DB;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    background-color: #2D6A4F; /* Đổ nền xanh */
+    color: #FFFFFF; /* Chữ biến thành màu trắng */
+    border-color: #2D6A4F;
+    transform: translateY(-3px); /* Nhấc nút nảy lên nhẹ */
+    box-shadow: 0 8px 20px rgba(45, 106, 79, 0.2); /* Đổ bóng */
 }
 
 .btn-about-outline i {
     font-size: 1rem;
-    color: #111;
+    transition: transform 0.3s ease;
+}
+
+/* Mũi tên dịch chuyển nhẹ sang phải khi hover */
+.btn-about-outline:hover i {
+    transform: translateX(5px);
 }
 
 /* Cột Phải: Khung Tra Cứu Nhanh */
@@ -130,10 +141,133 @@
     background-color: #245A36;
 }
 
-/* --- Responsive --- */
+/* =========================================
+   RESPONSIVE CHO TRANG HOME & HOME GUEST
+   ========================================= */
+
+@media (max-width: 1200px) {
+    .guest-hero h1 {
+        font-size: 4rem; /* Nhỏ lại chút trên màn hình laptop nhỏ */
+    }
+}
+
 @media (max-width: 992px) {
+    /* Thu nhỏ chữ ở Hero Banner */
+    .guest-hero {
+        padding: 80px 20px;
+        min-height: 400px;
+    }
+    .guest-hero h1 {
+        font-size: 3rem;
+        white-space: normal; /* Cho phép rớt dòng thay vì kéo dài */
+    }
+    .hero-quote {
+        font-size: 1.5rem;
+    }
+
+    /* Thu nhỏ thẻ thống kê */
+    .guest-stats {
+        gap: 15px;
+    }
+    .stat-card {
+        padding: 20px 15px;
+    }
+    .stat-card i {
+        font-size: 1.8rem;
+    }
+    .stat-card h3 {
+        font-size: 1.8rem;
+    }
+
+    /* Các khối đệm (padding) ngắn lại */
+    .home-about-section,
+    .guest-about,
+    .guest-events,
+    .guest-news,
+    .guest-cta {
+        padding: 50px 0px;
+    }
+    .guest-events {
+            padding: 50px 20px;
+        }
+}
+
+@media (max-width: 768px) {
+    /* Mobile - Điện thoại */
+    .guest-hero h1 {
+        font-size: 2.2rem;
+        margin-bottom: 20px;
+    }
+    .hero-quote {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+    }
+    .hero-desc {
+        font-size: 0.95rem;
+    }
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    .guest-hero .btn-outline {
+        width: auto;
+        display: inline-flex;
+        padding: 10px 25px;
+    }
+
+
+    .grid-4 {
+        grid-template-columns: 1fr;
+    }
+
+    /* Khối thống kê biến thành lưới 2x2 */
+    .guest-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 40px;
+        }
+
+    /* Phần About dàn 1 cột */
     .about-search-wrapper {
         grid-template-columns: 1fr;
-        gap: 40px;
+        gap: 30px;
+    }
+
+    /* Về Dòng Họ (Guest) chữ nhỏ lại */
+    .about-content h2 {
+        font-size: 2rem;
+    }
+
+    .guest-cta h2 {
+        font-size: 1.8rem;
+    }
+
+}
+
+@media (max-width: 480px) {
+    .guest-stats {
+        /* Ép giữ nguyên 2 cột trên điện thoại nhỏ */
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px; /* Thu hẹp khoảng cách giữa các ô một chút cho đỡ chật */
+    }
+
+    /* Thu nhỏ padding và chữ bên trong để 4 ô nhét vừa màn hình điện thoại */
+    .stat-card {
+        padding: 15px 10px;
+    }
+
+    .stat-card i {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+    }
+
+    .stat-card h3 {
+        font-size: 1.4rem;
+    }
+
+    .stat-card p {
+        font-size: 0.85rem;
     }
 }

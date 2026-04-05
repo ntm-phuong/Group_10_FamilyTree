@@ -243,6 +243,21 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        // ==================================================
+        // TỰ ĐỘNG MỞ MODAL NẾU ĐI TỪ TRANG KHÁC VỀ
+        // ==================================================
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('login') === 'true') {
+            // Xóa localStorage dự phòng
+            localStorage.clear();
+            document.getElementById('loginAlertContainer').innerHTML = '';
+
+            // Bật khung đăng nhập
+            openModal('loginModal');
+
+            // Xóa chữ ?login=true trên thanh địa chỉ URL cho đẹp mắt
+            window.history.replaceState(null, '', window.location.pathname);
+        }
 
         // ==================================================
         // A. GỌI API LẤY DỮ LIỆU CÔNG KHAI (GUEST)
