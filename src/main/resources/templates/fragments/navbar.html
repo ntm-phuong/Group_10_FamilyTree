@@ -6,18 +6,12 @@
 
   <nav class="nav-links-figma">
     <a href="/" id="navHome"><i class="fas fa-home"></i> Trang Chủ</a>
-
     <a th:href="@{/about}" id="navAbout"><i class="fas fa-info-circle"></i> Giới thiệu</a>
-
     <a href="/family-tree" id="navFamilyTree" style="display: none;"><i class="fas fa-sitemap"></i> Gia Phả</a>
 
     <a href="/family-head" id="navFamilyHead" style="display: none;"><i class="fas fa-tachometer-alt"></i> Quản trị họ</a>
 
-    <a th:href="@{/family-head}"
-       id="navAdmin"
-       style="display: none;"
-       th:classappend="${activeMenu == 'dashboard' ? 'active' : ''}"
-       class="sidebar-link"><i class="fas fa-th-large"></i> Quản Trị</a>
+    <a th:href="@{/family-head}" id="navAdmin" style="display: none;" th:classappend="${activeMenu == 'dashboard' ? 'active' : ''}" class="sidebar-link"><i class="fas fa-th-large"></i> Quản Trị</a>
 
     <a href="/news" id="navNews"><i class="far fa-newspaper"></i> Tin Tức</a>
   </nav>
@@ -25,7 +19,6 @@
   <div class="nav-right-actions">
     <a href="#" class="btn btn-outline btn-open-login" id="navLoginBtn">
       <img th:src="@{/images/profile-circle.svg}" alt="Login" class="login-icon-mobile">
-
       <i class="fas fa-sign-in-alt login-icon-desktop"></i>
       <span class="login-text">Đăng nhập</span>
     </a>
@@ -106,7 +99,7 @@
                 if (navFamilyTree) navFamilyTree.style.display = 'flex';
 
                 // ==========================================
-                // PHÂN QUYỀN KIỂU 1 (Từ nhánh responsive)
+                // PHÂN QUYỀN KIỂU 1 (Từ nhánh responsive của bạn)
                 // ==========================================
                 if (roleId && roleId.toLowerCase() === 'role-head') {
                     if (navAdmin) navAdmin.style.display = 'flex';
@@ -146,9 +139,7 @@
                 }
                 if (navAvatarInitials) navAvatarInitials.innerText = initials.toUpperCase();
 
-                if (navNews) {
-                    navNews.href = '/news';
-                }
+                if (navNews) navNews.href = '/news';
                 if (profileLink) {
                     profileLink.href = (token && userId) ? `/member/${userId}` : '/profile';
                 }
@@ -159,6 +150,7 @@
                 navLogoutBtn.addEventListener('click', function(e) {
                     e.preventDefault();
                     document.cookie = 'accessToken=; path=/; max-age=0';
+                    // Xóa sạch bộ nhớ
                     localStorage.clear();
                     window.location.href = '/';
                 });
