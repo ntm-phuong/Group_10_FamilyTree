@@ -56,6 +56,24 @@
             const navAdminMenu = document.getElementById('navAdminMenu');
             const navAdmin = document.getElementById('navAdmin');
             const navLoginBtn = document.getElementById('navLoginBtn');
+            if (navLoginBtn) {
+              navLoginBtn.addEventListener('click', function(e) {
+                  // Kiểm tra xem trang hiện tại có cái Modal id="loginModal" không
+                  const loginModal = document.getElementById('loginModal');
+
+                  if (loginModal) {
+                      // TRƯỜNG HỢP 1: Đang ở Home (có modal) -> Chỉ việc mở nó lên
+                      e.preventDefault();
+                      // Tùy vào CSS/JS modal của bạn, thường là thêm class 'open' hoặc 'active'
+                      loginModal.classList.add('open');
+                  } else {
+                      // TRƯỜNG HỢP 2: Đang ở About, News (không có modal)
+                      // -> Chuyển hướng về trang chủ kèm dấu hiệu ?login=true
+                      e.preventDefault();
+                      window.location.href = '/?login=true';
+                  }
+              });
+              }
             const navUserDropdown = document.getElementById('navUserDropdown');
             const navFullName = document.getElementById('navFullName');
             const navAvatarInitials = document.getElementById('navAvatarInitials');

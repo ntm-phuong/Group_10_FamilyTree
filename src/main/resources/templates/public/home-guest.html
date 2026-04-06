@@ -249,6 +249,14 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('login') === 'true') {
+        // Tự động mở modal khi thấy ?login=true
+        openModal('loginModal');
+
+        // Xóa tham số trên URL cho sạch (không bắt buộc)
+        window.history.replaceState(null, '', window.location.pathname);
+    }
 
         if (sessionStorage.getItem('needsPasswordSetup') === '1' && localStorage.getItem('token')) {
             sessionStorage.removeItem('needsPasswordSetup');
