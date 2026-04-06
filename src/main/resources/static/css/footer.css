@@ -25,3 +25,7 @@
 @media (max-width: 768px) {
     .footer-grid-figma { grid-template-columns: 1fr; gap: 2rem; }
 }
+.footer-logo-img {
+    margin-left: -35px; /* Giảm khoảng cách bên phải của icon */
+    height: 40px; /* Hoặc kích thước hiện tại của bạn */
+}
