@@ -211,16 +211,16 @@ public class SiteNewsService {
                 .toList();
     }
 
-    /** Query: {@code public} | {@code internal} — không phân biệt hoa thường. */
+    /** Query: {@code PUBLIC_SITE} | {@code FAMILY_ONLY}; vẫn nhận alias cũ để tương thích ngược. */
     public static NewsVisibility parseVisibilityFilter(String raw) {
         if (raw == null || raw.isBlank()) {
             return null;
         }
         String v = raw.trim().toLowerCase(Locale.ROOT);
-        if ("public".equals(v)) {
+        if ("public".equals(v) || "public_site".equals(v)) {
             return NewsVisibility.PUBLIC_SITE;
         }
-        if ("internal".equals(v)) {
+        if ("internal".equals(v) || "family_only".equals(v)) {
             return NewsVisibility.FAMILY_ONLY;
         }
         return null;

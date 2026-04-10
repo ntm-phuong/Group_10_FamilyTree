@@ -1,105 +1,177 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title th:text="${article.title} + ' – Tin tức'">Chi tiết tin tức</title>
-  <link rel="stylesheet" th:href="@{/css/style.css}"/>
-  <link rel="stylesheet" th:href="@{/css/news.css}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title th:text="${article.title} + ' – Tin tức'">Chi tiết tin</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet"/>
+
+  <style>
+    body { font-family: 'Manrope', sans-serif; }
+    .font-headline { font-family: 'Noto Serif', serif; }
+  </style>
 </head>
-<body>
+
+<body class="bg-[#fafaf5] text-gray-800">
+
+<!-- NAVBAR -->
 <th:block th:replace="~{fragments/navbar :: navbar}"/>
 
-<div class="section-inner news-detail-page" style="padding:2rem 1.25rem 3rem;">
-  <div class="news-detail-header">
-    <div class="breadcrumb" style="padding-top:.5rem;">
-      <a th:href="@{/home}"><i class="fas fa-home"></i></a>
-      <span class="breadcrumb-sep">&gt;</span>
-      <a th:href="@{/news}">Tin tức</a>
-      <span class="breadcrumb-sep">&gt;</span>
-      <span class="truncate" th:text="${article.title}">Bài viết</span>
-    </div>
+<main class="max-w-7xl mx-auto px-6 py-10">
 
-    <a th:href="@{/news}" class="btn btn-ghost btn-sm mb-4" style="padding:.35rem .6rem;">
-      <i class="fas fa-arrow-left"></i> Quay lại
-    </a>
+  <!-- Breadcrumb -->
+  <div class="mb-6 text-sm text-gray-500 flex gap-2 items-center">
+    <a th:href="@{/home}">Home</a> →
+    <a th:href="@{/news}">Tin tức</a> →
+    <span class="text-gray-800" th:text="${article.title}">Title</span>
   </div>
 
-  <div class="news-detail-layout">
-    <div class="card news-detail-article">
-      <div class="card-body" style="padding:1.75rem;">
-        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;">
-          <span class="badge badge-green" th:text="${article.publicCategory != null ? article.publicCategory.label : '—'}">Danh mục</span>
-          <span th:if="${article.visibility != null and article.visibility.name() == 'FAMILY_ONLY'}" class="badge badge-gray">Nội bộ dòng họ</span>
-          <span th:if="${article.featured}" class="badge badge-orange"><i class="fas fa-star"></i> Nổi bật</span>
+  <!-- Back -->
+  <a th:href="@{/news}" class="text-sm text-green-700 hover:underline mb-8 inline-block">
+    ← Quay lại
+  </a>
+
+  <div class="grid lg:grid-cols-12 gap-10">
+
+    <!-- LEFT -->
+    <article class="lg:col-span-8 space-y-6">
+
+      <!-- CARD -->
+      <div class="bg-white rounded-xl shadow-sm overflow-hidden border">
+
+        <!-- IMAGE -->
+        <div class="w-full aspect-[21/9] overflow-hidden">
+          <img th:if="${article.coverImage != null}"
+               th:src="${article.coverImage}"
+               class="w-full h-full object-cover"/>
         </div>
 
-        <h1 style="font-size:1.5rem;font-weight:700;line-height:1.3;margin-bottom:1rem;" th:text="${article.title}">Tiêu đề</h1>
+        <!-- CONTENT -->
+        <div class="p-8 space-y-6">
 
-        <div style="display:flex;align-items:center;gap:1.5rem;padding:.75rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:1.5rem;">
-          <div style="display:flex;align-items:center;gap:.6rem;">
-            <div class="avatar avatar-sm avatar-male">
-              <span th:with="auth=${article.user != null and article.user.fullName != null ? article.user.fullName : 'B'}"
-                    th:text="${#strings.substring(auth, 0, 1)}">A</span>
+          <!-- TAGS -->
+          <div class="flex gap-2 flex-wrap">
+            <span class="px-3 py-1 bg-green-700 text-white text-xs rounded-full"
+                  th:text="${article.publicCategory != null ? article.publicCategory.label : '—'}">
+              Danh mục
+            </span>
+
+            <span th:if="${article.featured}"
+                  class="px-3 py-1 bg-yellow-500 text-white text-xs rounded-full">
+              ⭐ Nổi bật
+            </span>
+
+            <span th:if="${article.visibility != null and article.visibility.name() == 'FAMILY_ONLY'}"
+                  class="px-3 py-1 bg-gray-300 text-xs rounded-full">
+              Nội bộ
+            </span>
+          </div>
+
+          <!-- TITLE -->
+          <h1 class="font-headline text-3xl font-bold leading-tight"
+              th:text="${article.title}">
+          </h1>
+
+          <!-- META -->
+          <div class="flex items-center justify-between border-y py-4 text-sm text-gray-500">
+
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-green-200 flex items-center justify-center font-bold">
+                <span th:text="${#strings.substring(article.user.fullName,0,1)}">A</span>
+              </div>
+
+              <div>
+                <div class="font-semibold text-gray-800"
+                     th:text="${article.user != null ? article.user.fullName : 'Admin'}"></div>
+                <div th:text="${#temporals.format(article.createdAt, 'dd/MM/yyyy HH:mm')}"></div>
+              </div>
             </div>
+
             <div>
-              <div style="font-size:.83rem;font-weight:600;"
-                   th:text="${article.user != null ? article.user.fullName : 'Ban quản trị'}">Tác giả</div>
-              <div class="text-xs text-muted"
-                   th:text="${article.createdAt != null ? #temporals.format(article.createdAt, 'dd/MM/yyyy HH:mm') : '—'}">Ngày</div>
+              👁 <span th:text="${article.viewCount}">0</span>
             </div>
           </div>
-          <div style="display:flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--text-500);">
-            <i class="fas fa-eye"></i>
-            <span th:text="${article.viewCount}">0</span> lượt xem
+
+          <!-- SUMMARY -->
+          <div th:if="${article.summary != null}"
+               class="bg-green-50 border-l-4 border-green-700 p-4 italic">
+            <span th:text="${article.summary}"></span>
           </div>
-        </div>
 
-        <div th:if="${article.summary != null and !article.summary.isEmpty()}"
-             style="background:var(--green-50);border-left:3px solid var(--green-600);padding:.85rem 1rem;border-radius:0 var(--radius) var(--radius) 0;margin-bottom:1.5rem;font-style:italic;font-size:.9rem;color:var(--text-700);"
-             th:text="${article.summary}"></div>
-
-        <div class="news-article-body" th:utext="${article.content}">Nội dung</div>
-      </div>
-    </div>
-
-    <aside class="news-sidebar">
-      <div class="card mb-4">
-        <div class="card-header"><h3>Danh mục</h3></div>
-        <div class="card-body" style="padding:.75rem;">
-          <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
-            <a th:href="@{/news}" class="news-cat-tab" style="font-size:.78rem;">Tất cả</a>
-            <a th:each="c : ${categories}"
-               th:href="@{/news(category=${c.name()})}"
-               class="news-cat-tab"
-               th:classappend="${article.publicCategory == c} ? ' active' : ''"
-               style="font-size:.78rem;"
-               th:text="${c.label}">Danh mục</a>
+          <!-- CONTENT -->
+          <div class="prose max-w-none"
+               th:utext="${article.content}">
           </div>
+
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-header"><h3>Bài viết liên quan</h3></div>
-        <div class="card-body" style="padding:.75rem 1rem;">
-          <div th:if="${#lists.isEmpty(relatedArticles)}" class="text-sm text-muted">Chưa có bài liên quan.</div>
-          <div th:each="r : ${relatedArticles}"
-               style="margin-bottom:.75rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);">
-            <a th:if="${r.slug != null and !#strings.isEmpty(r.slug)}"
-               th:href="@{/news/{slug}(slug=${r.slug})}"
-               style="font-size:.83rem;font-weight:600;color:var(--text-900);line-height:1.4;display:block;"
-               th:text="${r.title}">Tiêu đề</a>
-            <span th:unless="${r.slug != null and !#strings.isEmpty(r.slug)}"
-                  style="font-size:.83rem;font-weight:600;color:var(--text-500);"
-                  th:text="${r.title}">Tiêu đề</span>
-          </div>
+    </article>
+
+    <!-- RIGHT SIDEBAR -->
+    <aside class="lg:col-span-4 space-y-6">
+
+      <!-- CATEGORY -->
+      <div class="bg-white p-6 rounded-xl border shadow-sm">
+        <h3 class="font-headline font-bold mb-4">Danh mục</h3>
+
+        <div class="flex flex-wrap gap-2">
+          <a th:href="@{/news}"
+             class="px-3 py-1 border rounded-full text-sm hover:bg-gray-100">
+            Tất cả
+          </a>
+
+          <a th:each="c : ${categories}"
+             th:href="@{/news(category=${c.name()})}"
+             class="px-3 py-1 border rounded-full text-sm"
+             th:classappend="${article.publicCategory == c} ? ' bg-green-700 text-white' : ''"
+             th:text="${c.label}">
+          </a>
         </div>
       </div>
+
+      <!-- RELATED -->
+      <div class="bg-white p-6 rounded-xl border shadow-sm">
+        <h3 class="font-headline font-bold mb-4">Bài viết liên quan</h3>
+
+        <div class="space-y-4">
+
+          <div th:each="r : ${relatedArticles}" class="flex gap-3">
+
+            <div class="w-16 h-16 overflow-hidden rounded">
+              <img th:if="${r.coverImage != null}"
+                   th:src="${r.coverImage}"
+                   class="w-full h-full object-cover"/>
+            </div>
+
+            <div>
+              <a th:href="@{/news/{slug}(slug=${r.slug})}"
+                 class="font-semibold text-sm hover:text-green-700"
+                 th:text="${r.title}">
+              </a>
+
+              <div class="text-xs text-gray-500"
+                   th:text="${#temporals.format(r.createdAt,'dd/MM/yyyy')}"></div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
     </aside>
+
   </div>
-</div>
+
+</main>
 
 <th:block th:replace="~{fragments/footer :: footer}"/>
-<script th:src="@{/js/main.js}"></script>
+
 </body>
 </html>

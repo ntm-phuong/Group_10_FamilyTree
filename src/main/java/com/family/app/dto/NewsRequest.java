@@ -11,6 +11,7 @@ public class NewsRequest {
     private String title;
     private String summary;
     private String content;
+    private String coverImage;
     private String familyId;
     private String categoryId;
     private String authorId;

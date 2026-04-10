@@ -10,11 +10,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Map;
 
 @Service
 public class ProfileService {
+    private static final int NEWS_COVER_WIDTH = 1200;
+    private static final int NEWS_COVER_HEIGHT = 750;
 
     @Autowired
     private UserRepository userRepository;
@@ -51,6 +55,31 @@ public class ProfileService {
                 ObjectUtils.asMap("resource_type", "auto"));
 
         return uploadResult.get("url").toString();
+    }
+
+    public String uploadNewsCoverToCloudinary(MultipartFile file) throws IOException {
+        validateNewsCoverImage(file);
+        Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
+                ObjectUtils.asMap(
+                        "resource_type", "image",
+                        "folder", "family-app/news",
+                        "transformation", "c_fill,g_auto,w_" + NEWS_COVER_WIDTH + ",h_" + NEWS_COVER_HEIGHT + "/q_auto/f_auto"
+                ));
+        return uploadResult.get("url").toString();
+    }
+
+    public void validateNewsCoverImage(MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Thiếu file ảnh.");
+        }
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.toLowerCase().startsWith("image/")) {
+            throw new IllegalArgumentException("File tải lên phải là ảnh.");
+        }
+        BufferedImage image = ImageIO.read(file.getInputStream());
+        if (image == null) {
+            throw new IllegalArgumentException("Không đọc được dữ liệu ảnh.");
+        }
     }
 
     @Transactional
