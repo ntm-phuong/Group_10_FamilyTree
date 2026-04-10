@@ -1,175 +1,605 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Tin tức - Gia phả</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
   <link rel="stylesheet" th:href="@{/css/style.css}"/>
-  <link rel="stylesheet" th:href="@{/css/news.css}">
+  <link rel="stylesheet" th:href="@{/css/news.css}"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    body { background: #f6f8f4; }
+    .news-shell {
+      background:
+        radial-gradient(circle at top right, rgba(22, 101, 52, 0.08), transparent 28rem),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 248, 244, 0.96));
+    }
+    .news-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      border-radius: 1rem;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .news-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 24px 48px rgba(15, 23, 42, 0.12);
+      border-color: rgba(21, 128, 61, 0.18);
+    }
+    .news-card.news-card--featured {
+      background: linear-gradient(180deg, rgba(240, 253, 244, 0.94), rgba(255, 255, 255, 0.98));
+    }
+    .news-card-cover img {
+      transition: transform .35s ease;
+    }
+    .news-card:hover .news-card-cover img {
+      transform: scale(1.04);
+    }
+    .news-card-actions {
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .news-card:hover .news-card-actions,
+    .news-card:focus-within .news-card-actions {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .np-modal {
+      width: min(100%, 920px);
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      border-radius: 1.5rem;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      background: #ffffff;
+      box-shadow: 0 30px 80px rgba(15, 23, 42, 0.18);
+      overflow: hidden;
+    }
+    .np-modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.5rem 1.5rem 1rem;
+      border-bottom: 1px solid #e2e8f0;
+      background: linear-gradient(180deg, #f8fafc, #ffffff);
+    }
+    .np-modal-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.3;
+    }
+    .np-modal-subtitle {
+      margin-top: .35rem;
+      font-size: .92rem;
+      color: #64748b;
+    }
+    .np-modal-close {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 9999px;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      color: #475569;
+      transition: background .2s ease, color .2s ease, border-color .2s ease;
+    }
+    .np-modal-close:hover {
+      background: #f8fafc;
+      color: #0f172a;
+      border-color: #cbd5e1;
+    }
+    .np-modal-body {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 1.5rem;
+    }
+    .np-section {
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      background: #ffffff;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .np-section:last-child { margin-bottom: 0; }
+    .np-section-muted {
+      background: #f8fafc;
+    }
+    .np-section-title {
+      font-size: .95rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: .2rem;
+    }
+    .np-section-desc {
+      font-size: .82rem;
+      color: #64748b;
+      margin-bottom: .9rem;
+    }
+    .np-field-grid {
+      display: grid;
+      gap: 1rem;
+    }
+    .np-field {
+      display: flex;
+      flex-direction: column;
+      gap: .45rem;
+      margin-bottom: 1rem;
+    }
+    .np-field:last-child { margin-bottom: 0; }
+    .np-field label {
+      font-size: .85rem;
+      font-weight: 600;
+      color: #334155;
+    }
+    .np-field input,
+    .np-field textarea,
+    .np-field select {
+      width: 100%;
+      border: 1px solid #dbe1ea;
+      border-radius: .9rem;
+      background: #ffffff;
+      padding: .85rem 1rem;
+      font-size: .95rem;
+      color: #0f172a;
+      transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .np-field textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    .np-field input:focus,
+    .np-field textarea:focus,
+    .np-field select:focus {
+      outline: none;
+      border-color: #16a34a;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+    }
+    .np-field-hint {
+      font-size: .78rem;
+      color: #64748b;
+      line-height: 1.5;
+    }
+    .np-image-frame {
+      overflow: hidden;
+      border-radius: 1rem;
+      border: 1px dashed #cbd5e1;
+      background: linear-gradient(180deg, #f8fafc, #f1f5f9);
+    }
+    .np-image-frame img {
+      display: block;
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+    }
+    .np-image-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: .55rem;
+      height: 260px;
+      color: #64748b;
+      text-align: center;
+      padding: 1rem;
+    }
+    .np-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .75rem;
+      margin-top: .9rem;
+      margin-bottom: 1rem;
+    }
+    .np-check {
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      border-radius: 9999px;
+      border: 1px solid #dbe1ea;
+      background: #ffffff;
+      padding: .7rem .9rem;
+      font-size: .85rem;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+    }
+    .np-check input {
+      width: 1rem;
+      height: 1rem;
+    }
+    .np-modal-footer {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: .75rem;
+      padding: 1rem 1.5rem 1.5rem;
+      border-top: 1px solid #e2e8f0;
+      background: #ffffff;
+      position: sticky;
+      bottom: 0;
+      z-index: 2;
+    }
+    .np-btn-secondary,
+    .np-btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      min-width: 132px;
+      padding: .85rem 1.1rem;
+      border-radius: .95rem;
+      font-size: .92rem;
+      font-weight: 700;
+      transition: transform .2s ease, background .2s ease, border-color .2s ease, color .2s ease;
+    }
+    .np-btn-secondary {
+      border: 1px solid #dbe1ea;
+      background: #ffffff;
+      color: #334155;
+    }
+    .np-btn-secondary:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+    .np-btn-primary {
+      border: 1px solid #166534;
+      background: #166534;
+      color: #ffffff;
+    }
+    .np-btn-primary:hover {
+      background: #14532d;
+      border-color: #14532d;
+    }
+    @media (max-width: 640px) {
+      .np-modal-header,
+      .np-modal-body,
+      .np-modal-footer {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+      .np-modal-footer {
+        flex-direction: column-reverse;
+      }
+      .np-btn-secondary,
+      .np-btn-primary {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
-<body>
+<body class="text-slate-800">
 <th:block th:replace="~{fragments/navbar :: navbar}"/>
 
-<div class="section-inner" style="padding:2rem 1.25rem 3rem;">
-<div class="news-page-wrap" th:attr="data-page-family-id=${filterFamilyId}">
-  <div th:if="${errorMessage}" class="alert alert-error mb-3">
-    <i class="fas fa-exclamation-circle"></i>
-    <span th:text="${errorMessage}"></span>
-  </div>
-
-  <div class="breadcrumb">
-    <a href="/home"><i class="fas fa-home"></i></a>
-    <span class="breadcrumb-sep">></span>
-    <span>Tin tức</span>
-  </div>
-
-  <h1 style="font-size:1.4rem;font-weight:700;margin-bottom:.3rem;">Tin tức</h1>
-  <p style="font-size:.85rem;color:var(--text-500);margin-bottom:.5rem;">
-    Tin công khai và nội bộ của <strong th:text="${clanDisplayName}">dòng họ</strong>
-  </p>
-  <p style="font-size:.82rem;color:var(--text-700);margin-bottom:.75rem;">
-    Phạm vi: <strong th:text="${filterFamilyName}">—</strong> — lọc <strong>Công khai / Nội bộ</strong> bên dưới (nội bộ cần đăng nhập thành viên dòng họ).
-  </p>
-
-  <div id="newsManageToolbar" class="news-manage-toolbar" hidden>
-    <span class="news-all-toolbar-scope-label">Quản trị tin</span>
-    <button type="button" id="npCreateNews" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Tạo tin</button>
-    <button type="button" id="npModeEdit" class="btn btn-white btn-sm"><i class="fas fa-pen"></i> Chế độ sửa</button>
-    <button type="button" id="npModeDelete" class="btn btn-white btn-sm"><i class="fas fa-trash-alt"></i> Chế độ xóa</button>
-    <button type="button" id="npDeleteSelected" class="btn btn-danger btn-sm"><i class="fas fa-check-double"></i> Xóa đã chọn</button>
-    <span id="npModeHint" class="news-manage-hint text-xs text-muted"></span>
-  </div>
-
-  <div class="news-all-toolbar" style="margin-bottom:1rem;">
-    <div class="news-all-toolbar-scope">
-      <span class="news-all-toolbar-scope-label">Phạm vi hiển thị</span>
-      <div class="news-cat-tabs news-vis-tabs">
-        <a th:href="${selectedCategory != null} ? @{/news(q=${q},category=${selectedCategory.name()})} : @{/news(q=${q})}"
-           class="news-cat-tab" th:classappend="${visibilityParam == null} ? ' active' : ''">Tất cả</a>
-        <a th:href="${selectedCategory != null} ? @{/news(q=${q},category=${selectedCategory.name()},visibility=public)} : @{/news(q=${q},visibility=public)}"
-           class="news-cat-tab" th:classappend="${visibilityParam == 'public'} ? ' active' : ''">Công khai</a>
-        <a th:href="${selectedCategory != null} ? @{/news(q=${q},category=${selectedCategory.name()},visibility=internal)} : @{/news(q=${q},visibility=internal)}"
-           class="news-cat-tab" th:classappend="${visibilityParam == 'internal'} ? ' active' : ''">Nội bộ</a>
+<main class="news-shell">
+  <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <div class="news-page-wrap space-y-8" th:attr="data-page-family-id=${filterFamilyId}">
+      <div th:if="${errorMessage}" class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <i class="fas fa-exclamation-circle mr-2"></i>
+        <span th:text="${errorMessage}"></span>
       </div>
+
+      <section class="overflow-hidden rounded-[2rem] border border-emerald-100 bg-gradient-to-br from-emerald-950 via-emerald-900 to-lime-900 px-6 py-8 text-white shadow-[0_30px_80px_rgba(6,78,59,0.32)] sm:px-8 lg:px-10">
+        <div class="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+          <div class="max-w-3xl space-y-4">
+            <div class="flex items-center gap-3 text-sm font-medium text-emerald-100/90">
+              <a th:href="@{/home}" class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 transition hover:bg-white/15">
+                <i class="fas fa-home text-xs"></i>
+                Trang chủ
+              </a>
+              <span class="text-white/55">/</span>
+              <span>Tin tức</span>
+            </div>
+            <div class="space-y-3">
+              <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-200">Ban tin dòng họ</p>
+              <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">Tin tức</h1>
+              <p class="max-w-2xl text-sm leading-7 text-emerald-50/85 sm:text-base">
+                Tin công khai và nội bộ của
+                <strong th:text="${clanDisplayName}">dòng họ</strong>.
+                Phạm vi hiện tại:
+                <strong th:text="${filterFamilyName}">—</strong>.
+              </p>
+            </div>
+          </div>
+          <div class="grid gap-3 rounded-2xl border border-white/10 bg-white/10 p-5 text-sm text-emerald-50 shadow-inner backdrop-blur md:grid-cols-2">
+            <div>
+              <p class="text-xs uppercase tracking-[0.25em] text-emerald-200/90">Phạm vi hiển thị</p>
+              <p class="mt-2 font-semibold">Lọc theo công khai hoặc nội bộ mà không đổi backend.</p>
+            </div>
+            <div>
+              <p class="text-xs uppercase tracking-[0.25em] text-emerald-200/90">Quản trị</p>
+              <p class="mt-2 font-semibold">Nếu có quyền, bạn có thể tạo, sửa và xóa trực tiếp trên trang này.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+          <div class="space-y-4">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Bộ lọc hiển thị</p>
+              <h2 class="mt-2 text-2xl font-semibold text-slate-900">Khám phá bản tin</h2>
+            </div>
+            <div class="flex flex-wrap gap-3">
+              <a th:if="${selectedCategory != null}"
+                 th:href="@{/news(q=${q},category=${selectedCategory.name()})}"
+                 class="rounded-full border px-4 py-2 text-sm font-semibold transition"
+                 th:classappend="${visibilityParam == null} ? ' border-emerald-700 bg-emerald-700 text-white shadow-sm' : ' border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'">
+                Tất cả
+              </a>
+              <a th:unless="${selectedCategory != null}"
+                 th:href="@{/news(q=${q})}"
+                 class="rounded-full border px-4 py-2 text-sm font-semibold transition"
+                 th:classappend="${visibilityParam == null} ? ' border-emerald-700 bg-emerald-700 text-white shadow-sm' : ' border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'">
+                Tất cả
+              </a>
+
+              <a th:if="${selectedCategory != null}"
+                 th:href="@{/news(q=${q},category=${selectedCategory.name()},visibility='PUBLIC_SITE')}"
+                 class="rounded-full border px-4 py-2 text-sm font-semibold transition"
+                 th:classappend="${visibilityParam == 'PUBLIC_SITE'} ? ' border-emerald-700 bg-emerald-700 text-white shadow-sm' : ' border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'">
+                Công khai
+              </a>
+              <a th:unless="${selectedCategory != null}"
+                 th:href="@{/news(q=${q},visibility='PUBLIC_SITE')}"
+                 class="rounded-full border px-4 py-2 text-sm font-semibold transition"
+                 th:classappend="${visibilityParam == 'PUBLIC_SITE'} ? ' border-emerald-700 bg-emerald-700 text-white shadow-sm' : ' border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'">
+                Công khai
+              </a>
+
+              <a th:if="${selectedCategory != null}"
+                 th:href="@{/news(q=${q},category=${selectedCategory.name()},visibility='FAMILY_ONLY')}"
+                 class="rounded-full border px-4 py-2 text-sm font-semibold transition"
+                 th:classappend="${visibilityParam == 'FAMILY_ONLY'} ? ' border-emerald-700 bg-emerald-700 text-white shadow-sm' : ' border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'">
+                Nội bộ
+              </a>
+              <a th:unless="${selectedCategory != null}"
+                 th:href="@{/news(q=${q},visibility='FAMILY_ONLY')}"
+                 class="rounded-full border px-4 py-2 text-sm font-semibold transition"
+                 th:classappend="${visibilityParam == 'FAMILY_ONLY'} ? ' border-emerald-700 bg-emerald-700 text-white shadow-sm' : ' border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'">
+                Nội bộ
+              </a>
+            </div>
+          </div>
+
+          <form th:action="@{/news}" method="get" class="w-full max-w-md">
+            <input type="hidden" name="category" th:if="${selectedCategory != null}" th:value="${selectedCategory.name()}"/>
+            <input type="hidden" name="visibility" th:if="${visibilityParam != null}" th:value="${visibilityParam}"/>
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.22em] text-slate-400" for="newsSearchInput">Tìm kiếm</label>
+            <div class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 focus-within:border-emerald-500 focus-within:bg-white">
+              <i class="fas fa-search text-slate-400"></i>
+              <input id="newsSearchInput" type="text" name="q" th:value="${q}" placeholder="Tìm kiếm theo tiêu đề hoặc nội dung..." class="w-full border-0 bg-transparent p-0 text-sm text-slate-700 placeholder:text-slate-400 focus:ring-0"/>
+            </div>
+          </form>
+        </div>
+
+        <div class="mt-6 flex flex-wrap items-center gap-3">
+          <a th:if="${visibilityParam != null}"
+             th:href="@{/news(q=${q},visibility=${visibilityParam})}"
+             class="rounded-full border px-4 py-2 text-sm font-medium transition"
+             th:classappend="${selectedCategory == null} ? ' border-slate-900 bg-slate-900 text-white' : ' border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'">
+            Tất cả danh mục
+          </a>
+          <a th:unless="${visibilityParam != null}"
+             th:href="@{/news(q=${q})}"
+             class="rounded-full border px-4 py-2 text-sm font-medium transition"
+             th:classappend="${selectedCategory == null} ? ' border-slate-900 bg-slate-900 text-white' : ' border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'">
+            Tất cả danh mục
+          </a>
+
+          <th:block th:each="cat : ${categories}">
+            <a th:if="${visibilityParam != null}"
+               th:href="@{/news(category=${cat.name()},q=${q},visibility=${visibilityParam})}"
+               class="rounded-full border px-4 py-2 text-sm font-medium transition"
+               th:classappend="${selectedCategory != null and selectedCategory.name() == cat.name()} ? ' border-amber-500 bg-amber-50 text-amber-700' : ' border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'"
+               th:text="${cat.label}">
+              Danh mục
+            </a>
+            <a th:unless="${visibilityParam != null}"
+               th:href="@{/news(category=${cat.name()},q=${q})}"
+               class="rounded-full border px-4 py-2 text-sm font-medium transition"
+               th:classappend="${selectedCategory != null and selectedCategory.name() == cat.name()} ? ' border-amber-500 bg-amber-50 text-amber-700' : ' border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'"
+               th:text="${cat.label}">
+              Danh mục
+            </a>
+          </th:block>
+        </div>
+      </section>
+
+      <section th:if="${showFeatured and !#lists.isEmpty(featuredArticles)}" class="space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Điểm nhấn</p>
+            <h2 class="mt-2 text-2xl font-semibold text-slate-900">Bài viết nổi bật</h2>
+          </div>
+        </div>
+        <div class="grid gap-6 lg:grid-cols-2">
+          <article th:each="article : ${featuredArticles}"
+                   class="news-card news-card--featured flex h-full flex-col"
+                   th:attr="data-news-id=${article.id},data-news-family-id=${article.family != null ? article.family.familyId : ''}">
+            <div class="news-card-cover relative aspect-[16/10] bg-slate-100">
+              <img th:if="${article.coverImage != null and !article.coverImage.isEmpty()}"
+                   th:src="${article.coverImage}"
+                   th:alt="${article.title}"
+                   class="h-full w-full object-cover"/>
+              <div th:unless="${article.coverImage != null and !article.coverImage.isEmpty()}" class="flex h-full items-center justify-center bg-gradient-to-br from-emerald-100 via-slate-100 to-lime-100 text-4xl text-emerald-700">
+                <i class="fas fa-newspaper"></i>
+              </div>
+              <div th:if="${isFamilyHead}" class="news-card-actions absolute right-4 top-4 z-20 flex gap-2">
+                <button type="button" class="btn-edit inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-slate-700 shadow-lg transition hover:bg-white hover:text-emerald-700" th:attr="data-id=${article.id}" aria-label="Sửa bài viết">
+                  <i class="fas fa-pen text-sm"></i>
+                </button>
+                <button type="button" class="btn-delete inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-slate-700 shadow-lg transition hover:bg-white hover:text-rose-700" th:attr="data-id=${article.id}" aria-label="Xóa bài viết">
+                  <i class="fas fa-trash-alt text-sm"></i>
+                </button>
+              </div>
+              <div class="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-transparent px-5 py-4 text-white">
+                <span class="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur" th:text="${article.publicCategory != null ? article.publicCategory.label : 'Tin tức'}">Danh mục</span>
+                <span class="text-xs font-medium" th:text="${article.createdAt != null ? #temporals.format(article.createdAt, 'dd/MM/yyyy') : '—'}">Ngày</span>
+              </div>
+            </div>
+
+            <div class="flex flex-1 flex-col gap-4 p-6">
+              <div class="flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500">
+                <span class="rounded-full bg-slate-100 px-3 py-1" th:text="${article.user != null ? article.user.fullName : 'Ban quản trị'}">Tác giả</span>
+                <span th:if="${article.visibility != null and article.visibility.name() == 'FAMILY_ONLY'}" class="rounded-full bg-amber-50 px-3 py-1 text-amber-700">Nội bộ</span>
+                <span th:if="${article.visibility != null and article.visibility.name() == 'PUBLIC_SITE'}" class="rounded-full bg-emerald-50 px-3 py-1 text-emerald-700">Công khai</span>
+                <span th:if="${article.featured}" class="rounded-full bg-emerald-50 px-3 py-1 text-emerald-700">Nổi bật</span>
+              </div>
+
+              <div class="space-y-3">
+                <a th:if="${article.slug != null and !#strings.isEmpty(article.slug)}"
+                   th:href="@{/news/{slug}(slug=${article.slug})}"
+                   class="block text-2xl font-semibold leading-tight text-slate-900 hover:text-emerald-700"
+                   th:text="${article.title}">
+                  Tiêu đề
+                </a>
+                <span th:unless="${article.slug != null and !#strings.isEmpty(article.slug)}"
+                      class="block text-2xl font-semibold leading-tight text-slate-500"
+                      th:text="${article.title}">
+                  Tiêu đề
+                </span>
+                <p class="text-sm leading-7 text-slate-600" th:text="${article.summary != null and !article.summary.isEmpty() ? article.summary : 'Nhấn đọc thêm để xem chi tiết nội dung.'}">
+                  Tóm tắt
+                </p>
+              </div>
+
+              <div class="mt-auto flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
+                <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Bản tin dòng họ</span>
+                <a th:if="${article.slug != null and !#strings.isEmpty(article.slug)}"
+                   th:href="@{/news/{slug}(slug=${article.slug})}"
+                   class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 hover:text-emerald-800">
+                  Đọc thêm
+                  <i class="fas fa-arrow-right text-xs"></i>
+                </a>
+                <span th:unless="${article.slug != null and !#strings.isEmpty(article.slug)}" class="text-sm font-semibold text-slate-400">
+                  Thiếu slug
+                </span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="space-y-5">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Danh sách bài viết</p>
+            <h2 class="mt-2 text-2xl font-semibold text-slate-900">Toàn bộ bản tin</h2>
+          </div>
+          <div class="flex flex-wrap items-center gap-3">
+            <p class="text-sm text-slate-500">
+              Tìm thấy
+              <strong class="font-semibold text-slate-900" th:text="${#lists.size(articles)}">0</strong>
+              bài viết
+            </p>
+            <button th:if="${isFamilyHead}" type="button" id="npCreateNews" class="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800">
+              <i class="fas fa-plus text-xs"></i>
+              Tạo tin
+            </button>
+          </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(articles)}" class="rounded-[1.75rem] border border-dashed border-slate-300 bg-white px-6 py-16 text-center shadow-sm">
+          <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-2xl text-slate-500">
+            <i class="fas fa-newspaper"></i>
+          </div>
+          <h3 class="mt-5 text-xl font-semibold text-slate-900">Chưa có bài viết</h3>
+          <p class="mx-auto mt-3 max-w-2xl text-sm leading-7 text-slate-500">
+            Nếu có quyền, bạn có thể tạo bài viết ngay trên trang này. Tin công khai hiển thị cho mọi người; tin nội bộ chỉ dành cho thành viên đã đăng nhập cùng dòng họ.
+          </p>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(articles)}" class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <article th:each="article : ${articles}"
+                   class="news-card flex h-full flex-col"
+                   th:attr="data-news-id=${article.id},data-news-family-id=${article.family != null ? article.family.familyId : ''}">
+            <div class="news-card-cover relative aspect-[16/10] bg-slate-100">
+              <img th:if="${article.coverImage != null and !article.coverImage.isEmpty()}"
+                   th:src="${article.coverImage}"
+                   th:alt="${article.title}"
+                   class="h-full w-full object-cover"/>
+              <div th:unless="${article.coverImage != null and !article.coverImage.isEmpty()}" class="flex h-full items-center justify-center bg-gradient-to-br from-slate-100 via-emerald-50 to-lime-50 text-4xl text-slate-400">
+                <i class="fas fa-newspaper"></i>
+              </div>
+              <div th:if="${isFamilyHead}" class="news-card-actions absolute right-4 top-4 z-20 flex gap-2">
+                <button type="button" class="btn-edit inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-slate-700 shadow-lg transition hover:bg-white hover:text-emerald-700" th:attr="data-id=${article.id}" aria-label="Sửa bài viết">
+                  <i class="fas fa-pen text-sm"></i>
+                </button>
+                <button type="button" class="btn-delete inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-slate-700 shadow-lg transition hover:bg-white hover:text-rose-700" th:attr="data-id=${article.id}" aria-label="Xóa bài viết">
+                  <i class="fas fa-trash-alt text-sm"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex flex-1 flex-col gap-4 p-5">
+              <div class="flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500">
+                <span class="rounded-full bg-slate-100 px-3 py-1" th:text="${article.publicCategory != null ? article.publicCategory.label : 'Tin tức'}">Danh mục</span>
+                <span th:if="${article.visibility != null and article.visibility.name() == 'FAMILY_ONLY'}" class="rounded-full bg-amber-50 px-3 py-1 text-amber-700">Nội bộ</span>
+                <span th:if="${article.visibility != null and article.visibility.name() == 'PUBLIC_SITE'}" class="rounded-full bg-emerald-50 px-3 py-1 text-emerald-700">Công khai</span>
+                <span class="rounded-full bg-slate-100 px-3 py-1" th:text="${article.user != null ? article.user.fullName : 'Ban quản trị'}">Tác giả</span>
+                <span th:text="${article.createdAt != null ? #temporals.format(article.createdAt, 'dd/MM/yyyy') : '—'}">Ngày</span>
+              </div>
+
+              <div class="space-y-3">
+                <a th:if="${article.slug != null and !#strings.isEmpty(article.slug)}"
+                   th:href="@{/news/{slug}(slug=${article.slug})}"
+                   class="block text-xl font-semibold leading-tight text-slate-900 hover:text-emerald-700"
+                   th:text="${article.title}">
+                  Tiêu đề
+                </a>
+                <span th:unless="${article.slug != null and !#strings.isEmpty(article.slug)}"
+                      class="block text-xl font-semibold leading-tight text-slate-500"
+                      th:text="${article.title}">
+                  Tiêu đề
+                </span>
+                <p class="line-clamp-3 text-sm leading-7 text-slate-600" th:text="${article.summary != null and !article.summary.isEmpty() ? article.summary : 'Nhấn đọc thêm để xem chi tiết nội dung.'}">
+                  Tóm tắt
+                </p>
+              </div>
+
+              <div class="mt-auto flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
+                <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Chi tiết bài viết</span>
+                <a th:if="${article.slug != null and !#strings.isEmpty(article.slug)}"
+                   th:href="@{/news/{slug}(slug=${article.slug})}"
+                   class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 hover:text-emerald-800">
+                  Đọc thêm
+                  <i class="fas fa-arrow-right text-xs"></i>
+                </a>
+                <span th:unless="${article.slug != null and !#strings.isEmpty(article.slug)}" class="text-sm font-semibold text-slate-400">
+                  Thiếu slug
+                </span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
     </div>
   </div>
+</main>
 
-  <div class="search-input mb-4" style="max-width:320px;">
-    <i class="fas fa-search"></i>
-    <form th:action="@{/news}" method="get">
-      <input type="hidden" name="category" th:if="${selectedCategory != null}" th:value="${selectedCategory.name()}"/>
-      <input type="hidden" name="visibility" th:if="${visibilityParam != null}" th:value="${visibilityParam}"/>
-      <input type="text" name="q" class="form-control" placeholder="Tìm kiếm..." th:value="${q}"/>
-    </form>
-  </div>
-
-  <div class="news-cat-tabs">
-    <a th:href="${visibilityParam != null} ? @{/news(q=${q},visibility=${visibilityParam})} : @{/news(q=${q})}"
-       class="news-cat-tab" th:classappend="${selectedCategory == null} ? ' active' : ''">Tất cả</a>
-    <a th:each="cat : ${categories}"
-       th:href="${visibilityParam != null} ? @{/news(category=${cat.name()},q=${q},visibility=${visibilityParam})} : @{/news(category=${cat.name()},q=${q})}"
-       class="news-cat-tab"
-       th:classappend="${selectedCategory != null and selectedCategory.name() == cat.name()} ? ' active' : ''"
-       th:text="${cat.label}">Danh mục</a>
-  </div>
-
-  <div th:if="${showFeatured and !#lists.isEmpty(featuredArticles)}"
-       style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
-    <div th:each="article : ${featuredArticles}" class="news-card"
-         th:attr="data-news-id=${article.id},data-news-family-id=${article.family != null ? article.family.familyId : ''}">
-      <label class="np-news-cb-wrap"><input type="checkbox" class="np-news-cb" th:attr="data-news-id=${article.id}"/></label>
-      <div class="news-card-img">
-        <img th:if="${article.coverImage != null and !article.coverImage.isEmpty()}"
-             th:src="${article.coverImage}" th:alt="${article.title}"/>
-        <div th:unless="${article.coverImage != null and !article.coverImage.isEmpty()}" class="ph-icon"><i class="fas fa-newspaper"></i></div>
-      </div>
-      <div class="news-card-body">
-        <div class="news-card-meta">
-          <span class="badge badge-gray" th:text="${article.publicCategory != null ? article.publicCategory.label : '—'}">Danh mục</span>
-          <span th:if="${article.visibility != null and article.visibility.name() == 'FAMILY_ONLY'}" class="badge badge-orange" title="Chỉ thành viên đã đăng nhập thuộc nhánh dòng họ mới xem được">Nội bộ</span>
-          <span class="text-xs text-muted" th:text="${article.user != null ? article.user.fullName : 'Ban quản trị'}">Tác giả</span>
-          <span class="text-xs text-muted"
-                th:text="${article.createdAt != null ? #temporals.format(article.createdAt, 'dd/MM/yyyy') : '—'}">Ngày</span>
-        </div>
-        <div class="news-card-title">
-          <a th:if="${article.slug != null and !#strings.isEmpty(article.slug)}"
-             th:href="@{/news/{slug}(slug=${article.slug})}" th:text="${article.title}">Tiêu đề</a>
-          <span th:unless="${article.slug != null and !#strings.isEmpty(article.slug)}"
-                th:text="${article.title}">Tiêu đề</span>
-        </div>
-        <p class="news-card-excerpt" th:text="${article.summary}">Tóm tắt</p>
-        <div class="news-card-footer">
-          <span></span>
-          <a th:if="${article.slug != null and !#strings.isEmpty(article.slug)}"
-             th:href="@{/news/{slug}(slug=${article.slug})}">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-          <span th:unless="${article.slug != null and !#strings.isEmpty(article.slug)}"
-                class="text-xs text-muted">Không có liên kết chi tiết (thiếu slug).</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <p style="font-size:.82rem;color:var(--text-500);margin-bottom:1rem;">
-    Tìm thấy <strong th:text="${#lists.size(articles)}">0</strong> bài viết
-  </p>
-
-  <div th:if="${#lists.isEmpty(articles)}" class="empty-state">
-    <i class="fas fa-newspaper"></i>
-    <h3>Chưa có bài viết</h3>
-    <p class="text-sm text-muted" style="margin-top:.5rem;">
-      (Nếu có quyền) dùng <strong>Tạo tin</strong> ngay trên trang này; có thể <strong>sửa / xóa</strong> bằng chế độ trên thanh công cụ. <strong>Công khai</strong> — ai cũng xem được; <strong>Nội bộ</strong> — cần đăng nhập thành viên cùng dòng họ cấu hình ứng dụng.
-    </p>
-  </div>
-
-  <div th:unless="${#lists.isEmpty(articles)}" class="news-grid">
-    <div th:each="article : ${articles}" class="news-card"
-         th:attr="data-news-id=${article.id},data-news-family-id=${article.family != null ? article.family.familyId : ''}">
-      <label class="np-news-cb-wrap"><input type="checkbox" class="np-news-cb" th:attr="data-news-id=${article.id}"/></label>
-      <div class="news-card-img">
-        <img th:if="${article.coverImage != null and !article.coverImage.isEmpty()}"
-             th:src="${article.coverImage}" th:alt="${article.title}"/>
-        <div th:unless="${article.coverImage != null and !article.coverImage.isEmpty()}" class="ph-icon"><i class="fas fa-newspaper"></i></div>
-      </div>
-      <div class="news-card-body">
-        <div class="news-card-meta">
-          <span class="badge badge-gray" th:text="${article.publicCategory != null ? article.publicCategory.label : '—'}">Danh mục</span>
-          <span th:if="${article.visibility != null and article.visibility.name() == 'FAMILY_ONLY'}" class="badge badge-orange" title="Chỉ thành viên đã đăng nhập thuộc nhánh dòng họ mới xem được">Nội bộ</span>
-          <span class="text-xs text-muted" th:text="${article.user != null ? article.user.fullName : 'Ban quản trị'}">Tác giả</span>
-          <span class="text-xs text-muted"
-                th:text="${article.createdAt != null ? #temporals.format(article.createdAt, 'dd/MM/yyyy') : '—'}">Ngày</span>
-        </div>
-        <div class="news-card-title">
-          <a th:if="${article.slug != null and !#strings.isEmpty(article.slug)}"
-             th:href="@{/news/{slug}(slug=${article.slug})}" th:text="${article.title}">Tiêu đề</a>
-          <span th:unless="${article.slug != null and !#strings.isEmpty(article.slug)}"
-                th:text="${article.title}">Tiêu đề</span>
-        </div>
-        <p class="news-card-excerpt" th:text="${article.summary}">Tóm tắt</p>
-        <div class="news-card-footer">
-          <span></span>
-          <a th:if="${article.slug != null and !#strings.isEmpty(article.slug)}"
-             th:href="@{/news/{slug}(slug=${article.slug})}">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-          <span th:unless="${article.slug != null and !#strings.isEmpty(article.slug)}"
-                class="text-xs text-muted">Không có liên kết chi tiết (thiếu slug).</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-</div>
 
 <div id="npNewsFormModal" class="modal-overlay" aria-hidden="true">
   <div class="modal" style="max-width:640px;">
     <div class="modal-header">
       <div>
         <h3 id="npNewsModalTitle">Sửa tin / sự kiện</h3>
-        <p style="font-size:.82rem;color:var(--text-500);margin-top:.2rem;">Lưu qua API quản trị — cần quyền trưởng họ.</p>
+        <p style="font-size:.82rem;color:var(--text-500);margin-top:.2rem;">Lưu qua API quản trị và giữ nguyên logic hiện tại.</p>
       </div>
       <button type="button" class="modal-close" id="npNewsModalClose" aria-label="Đóng"><i class="fas fa-times"></i></button>
     </div>
     <form id="npNewsForm">
       <input type="hidden" id="npNewsEditId" value=""/>
       <input type="hidden" id="npNewsFamilyId" value=""/>
+      <input type="hidden" id="npNewsCoverImage" value=""/>
       <div class="fh-form-grid">
         <div class="fh-span-2">
           <label for="npNewsTitle">Tiêu đề <span style="color:#b91c1c;">*</span></label>
@@ -182,6 +612,18 @@
         <div class="fh-span-2">
           <label for="npNewsContent">Nội dung</label>
           <textarea id="npNewsContent" class="form-control"></textarea>
+        </div>
+        <div class="fh-span-2">
+          <label for="npNewsImage">Ảnh bìa</label>
+          <input type="file" id="npNewsImage" class="form-control" accept="image/*"/>
+          <p class="mt-2 text-xs text-slate-500">Ảnh sẽ được upload trước khi lưu và gắn vào `coverImage`.</p>
+          <p id="npNewsImageError" class="mt-2 hidden text-xs font-medium text-red-600"></p>
+          <div class="mt-3 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+            <img id="npNewsImagePreview" src="" alt="Xem trước ảnh bìa" class="hidden h-48 w-full object-cover"/>
+            <div id="npNewsImagePlaceholder" class="flex h-40 items-center justify-center text-sm text-slate-400">
+              Chưa có ảnh bìa
+            </div>
+          </div>
         </div>
         <div>
           <label for="npNewsCategoryId">Danh mục nội bộ</label>

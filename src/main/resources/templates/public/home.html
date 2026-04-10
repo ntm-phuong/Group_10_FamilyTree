@@ -1,207 +1,334 @@
-    <!DOCTYPE html>
-    <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Trang Chủ - Gia Phả Dòng Họ</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Chủ - Gia Phả Dòng Họ</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/home-guest.css}">
+    <link rel="stylesheet" th:href="@{/css/home.css?v=1}">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-primary-fixed": "#002201",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed": "#131f00",
+                        "inverse-surface": "#2f312e",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#a1d494",
+                        "outline": "#72796e",
+                        "on-secondary-fixed-variant": "#364e00",
+                        "on-primary-fixed-variant": "#23501e",
+                        "on-tertiary-fixed": "#082007",
+                        "on-surface": "#1a1c19",
+                        "surface-variant": "#e3e3de",
+                        "surface-container-highest": "#e3e3de",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#9dd090",
+                        "secondary-fixed-dim": "#add461",
+                        "primary-fixed": "#bcf0ae",
+                        "surface-tint": "#3b6934",
+                        "surface-container-high": "#e8e8e3",
+                        "tertiary": "#264023",
+                        "outline-variant": "#c2c9bb",
+                        "tertiary-fixed-dim": "#b1cfa7",
+                        "on-surface-variant": "#42493e",
+                        "tertiary-fixed": "#ccebc2",
+                        "surface-bright": "#fafaf5",
+                        "surface-container": "#eeeee9",
+                        "primary-container": "#2d5a27",
+                        "on-tertiary-fixed-variant": "#334d2f",
+                        "inverse-on-surface": "#f1f1ec",
+                        "surface": "#fafaf5",
+                        "on-secondary-container": "#4e6e00",
+                        "primary": "#154212",
+                        "secondary-fixed": "#c8f17a",
+                        "on-background": "#1a1c19",
+                        "error-container": "#ffdad6",
+                        "secondary": "#496800",
+                        "surface-dim": "#dadad5",
+                        "tertiary-container": "#3d5738",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#a1d494",
+                        "on-error-container": "#93000a",
+                        "secondary-container": "#c8f17a",
+                        "on-tertiary-container": "#adcca4",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#f4f4ef",
+                        "background": "#fafaf5",
+                        "on-primary": "#ffffff"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.125rem",
+                        lg: "0.25rem",
+                        xl: "0.5rem",
+                        full: "0.75rem"
+                    },
+                    fontFamily: {
+                        headline: ["Noto Serif"],
+                        body: ["Manrope"],
+                        label: ["Manrope"]
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body { font-family: 'Manrope', sans-serif; }
+        h1, h2, h3, .serif-text { font-family: 'Noto Serif', serif; }
+        .bamboo-gradient { background: linear-gradient(15deg, #154212 0%, #2d5a27 100%); }
+        .glass-panel { backdrop-filter: blur(20px); background-color: rgba(250, 250, 245, 0.85); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
 
-        <link rel="stylesheet" th:href="@{/css/style.css}">
-        <link rel="stylesheet" th:href="@{/css/home-guest.css}">
-        <link rel="stylesheet" th:href="@{/css/home.css?v=1}">
-    </head>
-    <body>
+<th:block th:replace="~{fragments/navbar :: navbar}"/>
 
-    <th:block th:replace="~{fragments/navbar :: navbar}"/>
-
-    <section class="guest-hero">
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <h1 id="heroFamilyName">Gia Phả Dòng Họ...</h1>
-            <p class="hero-quote">"Mộc bản hồ thủy, vạn cổ tầm tông"</p>
-            <p class="hero-desc">Cây có gốc mới nở cành xanh ngọn, nước có nguồn mới bể rộng sông sâu. Nơi lưu giữ truyền thống và kết nối các thế hệ con cháu.</p>
-            <div class="hero-buttons">
-                <a href="/family-tree" class="btn btn-outline"><i class="fas fa-sitemap"></i> Xem Gia Phả</a>
-                <a th:href="@{/news}" class="btn btn-outline"><i class="far fa-newspaper"></i> Tin Tức Dòng Họ</a>
+<main>
+    <section class="relative flex min-h-[600px] items-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img alt="Bamboo Forest Background" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida/ADBb0uiDXfj6LbDvTcda5w6-OAFiovzR-c0mXKDqaHle-fQq22_iiSGjI6LfMq7cnYTl3xLSNPw1GGHh6kvBT3csawxdFjYbVkd9hDW5-b2FEeD8gLURbQfiRi7oytYMXJraEzdZrFsACrIzI2WmAdCPKXprjcopdmoab7ytGE0qudEvAC6rUuYr3nqsz5rRY1Y1fLnG4IUhEQrMzeieCRfJfexcgfCNw1wxsQny9Dn-ddZ1ZLtMCO7qH2BreCjKe0kAnh2p90GbZDA9"/>
+            <div class="absolute inset-0 bg-gradient-to-r from-on-surface/80 via-on-surface/40 to-transparent"></div>
+        </div>
+        <div class="relative z-10 mx-auto w-full max-w-[1440px] px-6 py-24 md:px-12">
+            <div class="max-w-2xl">
+                <h1 id="heroFamilyName" class="mb-4 text-5xl leading-tight text-surface md:text-6xl">Gia Phả Dòng Họ...</h1>
+                <p class="mb-8 font-headline text-xl italic text-primary-fixed">"Mộc bản hồ thủy, vạn cổ tầm tông"</p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="/family-tree" class="bamboo-gradient flex items-center gap-2 rounded-md px-8 py-3 font-label font-bold text-on-primary transition-opacity hover:opacity-90">
+                        Xem Gia Phả
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </a>
+                    <a th:href="@{/news}" class="rounded-md border border-surface/30 bg-surface/10 px-8 py-3 font-label font-bold text-surface backdrop-blur-md transition-colors hover:bg-surface/20">
+                        Tin Tức Dòng Họ
+                    </a>
+                </div>
             </div>
         </div>
+        <div class="absolute bottom-0 right-12 hidden h-4/5 w-1 bg-secondary opacity-30 lg:block"></div>
     </section>
 
-    <section class="guest-stats container">
-        <div class="stat-card">
-            <i class="fas fa-users" style="color: #2E7D32;"></i>
-            <h3 id="statTotalMembers">0</h3>
-            <p>Thành viên</p>
-        </div>
-        <div class="stat-card">
-            <i class="fas fa-seedling" style="color: #D84315;"></i>
-            <h3 id="statGenerations">0</h3>
-            <p>Thế hệ</p>
-        </div>
-        <div class="stat-card">
-            <i class="fas fa-male" style="color: #1976D2;"></i>
-            <h3 id="statMaleCount">0</h3>
-            <p>Nam giới</p>
-        </div>
-        <div class="stat-card">
-            <i class="fas fa-female" style="color: #C2185B;"></i>
-            <h3 id="statFemaleCount">0</h3>
-            <p>Nữ giới</p>
-        </div>
-    </section>
-
-    <section class="home-about-section">
-        <div class="container">
-            <div class="about-search-wrapper">
-                <div class="about-text-col">
-                    <h2 id="aboutFamilyTitle">Về Dòng Họ...</h2>
-                    <p id="aboutFamilyDesc">Đang tải thông tin dòng họ...</p>
-                    <p>Với mục tiêu bảo tồn và phát huy truyền thống gia đình, hệ thống gia phả trực tuyến được xây dựng để giúp các thành viên dễ dàng tra cứu thông tin, kết nối với nhau và lưu giữ những kỷ niệm quý báu.</p>
-                    <a th:href="@{/about}" class="btn-about-outline">Tìm hiểu lịch sử dòng họ <i class="fas fa-arrow-right"></i></a>
-                </div>
-
-                <div class="search-card-col">
-                    <div class="search-card-figma">
-                        <div class="search-card-header">
-                            <i class="fas fa-search" style="font-size: 1.4rem; color: #4B5563;"></i> Tra cứu nhanh
-                        </div>
-                        <p class="search-card-desc">Tìm kiếm thành viên trong gia phả</p>
-
-                        <form action="/family-tree" method="get" style="position: relative;">
-                            <div class="search-input-wrap">
-                                <i class="fas fa-search"></i>
-                                <input type="text" id="homeSearchInput" name="keyword" placeholder="Tìm kiếm thành viên......" required autocomplete="off">
-                            </div>
-
-                            <ul id="searchSuggestions" class="autocomplete-list" style="display: none;"></ul>
-
-                            <button type="submit" class="btn-search-submit">Xem cây gia phả</button>
-                        </form>
+    <section class="relative z-20 mx-auto -mt-16 max-w-[1440px] px-6 md:px-12">
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-4">
+            <div class="rounded-xl border-l-4 border-primary bg-surface-container-lowest p-6 shadow-sm">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="mb-1 text-label-md font-label uppercase tracking-wider text-on-surface-variant">Members</p>
+                        <h3 id="statTotalMembers" class="text-3xl font-headline font-bold text-primary">0</h3>
                     </div>
+                    <span class="material-symbols-outlined text-secondary">groups</span>
+                </div>
+            </div>
+            <div class="rounded-xl border-l-4 border-secondary bg-surface-container-lowest p-6 shadow-sm">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="mb-1 text-label-md font-label uppercase tracking-wider text-on-surface-variant">Generations</p>
+                        <h3 id="statGenerations" class="text-3xl font-headline font-bold text-primary">0</h3>
+                    </div>
+                    <span class="material-symbols-outlined text-secondary">account_tree</span>
+                </div>
+            </div>
+            <div class="rounded-xl border-l-4 border-primary-container bg-surface-container-lowest p-6 shadow-sm">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="mb-1 text-label-md font-label uppercase tracking-wider text-on-surface-variant">Males</p>
+                        <h3 id="statMaleCount" class="text-3xl font-headline font-bold text-primary">0</h3>
+                    </div>
+                    <span class="material-symbols-outlined text-secondary">male</span>
+                </div>
+            </div>
+            <div class="rounded-xl border-l-4 border-tertiary bg-surface-container-lowest p-6 shadow-sm">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="mb-1 text-label-md font-label uppercase tracking-wider text-on-surface-variant">Females</p>
+                        <h3 id="statFemaleCount" class="text-3xl font-headline font-bold text-primary">0</h3>
+                    </div>
+                    <span class="material-symbols-outlined text-secondary">female</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="guest-events container">
-        <div class="section-header">
-            <h2>Sự kiện sắp tới</h2>
-            <p>Đừng bỏ lỡ các sự kiện quan trọng của dòng họ</p>
-        </div>
-        <div class="grid-4" id="eventsContainer">
-            <p style="grid-column: span 4; text-align: center; color: gray;">Đang tải sự kiện...</p>
-        </div>
-    </section>
-
-    <section class="guest-news">
-        <div class="container">
-            <div class="section-header">
-                <h2>Tin Tức Mới Nhất</h2>
-                <p>Cập nhật các hoạt động và sự kiện của dòng họ</p>
+    <section class="mx-auto grid max-w-[1440px] grid-cols-1 items-center gap-16 px-6 py-24 md:px-12 lg:grid-cols-12">
+        <div class="lg:col-span-7">
+            <h2 id="aboutFamilyTitle" class="relative mb-8 text-4xl font-headline text-primary">
+                Về Dòng Họ...
+                <span class="absolute -left-4 top-0 bottom-0 w-1 bg-secondary-container"></span>
+            </h2>
+            <div class="space-y-4 text-lg font-body text-on-surface-variant">
+                <p id="aboutFamilyDesc">Đang tải thông tin dòng họ...</p>
+                <p>Với mục tiêu bảo tồn và phát huy truyền thống gia đình, hệ thống gia phả trực tuyến được xây dựng để giúp các thành viên dễ dàng tra cứu thông tin, kết nối với nhau và lưu giữ những kỷ niệm quý báu.</p>
             </div>
-            <div class="grid-4" id="newsContainer">
-                <p style="grid-column: span 4; text-align: center; color: gray;">Đang tải tin tức...</p>
+            <div class="mt-8">
+                <a th:href="@{/about}" class="inline-flex items-center gap-2 rounded-md border border-primary px-6 py-3 font-label font-bold text-primary transition-colors hover:bg-primary hover:text-white">
+                    Tìm hiểu lịch sử dòng họ
+                    <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
         </div>
-    </section>
-
-    <section class="guest-cta">
-        <div class="container text-center">
-            <h2>Kết Nối Với Gia Đình</h2>
-            <p>Hãy cùng nhau xây dựng và gìn giữ gia phả dòng họ. Mỗi thành viên đều là một phần quan trọng trong lịch sử gia đình.</p>
-            <a th:href="@{/family-tree}" class="btn btn-light"><i class="fas fa-sitemap"></i> Xem sơ đồ gia phả</a>
+        <div class="lg:col-span-5">
+            <div class="rounded-xl border border-outline-variant/30 bg-surface-container-low p-8">
+                <h3 class="mb-6 flex items-center gap-2 text-xl font-headline text-primary">
+                    <span class="material-symbols-outlined">person_search</span>
+                    Tra cứu nhanh
+                </h3>
+                <form action="/family-tree" method="get" class="space-y-4" style="position: relative;">
+                    <div>
+                        <label class="mb-2 block text-sm font-label text-on-surface-variant" for="homeSearchInput">Tên thành viên</label>
+                        <input id="homeSearchInput" name="keyword" type="text" required autocomplete="off" placeholder="Nhập tên cần tìm..." class="w-full border-0 border-b-2 border-outline-variant bg-transparent px-0 py-2 font-body transition-all focus:border-primary focus:ring-0">
+                    </div>
+                    <ul id="searchSuggestions" class="autocomplete-list" style="display: none;"></ul>
+                    <button type="submit" class="w-full rounded-md bamboo-gradient py-3 font-label font-bold text-on-primary">
+                        Tìm Kiếm
+                    </button>
+                </form>
+            </div>
         </div>
     </section>
 
-    <th:block th:replace="~{fragments/footer :: footer}"/>
+    <section class="bg-surface-container-low py-24">
+        <div class="mx-auto max-w-[1440px] px-6 md:px-12">
+            <div class="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                <div>
+                    <p class="mb-2 font-label font-bold uppercase tracking-widest text-secondary">Lịch Trình</p>
+                    <h2 class="text-4xl font-headline text-primary">Sự kiện sắp tới</h2>
+                </div>
+                <span class="flex items-center gap-1 font-label font-bold text-primary">
+                    Tất cả sự kiện
+                    <span class="material-symbols-outlined text-sm">chevron_right</span>
+                </span>
+            </div>
+            <div id="eventsContainer" class="grid grid-cols-1 gap-8 md:grid-cols-2">
+                <p style="grid-column: span 2; text-align: center; color: #6B7280;">Đang tải sự kiện...</p>
+            </div>
+        </div>
+    </section>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const token = localStorage.getItem('token');
+    <section class="mx-auto max-w-[1440px] px-6 py-24 md:px-12">
+        <div class="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+                <p class="mb-2 font-label font-bold uppercase tracking-widest text-secondary">Bản Tin</p>
+                <h2 class="text-4xl font-headline text-primary">Tin Tức Mới Nhất</h2>
+            </div>
+            <a th:href="@{/news}" class="group flex items-center gap-1 font-label font-bold text-primary">
+                Xem tất cả
+                <span class="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">chevron_right</span>
+            </a>
+        </div>
+        <div id="newsContainer" class="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-4">
+            <p style="grid-column: span 4; text-align: center; color: #6B7280;">Đang tải tin tức...</p>
+        </div>
+    </section>
 
-            // Nếu không có token -> Đá văng về trang khách (/)
-            if (!token) {
-                window.location.replace('/');
-                return; // Dừng thực thi code bên dưới
+    <section class="mx-auto max-w-[1440px] px-6 pb-24 md:px-12">
+        <div class="bamboo-gradient flex flex-col items-center justify-between gap-8 rounded-2xl p-16 text-surface md:flex-row">
+            <div class="max-w-xl">
+                <h2 class="mb-4 text-4xl font-headline">Kết Nối Với Gia Đình</h2>
+                <p class="text-lg font-body opacity-90">Khám phá cội nguồn, tìm lại sự kết nối giữa các thế hệ thông qua bản đồ gia phả trực quan và chi tiết nhất.</p>
+            </div>
+            <a th:href="@{/family-tree}" class="rounded-md bg-surface px-12 py-4 text-lg font-label font-bold text-primary shadow-xl transition-colors hover:bg-surface-container-low">
+                Xem sơ đồ gia phả
+            </a>
+        </div>
+    </section>
+</main>
+
+<th:block th:replace="~{fragments/footer :: footer}"/>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const token = localStorage.getItem('token');
+
+        // Nếu không có token -> Đá văng về trang khách (/)
+        if (!token) {
+            window.location.replace('/');
+            return; // Dừng thực thi code bên dưới
+        }
+
+
+        // Lấy family_id từ LocalStorage (Được set vào lúc Login/Active)
+        let familyId = localStorage.getItem('family_id');
+
+        // KIỂM TRA NGẶT NGHÈO: Nếu không có, hoặc bị lưu nhầm thành chữ "undefined" / "null"
+        if (!familyId || familyId === 'undefined' || familyId === 'null') {
+            console.warn("Lỗi LocalStorage: Không tìm thấy ID chuẩn, tự động dùng ID mặc định (fam-nguyen-001)");
+            familyId = 'fam-nguyen-001'; // ID fallback để web không bị sập
+        }
+
+        // ==================================================
+        // 1. GỌI API LẤY DỮ LIỆU HOME CHO DÒNG HỌ TƯƠNG ỨNG
+        // ==================================================
+        fetch(`/api/families/${familyId}/home`, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Lỗi tải dữ liệu trang chủ");
+            return response.json();
+        })
+        .then(data => {
+            // --- Gắn thông tin cơ bản ---
+            if (data.familyName) {
+
+                document.getElementById('heroFamilyName').innerText = 'Gia Phả ' + data.familyName;
+
+                document.getElementById('aboutFamilyTitle').innerText = 'Về ' + data.familyName;
+                document.title = 'Trang Chủ - ' + data.familyName;
+            }
+            if (data.description) {
+                document.getElementById('aboutFamilyDesc').innerText = data.description;
             }
 
+            document.getElementById('statTotalMembers').innerText = data.totalMembers || 0;
+            document.getElementById('statGenerations').innerText = data.totalGenerations || 0;
+            document.getElementById('statMaleCount').innerText = data.maleCount || 0;
+            document.getElementById('statFemaleCount').innerText = data.femaleCount || 0;
 
-            // Lấy family_id từ LocalStorage (Được set vào lúc Login/Active)
-            let familyId = localStorage.getItem('family_id');
+            renderEvents(data.upcomingEvents);
+            renderNews(data.latestNews);
+        })
+        .catch(error => {
+            console.error(error);
+            document.getElementById('eventsContainer').innerHTML = `<p style="grid-column: span 4; text-align: center; color: red;">Lỗi tải dữ liệu sự kiện.</p>`;
+            document.getElementById('newsContainer').innerHTML = `<p style="grid-column: span 4; text-align: center; color: red;">Lỗi tải dữ liệu tin tức.</p>`;
+        });
 
-            // KIỂM TRA NGẶT NGHÈO: Nếu không có, hoặc bị lưu nhầm thành chữ "undefined" / "null"
-            if (!familyId || familyId === 'undefined' || familyId === 'null') {
-                console.warn("Lỗi LocalStorage: Không tìm thấy ID chuẩn, tự động dùng ID mặc định (fam-nguyen-001)");
-                familyId = 'fam-nguyen-001'; // ID fallback để web không bị sập
+        // ==================================================
+        // 2. HÀM RENDER SỰ KIỆN SẮP TỚI
+        // ==================================================
+        function renderEvents(events) {
+            const container = document.getElementById('eventsContainer');
+            if (!events || events.length === 0) {
+                container.innerHTML = '<p style="grid-column: span 4; text-align: center; color: #6B7280;">Hiện không có sự kiện nào sắp tới.</p>';
+                return;
             }
 
-            // ==================================================
-            // 1. GỌI API LẤY DỮ LIỆU HOME CHO DÒNG HỌ TƯƠNG ỨNG
-            // ==================================================
-            fetch(`/api/families/${familyId}/home`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': 'Bearer ' + token,
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) throw new Error("Lỗi tải dữ liệu trang chủ");
-                return response.json();
-            })
-            .then(data => {
-                // --- Gắn thông tin cơ bản ---
-                if (data.familyName) {
+            container.innerHTML = events.map(event => {
+                // Xử lý ngày tháng (Dùng startAt hoặc createdAt)
+                const dateObj = event.startAt ? new Date(event.startAt) : new Date();
+                const monthStr = 'Tháng ' + (dateObj.getMonth() + 1);
+                const dayStr = dateObj.getDate();
+                const timeStr = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 
-                    document.getElementById('heroFamilyName').innerText = 'Gia Phả ' + data.familyName;
+                // Tính số ngày còn lại
+                const diffTime = dateObj - new Date();
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                let daysLeftStr = '';
+                if (diffDays > 0) daysLeftStr = `${diffDays} ngày nữa`;
+                else if (diffDays === 0) daysLeftStr = 'Hôm nay';
+                else daysLeftStr = 'Đã qua';
 
-                    document.getElementById('aboutFamilyTitle').innerText = 'Về ' + data.familyName;
-                    document.title = 'Trang Chủ - ' + data.familyName;
-                }
-                if (data.description) {
-                    document.getElementById('aboutFamilyDesc').innerText = data.description;
-                }
-
-                document.getElementById('statTotalMembers').innerText = data.totalMembers || 0;
-                document.getElementById('statGenerations').innerText = data.totalGenerations || 0;
-                document.getElementById('statMaleCount').innerText = data.maleCount || 0;
-                document.getElementById('statFemaleCount').innerText = data.femaleCount || 0;
-
-                renderEvents(data.upcomingEvents);
-                renderNews(data.latestNews);
-            })
-            .catch(error => {
-                console.error(error);
-                document.getElementById('eventsContainer').innerHTML = `<p style="grid-column: span 4; text-align: center; color: red;">Lỗi tải dữ liệu sự kiện.</p>`;
-                document.getElementById('newsContainer').innerHTML = `<p style="grid-column: span 4; text-align: center; color: red;">Lỗi tải dữ liệu tin tức.</p>`;
-            });
-
-            // ==================================================
-            // 2. HÀM RENDER SỰ KIỆN SẮP TỚI
-            // ==================================================
-            function renderEvents(events) {
-                const container = document.getElementById('eventsContainer');
-                if (!events || events.length === 0) {
-                    container.innerHTML = '<p style="grid-column: span 4; text-align: center; color: #6B7280;">Hiện không có sự kiện nào sắp tới.</p>';
-                    return;
-                }
-
-                container.innerHTML = events.map(event => {
-                    // Xử lý ngày tháng (Dùng startAt hoặc createdAt)
-                    const dateObj = event.startAt ? new Date(event.startAt) : new Date();
-                    const monthStr = 'Tháng ' + (dateObj.getMonth() + 1);
-                    const dayStr = dateObj.getDate();
-                    const timeStr = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-
-                    // Tính số ngày còn lại
-                    const diffTime = dateObj - new Date();
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    let daysLeftStr = '';
-                    if (diffDays > 0) daysLeftStr = `${diffDays} ngày nữa`;
-                    else if (diffDays === 0) daysLeftStr = 'Hôm nay';
-                    else daysLeftStr = 'Đã qua';
-
-                    return `
+                return `
                     <div class="event-card">
                         <div class="event-date"><span>${monthStr}</span><strong>${dayStr}</strong></div>
                         <div class="event-info">
@@ -212,38 +339,70 @@
                         </div>
                     </div>
                     `;
-                }).join('');
+            }).join('');
+        }
+
+        // ==================================================
+        // 3. HÀM RENDER TIN TỨC MỚI NHẤT
+        // ==================================================
+        function renderNews(newsList) {
+            const container = document.getElementById('newsContainer');
+            if (!newsList || newsList.length === 0) {
+                container.innerHTML = '<p style="grid-column: span 4; text-align: center; color: #6B7280;">Chưa có tin tức nào.</p>';
+                return;
             }
 
-            // ==================================================
-            // 3. HÀM RENDER TIN TỨC MỚI NHẤT
-            // ==================================================
-            function renderNews(newsList) {
-                const container = document.getElementById('newsContainer');
-                if (!newsList || newsList.length === 0) {
-                    container.innerHTML = '<p style="grid-column: span 4; text-align: center; color: #6B7280;">Chưa có tin tức nào.</p>';
-                    return;
-                }
+            const categoryLabel = (news) => {
+                if (news.categoryName) return news.categoryName;
+                const publicMap = {
+                    ANNOUNCEMENT: 'Thông báo',
+                    HISTORY: 'Dòng họ',
+                    GENERAL: 'Tin chung',
+                    EVENT: 'Sự kiện'
+                };
+                return publicMap[news.publicCategory] || 'Tin tức';
+            };
 
-                container.innerHTML = newsList.map(news => {
-                    // Xử lý ngày hiển thị dạng "X ngày trước"
-                    const dateObj = news.createdAt ? new Date(news.createdAt) : new Date();
-                    const diffTime = new Date() - dateObj;
-                    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                    const timeAgo = diffDays === 0 ? 'Hôm nay' : `${diffDays} ngày trước`;
+            const visibilityLabel = (visibility) => {
+                if (visibility === 'FAMILY_ONLY') return 'Nội bộ';
+                if (visibility === 'PUBLIC_SITE') return 'Công khai';
+                if (visibility === 'DRAFT') return 'Nháp';
+                return 'Tin tức';
+            };
 
-                    return `
-                    <div class="news-card">
-                        <span class="badge badge-success">${news.categoryName || 'Tin tức'}</span>
-                        <span class="news-time">${timeAgo}</span>
-                        <h4>${news.title}</h4>
-                        <p>${news.summary || 'Nhấn đọc thêm để xem chi tiết nội dung...'}</p>
-                        <a href="/news/${news.id || ''}" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-                    </div>
+            container.innerHTML = newsList.map(news => {
+                const dateObj = news.createdAt ? new Date(news.createdAt) : new Date();
+                const createdAt = Number.isNaN(dateObj.getTime())
+                    ? '—'
+                    : dateObj.toLocaleDateString('vi-VN');
+                const detailHref = news.slug ? `/news/${news.slug}` : null;
+                const detailAction = detailHref
+                    ? `<a href="${detailHref}" class="read-more" style="display:inline-flex;align-items:center;gap:8px;margin-top:auto;padding:12px 16px;border-radius:999px;background:#166534;color:#fff;font-weight:700;text-decoration:none;">Đọc thêm <i class="fas fa-arrow-right"></i></a>`
+                    : `<span class="read-more" style="display:inline-flex;align-items:center;gap:8px;margin-top:auto;padding:12px 16px;border-radius:999px;background:#e2e8f0;color:#64748b;font-weight:700;">Chưa có liên kết chi tiết</span>`;
+                const cover = news.coverImage
+                    ? `<img src="${news.coverImage}" alt="${news.title || 'Tin tức'}" style="width:100%;height:100%;object-fit:cover;display:block;">`
+                    : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#dcfce7,#f8fafc);color:#166534;font-size:32px;"><i class="far fa-image"></i></div>`;
+
+                return `
+                    <article class="news-card" style="display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(15,23,42,0.08);border-radius:20px;background:#fff;box-shadow:0 18px 40px rgba(15,23,42,0.08);min-height:100%;">
+                        <div style="position:relative;aspect-ratio:16 / 10;background:#f1f5f9;overflow:hidden;">${cover}</div>
+                        <div style="display:flex;flex-direction:column;gap:14px;padding:20px;height:100%;">
+                            <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;font-weight:600;color:#475569;">
+                                <span style="padding:6px 12px;border-radius:999px;background:#f1f5f9;">${categoryLabel(news)}</span>
+                                <span style="padding:6px 12px;border-radius:999px;${news.visibility === 'FAMILY_ONLY' ? 'background:#fff7ed;color:#c2410c;' : 'background:#ecfdf5;color:#047857;'}">${visibilityLabel(news.visibility)}</span>
+                                <span>${createdAt}</span>
+                            </div>
+                            <h4 style="margin:0;font-size:1.15rem;line-height:1.4;color:#0f172a;">${news.title || 'Tin tức'}</h4>
+                            <p style="margin:0;color:#64748b;line-height:1.7;">${news.summary || 'Nhấn đọc thêm để xem chi tiết nội dung...'}</p>
+                        </div>
+                        <div style="padding:0 20px 20px;">
+                        ${detailAction}
+                        </div>
+                    </article>
                     `;
-                }).join('');
-            }
-        });
-    </script>
-    </body>
-    </html>
+            }).join('');
+        }
+    });
+</script>
+</body>
+</html>

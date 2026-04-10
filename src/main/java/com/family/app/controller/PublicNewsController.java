@@ -7,6 +7,7 @@ import com.family.app.model.NewsVisibility;
 import com.family.app.model.User;
 import com.family.app.repository.FamilyRepository;
 import com.family.app.repository.UserRepository;
+import com.family.app.security.AppPermissions;
 import com.family.app.service.SiteNewsService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -56,9 +57,9 @@ public class PublicNewsController {
         NewsVisibility visibilityFilter = SiteNewsService.parseVisibilityFilter(visibility);
         String visibilityParam = null;
         if (visibilityFilter == NewsVisibility.PUBLIC_SITE) {
-            visibilityParam = "public";
+            visibilityParam = NewsVisibility.PUBLIC_SITE.name();
         } else if (visibilityFilter == NewsVisibility.FAMILY_ONLY) {
-            visibilityParam = "internal";
+            visibilityParam = NewsVisibility.FAMILY_ONLY.name();
         }
 
         String filterFamilyId = clanProperties.getFamilyId();
@@ -84,6 +85,8 @@ public class PublicNewsController {
         model.addAttribute("filterFamilyName", filterFamilyName);
         model.addAttribute("visibilityParam", visibilityParam);
         model.addAttribute("clanDisplayName", clanProperties.getDisplayName());
+        model.addAttribute("currentUser", viewer);
+        model.addAttribute("isFamilyHead", hasFamilyHeadAuthority(auth));
         model.addAttribute("activeMenu", "news");
         return "public/news-list";
     }
@@ -118,5 +121,13 @@ public class PublicNewsController {
             return null;
         }
         return userRepository.findByIdWithFamily(u.getUserId()).orElse(null);
+    }
+
+    private boolean hasFamilyHeadAuthority(Authentication auth) {
+        if (auth == null || auth.getAuthorities() == null) {
+            return false;
+        }
+        return auth.getAuthorities().stream()
+                .anyMatch(a -> AppPermissions.FAMILY_HEAD.equals(a.getAuthority()));
     }
 }

@@ -52,6 +52,7 @@ public class NewsServiceImpl extends NewsService {
                 .title(request.getTitle())
                 .summary(request.getSummary())
                 .content(request.getContent())
+                .coverImage(normalizeCoverImage(request.getCoverImage()))
                 .startAt(request.getStartAt())
                 .endAt(request.getEndAt())
                 .location(request.getLocation())
@@ -95,6 +96,9 @@ public class NewsServiceImpl extends NewsService {
         news.setTitle(request.getTitle());
         news.setSummary(request.getSummary());
         news.setContent(request.getContent());
+        if (request.getCoverImage() != null) {
+            news.setCoverImage(normalizeCoverImage(request.getCoverImage()));
+        }
         news.setLocation(request.getLocation());
         news.setStartAt(request.getStartAt());
         news.setEndAt(request.getEndAt());
@@ -192,5 +196,13 @@ public class NewsServiceImpl extends NewsService {
         } catch (IllegalArgumentException e) {
             return null;
         }
+    }
+
+    private static String normalizeCoverImage(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        String value = raw.trim();
+        return value.isEmpty() ? null : value;
     }
 }

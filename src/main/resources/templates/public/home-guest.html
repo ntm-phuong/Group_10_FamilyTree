@@ -1,639 +1,425 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang Chủ - Gia Phả Dòng Họ</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link rel="stylesheet" th:href="@{/css/home-guest.css}">
-    <link rel="stylesheet" th:href="@{/css/login.css}">
-
+<html class="light" lang="vi"><head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&amp;family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#131f00",
+                        "surface-container-highest": "#e3e3de",
+                        "on-primary": "#ffffff",
+                        "outline-variant": "#c2c9bb",
+                        "surface-bright": "#fafaf5",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#a1d494",
+                        "on-tertiary-fixed-variant": "#334d2f",
+                        "tertiary": "#264023",
+                        "tertiary-container": "#3d5738",
+                        "secondary-fixed": "#c8f17a",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#496800",
+                        "primary-fixed": "#bcf0ae",
+                        "surface-container-high": "#e8e8e3",
+                        "error": "#ba1a1a",
+                        "primary": "#154212",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#f1f1ec",
+                        "on-primary-fixed-variant": "#23501e",
+                        "on-surface-variant": "#42493e",
+                        "on-primary-container": "#9dd090",
+                        "surface-container-low": "#f4f4ef",
+                        "surface": "#fafaf5",
+                        "primary-fixed-dim": "#a1d494",
+                        "secondary-container": "#c8f17a",
+                        "outline": "#72796e",
+                        "on-surface": "#1a1c19",
+                        "background": "#fafaf5",
+                        "on-primary-fixed": "#002201",
+                        "on-tertiary-container": "#adcca4",
+                        "on-tertiary-fixed": "#082007",
+                        "primary-container": "#2d5a27",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#364e00",
+                        "surface-tint": "#3b6934",
+                        "on-secondary-container": "#4e6e00",
+                        "surface-dim": "#dadad5",
+                        "surface-variant": "#e3e3de",
+                        "tertiary-fixed": "#ccebc2",
+                        "on-background": "#1a1c19",
+                        "tertiary-fixed-dim": "#b1cfa7",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#add461",
+                        "surface-container": "#eeeee9",
+                        "inverse-surface": "#2f312e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Noto Serif"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Manrope', sans-serif; }
+        h1, h2, h3, .serif { font-family: 'Noto Serif', serif; }
+        .bamboo-gradient {
+            background: linear-gradient(15deg, #154212 0%, #2d5a27 100%);
+        }
+        .bamboo-mask {
+            mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+        }
+    </style>
 </head>
-<body>
-
-<th:block th:replace="~{fragments/navbar :: navbar}"/>
-
-<section class="guest-hero">
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-        <h1 id="heroFamilyName">Gia Phả Dòng Họ...</h1>
-        <p class="hero-quote">"Mộc bản hồ thủy, vạn cổ tầm tông"</p>
-        <p class="hero-desc">Cây có gốc mới nở cành xanh ngọn, nước có nguồn mới bể rộng sông sâu. Nơi lưu giữ truyền thống và kết nối các thế hệ con cháu.</p>
-        <div class="hero-buttons">
-            <a href="#" class="btn btn-outline btn-open-login"><i class="fas fa-sitemap"></i> Xem Gia Phả</a>
-            <a th:href="@{/news}" class="btn btn-outline"><i class="far fa-newspaper"></i> Tin Tức Dòng Họ</a>
+<body class="bg-surface text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#fafaf5]/85 dark:bg-stone-900/85 backdrop-blur-md shadow-sm dark:shadow-none">
+    <div class="flex justify-between items-center max-w-6xl mx-auto px-6 h-16">
+        <div class="text-xl font-serif italic text-[#154212] dark:text-[#f4f4ef]">Family Care</div>
+        <div class="hidden md:flex items-center space-x-6">
+            <a class="text-[#154212] dark:text-[#ffffff] border-b-2 border-[#2D5A27] pb-0.5 font-bold text-sm" href="#">Trang chủ</a>
+            <a class="text-stone-600 dark:text-stone-400 font-medium hover:text-[#2D5A27] transition-colors text-sm" href="#about">Về chúng tôi</a>
+            <a class="text-stone-600 dark:text-stone-400 font-medium hover:text-[#2D5A27] transition-colors text-sm" href="#features">Tính năng</a>
+            <a class="text-stone-600 dark:text-stone-400 font-medium hover:text-[#2D5A27] transition-colors text-sm" href="#register">Tạo dòng họ</a>
         </div>
+        <a href="/login" class="bamboo-gradient text-on-primary px-5 py-2 rounded-lg font-bold text-sm hover:shadow-lg transition-all active:scale-95 inline-block">
+            Đăng nhập
+        </a>
     </div>
-</section>
-
-<section class="guest-stats container">
-    <div class="stat-card">
-        <i class="fas fa-users" style="color: #2E7D32;"></i>
-        <h3 id="statTotalMembers">0</h3>
-        <p>Thành viên</p>
-    </div>
-    <div class="stat-card">
-        <i class="fas fa-seedling" style="color: #D84315;"></i>
-        <h3 id="statGenerations">0</h3>
-        <p>Thế hệ</p>
-    </div>
-    <div class="stat-card">
-        <i class="fas fa-male" style="color: #1976D2;"></i>
-        <h3 id="statMaleCount">0</h3>
-        <p>Nam giới</p>
-    </div>
-    <div class="stat-card">
-        <i class="fas fa-female" style="color: #C2185B;"></i>
-        <h3 id="statFemaleCount">0</h3>
-        <p>Nữ giới</p>
-    </div>
-</section>
-
-<section class="guest-about">
-    <div class="container">
-        <h2 id="aboutFamilyTitle">Về Dòng Họ...</h2>
-        <p id="aboutFamilyDesc">Đang tải thông tin dòng họ...</p>
-        <p>Với mục tiêu bảo tồn và phát huy truyền thống gia đình, hệ thống gia phả trực tuyến được xây dựng để giúp các thành viên dễ dàng tra cứu thông tin, kết nối với nhau và lưu giữ những kỷ niệm quý báu.</p>
-        <a th:href="@{/about}" class="btn btn-outline-dark">Tìm hiểu lịch sử dòng họ <i class="fas fa-arrow-right"></i></a>
-    </div>
-</section>
-
-<section class="guest-events container">
-    <div class="section-header">
-        <h2>Sự kiện sắp tới</h2>
-        <p>Đừng bỏ lỡ các sự kiện quan trọng của dòng họ</p>
-    </div>
-    <div class="grid-4" id="eventsContainer">
-        <p style="grid-column: span 4; text-align: center; color: gray;">Đang tải sự kiện...</p>
-    </div>
-</section>
-
-<section class="guest-news">
-    <div class="container">
-        <div class="section-header">
-            <h2>Tin Tức Mới Nhất</h2>
-            <p>Cập nhật các hoạt động và sự kiện của dòng họ</p>
+</nav>
+<main>
+    <!-- Hero Section -->
+    <section class="relative min-h-[75vh] flex items-center pt-16 overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img class="w-full h-full object-cover opacity-90 grayscale-[20%]" data-alt="Bamboo forest by water at sunrise, symbolizing family roots and generational legacy" src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1200&q=80"/>
+            <div class="absolute inset-0 bg-gradient-to-r from-surface/90 via-surface/60 to-transparent"></div>
         </div>
-        <div class="grid-4" id="newsContainer">
-            <p style="grid-column: span 4; text-align: center; color: gray;">Đang tải tin tức...</p>
-        </div>
-    </div>
-</section>
-
-<section class="guest-cta">
-    <div class="container text-center">
-        <h2>Kết Nối Với Gia Đình</h2>
-        <p>Hãy cùng nhau xây dựng và gìn giữ gia phả dòng họ. Mỗi thành viên đều là một phần quan trọng trong lịch sử gia đình.</p>
-
-        <a href="#" class="btn btn-light btn-open-login"><i class="fas fa-sign-in-alt"></i> Đăng Nhập</a>
-    </div>
-</section>
-
-<th:block th:replace="~{fragments/footer :: footer}"/>
-<div id="loginModal" class="modal-overlay">
-    <div class="modal-card">
-        <span class="modal-close-btn" onclick="closeModal('loginModal')">&times;</span>
-        <div class="login-header-figma" style="margin-top: 10px;">
-            <h2 style="color: var(--green-900); font-size: 1.6rem; font-weight: 700;">Đăng nhập</h2>
-            <p style="font-size: 0.95rem; color: #4B5563;">Hệ thống quản lý gia phả họ Nguyễn</p>
-        </div>
-
-        <div id="loginAlertContainer"></div>
-
-        <form id="loginForm">
-            <div class="form-group-figma">
-                <label for="email" style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Email</label>
-                <div class="input-icon-wrap-figma">
-                    <i class="far fa-envelope"></i>
-                    <input type="email" id="email" required placeholder="Nhập email của bạn">
+        <div class="relative z-10 max-w-6xl mx-auto px-6 w-full">
+            <div class="max-w-xl">
+                <h1 class="text-4xl md:text-5xl font-bold text-primary leading-tight mb-4">
+                    Mộc bản hồ thủy,<br/>
+                    <span class="italic text-tertiary">vạn cổ tầm tông</span>
+                </h1>
+                <p class="text-base text-on-surface-variant font-body mb-8 leading-relaxed max-w-md">
+                    Bảo tồn di sản gia đình với sức sống bền bỉ của tre. Chúng tôi kết nối các thế hệ qua lưu trữ kỹ thuật số và biểu đồ gia phả trực quan.
+                </p>
+                <div class="flex items-center gap-3">
+                    <button onclick="openCreateFamilyModal()" class="bamboo-gradient text-on-primary px-6 py-3 rounded-lg text-base font-bold hover:shadow-xl transition-all scale-100 hover:scale-[1.02] active:scale-95">
+                        Tạo dòng họ
+                    </button>
+                    <a href="#about" class="flex items-center gap-1.5 text-primary font-bold px-4 py-3 hover:bg-primary/5 rounded-lg transition-colors group text-base" >
+                        Xem giới thiệu
+                        <span class="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+                    </a>
                 </div>
-            </div>
-
-            <div class="form-group-figma">
-                <div class="label-flex" style="display: flex; justify-content: space-between;">
-                    <label for="password" style="font-weight: 600;">Mật khẩu</label>
-                    <a href="#" class="forgot-pw" id="openForgotModal">Quên mật khẩu?</a>
-                </div>
-                <div class="input-icon-wrap-figma">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="password" required placeholder="••••••••">
-                    <i class="far fa-eye-slash toggle-pw" onclick="togglePw('password', this)"></i>
-                </div>
-            </div>
-
-            <button type="submit" class="btn-login-submit" id="btnLoginSubmit">Đăng nhập</button>
-        </form>
-        <div class="login-contact-admin">
-            Chưa có tài khoản? Liên hệ <a href="#"><strong>Ban Quản Trị</strong></a> để được cấp quyền
-        </div>
-    </div>
-</div>
-
-<div id="forgotPwModal" class="modal-overlay">
-    <div class="modal-card">
-        <span class="modal-close-btn" onclick="closeModal('forgotPwModal')">&times;</span>
-        <h3>Khôi phục mật khẩu</h3>
-        <div id="forgotAlertContainer"></div>
-
-        <form id="step1Form">
-            <p>Nhập email tài khoản. Chúng tôi sẽ gửi mã OTP gồm 6 chữ số.</p>
-            <div class="form-group-figma">
-                <div class="input-icon-wrap-figma">
-                    <i class="far fa-envelope"></i>
-                    <input type="email" id="forgotEmail" required placeholder="Nhập email của bạn...">
-                </div>
-            </div>
-            <button type="submit" class="btn-login-submit" id="btnSendOtp">Gửi mã xác thực</button>
-        </form>
-
-        <form id="step2Form" style="display: none;">
-            <p style="color: #16A34A; font-weight: 500;">Mã OTP đã được gửi đến email!</p>
-            <div class="form-group-figma">
-                <div class="input-icon-wrap-figma">
-                    <i class="fas fa-keyboard"></i>
-                    <input type="text" id="otpCode" required placeholder="Nhập mã OTP 6 số" maxlength="6">
-                </div>
-            </div>
-            <button type="submit" class="btn-login-submit" id="btnVerifyOtp">Xác nhận mã OTP</button>
-        </form>
-
-        <form id="step3Form" style="display: none;">
-            <p>Mã chính xác. Vui lòng đặt mật khẩu mới.</p>
-
-            <div class="form-group-figma">
-                <div class="input-icon-wrap-figma" id="forgotPasswordWrap">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="newForgotPass" required placeholder="Nhập mật khẩu mới">
-                    <i class="far fa-eye-slash toggle-pw" onclick="togglePw('newForgotPass', this)"></i>
-                </div>
-                <span id="forgotPasswordError" style="font-size: 0.75rem; color: #6B7280; display: block; margin-top: 5px;">
-                    Ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số & ký tự đặc biệt.
-                </span>
-            </div>
-
-            <div class="form-group-figma" style="margin-bottom: 1.5rem;">
-                <div class="input-icon-wrap-figma" id="forgotConfirmWrap">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="confirmForgotPass" required placeholder="Nhập lại mật khẩu">
-                    <i class="far fa-eye-slash toggle-pw" onclick="togglePw('confirmForgotPass', this)"></i>
-                </div>
-                <span id="forgotMatchMessage" class="validation-msg"></span>
-            </div>
-
-            <button type="submit" class="btn-login-submit" id="btnResetPass" disabled>Đổi mật khẩu</button>
-        </form>
-    </div>
-</div>
-
-<div id="activeModal" class="modal-overlay">
-    <div class="modal-card">
-        <div style="text-align: center; margin-bottom: 1rem;">
-            <div style="width: 60px; height: 60px; background-color: #F0FDF4; color: #15803D; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem;">
-                <i class="fas fa-shield-alt"></i>
             </div>
         </div>
-        <h3 style="margin-bottom: 0.5rem;">Thiết lập mật khẩu</h3>
-        <p style="margin-bottom: 1.5rem;">Đây là lần đăng nhập đầu tiên.<br>Vui lòng đổi mật khẩu để bảo mật.</p>
-
-        <div id="activeAlertContainer"></div>
-
-        <form id="activeForm">
-            <div class="form-group-figma">
-                <div class="input-icon-wrap-figma" id="activePasswordWrap">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="activePassword" required placeholder="Mật khẩu mới">
-                    <i class="far fa-eye-slash toggle-pw" onclick="togglePw('activePassword', this)"></i>
+    </section>
+    <!-- Stats Bar Section -->
+    <section class="py-8 bg-surface border-y border-outline-variant/30">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                <div>
+                    <div class="text-3xl font-serif font-bold text-primary mb-0.5">1,000,000+</div>
+                    <div class="text-on-surface-variant font-label font-bold uppercase tracking-widest text-[10px]">Người dùng tin tưởng</div>
                 </div>
-                <span id="activePasswordError" style="font-size: 0.75rem; color: #6B7280; display: block; margin-top: 5px;">
-        Ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số & ký tự đặc biệt.
-    </span>
-            </div>
-            <div class="form-group-figma" style="margin-bottom: 1.5rem;">
-                <div class="input-icon-wrap-figma" id="activeConfirmWrap">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="activeConfirmPassword" required placeholder="Nhập lại mật khẩu">
-                    <i class="far fa-eye-slash toggle-pw" onclick="togglePw('activeConfirmPassword', this)"></i>
+                <div>
+                    <div class="text-3xl font-serif font-bold text-primary mb-0.5">50,000+</div>
+                    <div class="text-on-surface-variant font-label font-bold uppercase tracking-widest text-[10px]">Dòng họ đã khởi tạo</div>
                 </div>
-                <span id="activeMatchMessage" class="validation-msg"></span>
+                <div>
+                    <div class="text-3xl font-serif font-bold text-primary mb-0.5 flex items-center justify-center gap-1">4.8<span class="material-symbols-outlined text-2xl">star</span></div>
+                    <div class="text-on-surface-variant font-label font-bold uppercase tracking-widest text-[10px]">Đánh giá từ cộng đồng</div>
+                </div>
             </div>
-            <button type="submit" class="btn-login-submit" id="btnActiveSubmit" disabled>Vào Gia Phả</button>
-        </form>
-    </div>
-</div>
-<script th:inline="javascript">
-    // --- 1. HÀM TIỆN ÍCH CHUNG ---
-    function openModal(id) { document.getElementById(id).classList.add('open'); }
-    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-    function setAccessTokenCookie(token) {
-        if (!token) return;
-        document.cookie = 'accessToken=' + encodeURIComponent(token)
-            + '; path=/; max-age=' + (86400 * 7) + '; SameSite=Lax';
-    }
-
-    function togglePw(id, el) {
-        const input = document.getElementById(id);
-        if (input.type === "password") {
-            input.type = "text"; el.classList.replace('fa-eye-slash', 'fa-eye');
-        } else {
-            input.type = "password"; el.classList.replace('fa-eye', 'fa-eye-slash');
-        }
-    }
-
-    function showPopup(message, type = 'error', containerId) {
-        const container = document.getElementById(containerId);
-        const iconClass = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
-        container.innerHTML = `<div class="alert-popup ${type}"><i class="${iconClass}"></i><span>${message}</span></div>`;
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('login') === 'true') {
-        // Tự động mở modal khi thấy ?login=true
-        openModal('loginModal');
-
-        // Xóa tham số trên URL cho sạch (không bắt buộc)
-        window.history.replaceState(null, '', window.location.pathname);
-    }
-
-        if (sessionStorage.getItem('needsPasswordSetup') === '1' && localStorage.getItem('token')) {
-            sessionStorage.removeItem('needsPasswordSetup');
-            openModal('activeModal');
-        }
-
-        // ==================================================
-        // A. GỌI API LẤY DỮ LIỆU CÔNG KHAI (GUEST)
-        // ==================================================
-        // Chọn dòng họ mặc định hiển thị ra trang chủ khi chưa đăng nhập
-        const defaultPublicFamilyId = 'fam-nguyen-001';
-
-        // Không truyền Token vì là Guest
-        fetch(`/api/families/${defaultPublicFamilyId}/home`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => {
-            if (!response.ok) throw new Error("Lỗi tải dữ liệu trang chủ");
-            return response.json();
-        })
-        .then(data => {
-            if (data.familyName) {
-                document.getElementById('heroFamilyName').innerText = 'Gia Phả ' + data.familyName;
-                document.getElementById('aboutFamilyTitle').innerText = 'Về ' + data.familyName;
-                document.title = 'Trang Chủ - ' + data.familyName;
-            }
-            if (data.description) {
-                document.getElementById('aboutFamilyDesc').innerText = data.description;
-            }
-            document.getElementById('statTotalMembers').innerText = data.totalMembers || 0;
-            document.getElementById('statGenerations').innerText = data.totalGenerations || 0;
-            document.getElementById('statMaleCount').innerText = data.maleCount || 0;
-            document.getElementById('statFemaleCount').innerText = data.femaleCount || 0;
-
-            renderEvents(data.upcomingEvents);
-            renderNews(data.latestNews);
-        })
-        .catch(error => {
-            console.error("Lỗi API trang Guest:", error);
-            // Nếu lỗi 403 (Cấm truy cập), hãy cấu hình lại SecurityConfig bên Java
-        });
-
-        function renderEvents(events) {
-            const container = document.getElementById('eventsContainer');
-            if (!events || events.length === 0) {
-                container.innerHTML = '<p style="grid-column: span 4; text-align: center; color: #6B7280;">Hiện không có sự kiện nào sắp tới.</p>';
-                return;
-            }
-            container.innerHTML = events.map(event => {
-                const dateObj = event.startAt ? new Date(event.startAt) : new Date();
-                const monthStr = 'Tháng ' + (dateObj.getMonth() + 1);
-                const dayStr = dateObj.getDate();
-                const timeStr = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-                const diffTime = dateObj - new Date();
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                let daysLeftStr = diffDays > 0 ? `${diffDays} ngày nữa` : (diffDays === 0 ? 'Hôm nay' : 'Đã qua');
-
-                return `
-                <div class="event-card">
-                    <div class="event-date"><span>${monthStr}</span><strong>${dayStr}</strong></div>
-                    <div class="event-info">
-                        <span class="badge badge-warning">${event.categoryName || 'Sự kiện'} - ${daysLeftStr}</span>
-                        <h4>${event.title}</h4>
-                        <p><i class="fas fa-map-marker-alt"></i> ${event.location || 'Tại nhà thờ họ'}</p>
-                        <p><i class="far fa-clock"></i> ${timeStr}</p>
+        </div>
+    </section>
+    <!-- About Us Section -->
+    <section class="py-20 bg-surface-container-low" id="about">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="relative">
+                    <div class="aspect-[4/3] rounded-xl overflow-hidden shadow-xl border-4 border-white/50">
+                        <img alt="Bamboo Heritage Landscape" class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80"/>
                     </div>
-                </div>`;
-            }).join('');
+                    <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-primary-fixed rounded-full -z-10 blur-xl opacity-40"></div>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-primary mb-6">Nơi gìn giữ tinh hoa dòng tộc</h2>
+                    <div class="space-y-4 text-on-surface-variant text-base leading-relaxed">
+                        <p>
+                            Family Care không chỉ là một ứng dụng quản lý gia phả. Chúng tôi là người đồng hành trong hành trình tìm về cội nguồn, giúp mỗi cá nhân hiểu rõ hơn về bản sắc và giá trị truyền thống của gia đình mình.
+                        </p>
+                        <div class="flex gap-4 items-start p-5 bg-surface-container-highest rounded-lg">
+                            <div class="w-1 h-12 bg-secondary shrink-0 rounded-full"></div>
+                            <p class="italic font-body text-primary text-sm">
+                                "Cây có gốc mới nở cành xanh ngọn, nước có nguồn mới bể rộng sông sâu."
+                            </p>
+                        </div>
+                        <p>
+                            Với công nghệ hiện đại kết hợp tinh thần truyền thống, chúng tôi kiến tạo không gian số an toàn để lưu trữ những câu chuyện, hình ảnh và kỷ vật vô giá của tổ tiên.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Features Section -->
+    <section class="py-20 bg-surface" id="features">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-primary mb-3">Tính năng nổi bật</h2>
+                <p class="text-on-surface-variant max-w-lg mx-auto text-sm">Công cụ hiện đại giúp việc xây dựng và duy trì cây gia phả trở nên dễ dàng và sinh động hơn bao giờ hết.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-5 auto-rows-[200px]">
+                <!-- Feature 1: Visual Tree -->
+                <div class="md:col-span-8 bg-surface-container-lowest p-8 rounded-xl flex flex-col justify-between group hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="material-symbols-outlined text-3xl text-primary mb-3" data-icon="account_tree">account_tree</span>
+                            <h3 class="text-xl font-bold text-primary">Biểu đồ gia phả trực quan</h3>
+                        </div>
+                        <div class="w-24 h-24 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <span class="material-symbols-outlined text-[80px]" data-icon="forest">forest</span>
+                        </div>
+                    </div>
+                    <p class="text-on-surface-variant max-w-sm text-sm">Hiển thị các mối quan hệ gia đình dưới dạng sơ đồ cây sinh động, hỗ trợ đa thế hệ và các nhánh họ phức tạp.</p>
+                </div>
+                <!-- Feature 2: Security -->
+                <div class="md:col-span-4 bg-primary-container p-8 rounded-xl flex flex-col justify-between text-on-primary">
+                    <span class="material-symbols-outlined text-3xl mb-3" data-icon="verified_user">verified_user</span>
+                    <div>
+                        <h3 class="text-xl font-bold mb-1">Bảo mật thông tin</h3>
+                        <p class="text-on-primary-container opacity-90 text-xs">Dữ liệu dòng họ được mã hóa và bảo vệ tuyệt đối, quyền truy cập do tộc trưởng kiểm soát.</p>
+                    </div>
+                </div>
+                <!-- Feature 3: Connection -->
+                <div class="md:col-span-4 bg-tertiary-fixed p-8 rounded-xl flex flex-col justify-between text-on-tertiary-fixed">
+                    <span class="material-symbols-outlined text-3xl mb-3" data-icon="groups">groups</span>
+                    <div>
+                        <h3 class="text-xl font-bold mb-1">Kết nối thành viên</h3>
+                        <p class="text-on-tertiary-fixed-variant opacity-80 text-xs">Gắn kết mọi người thông qua các buổi họp mặt ảo, thông báo ngày giỗ và ngày kỷ niệm.</p>
+                    </div>
+                </div>
+                <!-- Feature 4: Digital Archive -->
+                <div class="md:col-span-8 bg-surface-container-high p-8 rounded-xl flex items-center gap-8">
+                    <div class="flex-1">
+                        <span class="material-symbols-outlined text-3xl text-primary mb-3" data-icon="inventory_2">inventory_2</span>
+                        <h3 class="text-xl font-bold text-primary mb-1">Lưu trữ tài liệu số</h3>
+                        <p class="text-on-surface-variant text-sm">Số hóa gia phả giấy, văn khấn, hình ảnh sắc phong và những câu chuyện truyền miệng từ các bậc tiền bối.</p>
+                    </div>
+                    <div class="hidden lg:block w-1/4">
+                        <img class="rounded-lg shadow-lg rotate-3 max-h-32 object-cover" data-alt="Close-up of old weathered ancient parchment document with elegant calligraphy and red wax seal" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYhVo6znshVbmJBfvhRS_UmO1DI23o0A0Fsi5q4nGYRt8MIH7qfpaLj4LNWaYugcyoin3crTwzxhXYvvoDaKwVMvW_Uw57P_iH5by_PCpQkURTTORK5mE7ewFUYMPciY2XUppqCScUX0A2QuIaVKzmjdMbIwLwNGqbcxJ_UE9mDspf79dXxtUEQU_HfgBpI797XIan9lOC3OyR9KGRhXOJGtcz-47Q72qgFA8tViA1XCW1l4H6PZ49nUqynrpz66i6oPuWs8g4H6M"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Registration Section -->
+    <section class="py-20 bg-surface-container-lowest" id="register">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="bg-primary rounded-2xl overflow-hidden shadow-xl relative">
+                <div class="absolute inset-0 z-0 opacity-20">
+                    <img class="w-full h-full object-cover" data-alt="Abstract atmospheric pattern of dense forest silhouettes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpxTR1oaaYzjvAMHg3G1M_DVBBTba8X5m1lGigFkfv3Te6Lo3l0-_jugH_5XI9NYIVNP9PAv6kxVsOW7FSfZdvd6hO1E2Q-UtDt16krx_MKxKGRpMOGhuE_JIIorSi1h9HxR9sqohFP2Unk9TUPrpS1zikBNaW2zluzRA62SA-KxSaIBRV7C34WXewV7HSvxwuGwsohAH6NeXb7nQ8MbRFgyjlQ-jo0dt-Zkvics3vYqM1l-oW2rXAi6GpXvkywAu0HVIt0t8tRhA"/>
+                </div>
+                <div class="relative z-10 grid md:grid-cols-2 gap-0">
+                    <div class="p-12 flex flex-col justify-center text-on-primary">
+                        <h2 class="text-3xl font-bold mb-4">Đăng ký tạo dòng họ</h2>
+                        <p class="text-on-primary-container text-base mb-6 leading-relaxed opacity-90">
+                            Hãy bắt đầu hành trình vinh danh tổ tiên và xây dựng di sản cho con cháu ngay hôm nay. Chỉ mất 2 phút để khởi tạo một cây gia phả mới.
+                        </p>
+                        <ul class="space-y-3 text-sm">
+                            <li class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-secondary-fixed text-xl" data-icon="check_circle">check_circle</span>
+                                Miễn phí khởi tạo cho 3 thế hệ đầu tiên
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-secondary-fixed text-xl" data-icon="check_circle">check_circle</span>
+                                Hỗ trợ nhập liệu từ file Excel
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-secondary-fixed text-xl" data-icon="check_circle">check_circle</span>
+                                Tư vấn cấu trúc phả đồ chuẩn truyền thống
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-xl p-12 flex items-center justify-center">
+                        <div class="w-full max-w-[320px] bg-white p-8 rounded-xl shadow-xl">
+                            <div class="text-center">
+                                <div class="mb-6">
+                                    <span class="material-symbols-outlined text-5xl text-primary/20 mb-3" data-icon="app_registration">app_registration</span>
+                                    <h3 class="text-xl font-bold text-primary mb-2">Bắt đầu ngay hôm nay</h3>
+                                    <p class="text-on-surface-variant text-[13px] px-2">
+                                        Nhấn vào nút bên dưới để mở biểu mẫu đăng ký dòng họ ngay.
+                                    </p>
+                                </div>
+                                <a href="#createFamilyModal" onclick="openCreateFamilyModal()" class="w-full bamboo-gradient text-on-primary py-4 rounded-lg font-bold text-lg hover:shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-xl" data-icon="open_in_new">open_in_new</span>
+                                    Tạo dòng họ mới
+                                </a>
+                                <p class="text-center mt-6 text-xs text-on-surface-variant">
+                                    Đã có tài khoản? <a class="text-primary font-bold hover:underline" href="/login">Đăng nhập</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Create Family Tree Modal -->
+<div id="createFamilyModal" class="hidden fixed inset-0 z-[60] bg-on-surface/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-surface-bright w-full max-w-[500px] rounded-2xl shadow-2xl overflow-hidden border border-outline-variant/10 relative">
+        <div class="p-6 md:p-8 overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h2 class="text-2xl font-serif font-bold text-primary mb-1">Tạo dòng họ mới</h2>
+                    <p class="text-on-surface-variant text-sm leading-relaxed">Bắt đầu hành trình gìn giữ di sản của gia đình bạn.</p>
+                </div>
+                <button onclick="closeCreateFamilyModal()" class="p-1.5 -mr-1.5 hover:bg-surface-container-high rounded-full transition-colors text-outline">
+                    <span class="material-symbols-outlined text-xl">close</span>
+                </button>
+            </div>
+            <!--            <div class="mb-6">-->
+            <!--                <button class="text-secondary font-bold text-xs inline-flex items-center gap-1 hover:underline decoration-secondary/30 underline-offset-4 transition-all">-->
+            <!--                    Bạn muốn đăng ký vào dòng họ đã có?-->
+            <!--                    <span class="material-symbols-outlined text-sm">Đăng nhập</span>-->
+            <!--                </button>-->
+            <!--            </div>-->
+            <form class="space-y-5">
+                <!-- Basic Info Group -->
+                <div class="space-y-4">
+                    <!-- Full Name -->
+                    <div class="space-y-1">
+                        <label class="block text-xs font-bold text-on-surface-variant font-label uppercase tracking-wider">Họ và tên</label>
+                        <input class="w-full bg-transparent border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 px-0 py-2 text-base placeholder:text-outline-variant/50 transition-all" placeholder="Nguyễn Văn A" type="text"/>
+                    </div>
+                    <!-- Email -->
+                    <div class="space-y-1">
+                        <label class="block text-xs font-bold text-on-surface-variant font-label uppercase tracking-wider">Email</label>
+                        <input class="w-full bg-transparent border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 px-0 py-2 text-base placeholder:text-outline-variant/50 transition-all" placeholder="example@familycare.vn" type="email"/>
+                    </div>
+                </div>
+                <!-- Lineage Highlighted Box -->
+                <div class="p-4 md:p-5 bg-surface-container-low rounded-2xl border border-outline-variant/10">
+                    <div class="space-y-1">
+                        <label class="block text-xs font-bold text-primary font-label uppercase tracking-wider">Tên dòng họ</label>
+                        <input class="w-full bg-transparent border-0 border-b-2 border-primary/20 focus:border-primary focus:ring-0 px-0 py-2 text-lg font-serif font-bold text-primary placeholder:text-primary/30 transition-all" placeholder="Dòng họ Nguyễn" type="text"/>
+                    </div>
+                </div>
+                <!-- Password Group -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="space-y-1">
+                        <label class="block text-xs font-bold text-on-surface-variant font-label uppercase tracking-wider">Mật khẩu</label>
+                        <input class="w-full bg-transparent border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 px-0 py-2 text-base transition-all" placeholder="••••••••" type="password"/>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-xs font-bold text-on-surface-variant font-label uppercase tracking-wider">Xác nhận</label>
+                        <input class="w-full bg-transparent border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 px-0 py-2 text-base transition-all" placeholder="••••••••" type="password"/>
+                    </div>
+                </div>
+                <!-- Agreement -->
+                <div class="flex items-start gap-3 pt-1">
+                    <input class="mt-1 rounded border-outline-variant/40 text-primary focus:ring-primary h-4 w-4 transition-all cursor-pointer" id="terms" type="checkbox"/>
+                    <label class="text-xs text-on-surface-variant leading-relaxed cursor-pointer" for="terms">
+                        Tôi đồng ý với <a class="text-primary font-bold hover:underline" href="#">Điều khoản sử dụng</a> và <a class="text-primary font-bold hover:underline" href="#">Chính sách bảo mật</a>
+                    </label>
+                </div>
+                <!-- Primary Action -->
+                <div class="pt-1">
+                    <button class="w-full bg-gradient-to-r from-primary to-primary-container text-white py-3.5 rounded-xl font-bold text-base shadow-lg shadow-primary/20 hover:shadow-xl hover:translate-y-[-2px] transition-all duration-300" type="submit">
+                        Đăng ký ngay
+                    </button>
+                </div>
+                <!-- Footer Link -->
+                <div class="text-center">
+                    <p class="text-sm text-on-surface-variant">
+                        Đã có tài khoản? <a class="text-primary font-bold hover:underline decoration-2 underline-offset-4" href="/login">Đăng nhập</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="w-full py-10 px-6 mt-auto bg-stone-100 dark:bg-stone-950 border-t border-stone-200/40 dark:border-stone-800/40">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div>
+            <div class="font-serif font-bold text-[#154212] text-lg mb-4">Family Care</div>
+            <p class="text-stone-500 font-sans text-xs tracking-wide leading-relaxed">
+                Hệ thống quản lý gia phả chuyên nghiệp, kết hợp giá trị cốt lõi của truyền thống và sức mạnh của công nghệ hiện đại.
+            </p>
+        </div>
+        <div class="flex flex-col gap-3">
+            <h4 class="font-bold text-[#2D5A27] text-[11px] uppercase tracking-widest">Navigation</h4>
+            <div class="flex flex-col gap-1.5">
+                <a class="text-stone-500 hover:text-[#2D5A27] text-xs underline decoration-stone-300 dark:decoration-stone-700 underline-offset-4 transition-all opacity-80 hover:opacity-100" href="#">Liên hệ</a>
+                <a class="text-stone-500 hover:text-[#2D5A27] text-xs underline decoration-stone-300 dark:decoration-stone-700 underline-offset-4 transition-all opacity-80 hover:opacity-100" href="#">Chính sách bảo mật</a>
+                <a class="text-stone-500 hover:text-[#2D5A27] text-xs underline decoration-stone-300 dark:decoration-stone-700 underline-offset-4 transition-all opacity-80 hover:opacity-100" href="#">Điều khoản dịch vụ</a>
+                <a class="text-stone-500 hover:text-[#2D5A27] text-xs underline decoration-stone-300 dark:decoration-stone-700 underline-offset-4 transition-all opacity-80 hover:opacity-100" href="#">Lưu trữ</a>
+            </div>
+        </div>
+        <div class="flex flex-col justify-between">
+            <div>
+                <h4 class="font-bold text-[#2D5A27] text-[11px] uppercase tracking-widest mb-3">Connect</h4>
+                <div class="flex gap-4">
+                    <span class="material-symbols-outlined text-[#2D5A27] cursor-pointer text-xl" data-icon="facebook">social_leaderboard</span>
+                    <span class="material-symbols-outlined text-[#2D5A27] cursor-pointer text-xl" data-icon="mail">mail</span>
+                </div>
+            </div>
+            <div class="text-stone-500 font-sans text-[10px] tracking-wide mt-6">
+                © 2026 Family Care. All rights reserved.
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Open Create Family Modal
+    function openCreateFamilyModal() {
+        document.getElementById('createFamilyModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Close Create Family Modal
+    function closeCreateFamilyModal() {
+        document.getElementById('createFamilyModal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('createFamilyModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeCreateFamilyModal();
         }
+    });
 
-        function renderNews(newsList) {
-            const container = document.getElementById('newsContainer');
-            if (!newsList || newsList.length === 0) {
-                container.innerHTML = '<p style="grid-column: span 4; text-align: center; color: #6B7280;">Chưa có tin tức nào.</p>';
-                return;
-            }
-            container.innerHTML = newsList.map(news => {
-                const dateObj = news.createdAt ? new Date(news.createdAt) : new Date();
-                const diffDays = Math.floor((new Date() - dateObj) / (1000 * 60 * 60 * 24));
-                const timeAgo = diffDays === 0 ? 'Hôm nay' : `${diffDays} ngày trước`;
-
-                return `
-                <div class="news-card">
-                    <span class="badge badge-success">${news.categoryName || 'Tin tức'}</span>
-                    <span class="news-time">${timeAgo}</span>
-                    <h4>${news.title}</h4>
-                    <p>${news.summary || 'Nhấn đọc thêm để xem chi tiết nội dung...'}</p>
-                    <a href="/news/${news.id || ''}" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-                </div>`;
-            }).join('');
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeCreateFamilyModal();
         }
-
-
-        // ==================================================
-        // B. XỬ LÝ MỞ/ĐÓNG MODAL TỪ NÚT BẤM & LOGIC LOGIN
-        // ==================================================
-        document.querySelectorAll('.btn-open-login').forEach(btn => {
-            btn.addEventListener('click', e => {
-                e.preventDefault();
-                localStorage.clear();
-
-                document.getElementById('loginAlertContainer').innerHTML = '';
-                openModal('loginModal');
-            });
-        });
-
-        document.getElementById('openForgotModal').addEventListener('click', e => {
-            e.preventDefault();
-            closeModal('loginModal');
-            openModal('forgotPwModal');
-            document.getElementById('step1Form').style.display = 'block';
-            document.getElementById('step2Form').style.display = 'none';
-            document.getElementById('step3Form').style.display = 'none';
-            document.getElementById('forgotAlertContainer').innerHTML = '';
-        });
-
-        window.addEventListener('click', e => {
-            if (e.target.classList.contains('modal-overlay')) {
-                e.target.classList.remove('open');
-            }
-        });
-
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
-        document.getElementById('loginForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            const btnSubmit = document.getElementById('btnLoginSubmit');
-            btnSubmit.innerText = "Đang xác thực..."; btnSubmit.disabled = true;
-
-            fetch('/api/auth/login', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: document.getElementById('email').value,
-                    password: document.getElementById('password').value
-                })
-            })
-            .then(res => res.ok ? res.json() : Promise.reject("Email hoặc mật khẩu sai!"))
-            .then(data => {
-                localStorage.setItem('token', data.accessToken);
-                setAccessTokenCookie(data.accessToken);
-                localStorage.setItem('user_id', data.userId);
-                localStorage.setItem('full_name', data.fullName);
-                if (data.role) localStorage.setItem('role', data.role);
-                else localStorage.removeItem('role');
-                if (data.roles) localStorage.setItem('roles', JSON.stringify(data.roles));
-                else localStorage.removeItem('roles');
-                if (data.permissions) localStorage.setItem('permissions', JSON.stringify(data.permissions));
-                else localStorage.removeItem('permissions');
-                if (data.familyId) {
-                    localStorage.setItem('my_family_id', data.familyId);
-                    localStorage.setItem('family_id', data.familyId);
-                } else {
-                    localStorage.removeItem('my_family_id');
-                    localStorage.removeItem('family_id');
-                }
-                if (data.familyName) localStorage.setItem('my_family_name', data.familyName);
-                else localStorage.removeItem('my_family_name');
-
-                if (Number(data.status) === 1) {
-                    closeModal('loginModal');
-                    openModal('activeModal');
-                    btnSubmit.innerText = "Đăng nhập";
-                    btnSubmit.disabled = false;
-                    document.getElementById('loginForm').reset();
-                } else {
-                    window.location.href = '/home';
-                }
-            })
-            .catch(err => {
-                showPopup(err, 'error', 'loginAlertContainer');
-                btnSubmit.innerText = "Đăng nhập"; btnSubmit.disabled = false;
-            });
-        });
-
-        const actPass = document.getElementById('activePassword');
-        const actConf = document.getElementById('activeConfirmPassword');
-        const actPassWrap = document.getElementById('activePasswordWrap');
-        const actPassError = document.getElementById('activePasswordError');
-        const actWrap = document.getElementById('activeConfirmWrap');
-        const actMsg = document.getElementById('activeMatchMessage');
-        const btnActSubmit = document.getElementById('btnActiveSubmit');
-
-        let isFormatValid = false;
-        let isMatchValid = false;
-
-        function checkActivePasswordFormat() {
-            const pwd = actPass.value;
-            if (pwd.length === 0) {
-                actPassWrap.classList.remove('error', 'success');
-                actPassError.textContent = 'Ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số & ký tự đặc biệt.';
-                actPassError.className = ''; actPassError.style.color = '#6B7280';
-                isFormatValid = false;
-            } else if (!passwordRegex.test(pwd)) {
-                actPassWrap.classList.replace('success', 'error') || actPassWrap.classList.add('error');
-                actPassError.textContent = 'Mật khẩu yếu: Thiếu chữ hoa, thường, số hoặc ký tự đặc biệt!';
-                actPassError.className = 'validation-msg error'; actPassError.style.color = '';
-                isFormatValid = false;
-            } else {
-                actPassWrap.classList.replace('error', 'success') || actPassWrap.classList.add('success');
-                actPassError.textContent = ''; actPassError.className = 'validation-msg success'; actPassError.style.color = '';
-                isFormatValid = true;
-            }
-            updateActiveSubmitBtn();
-        }
-
-        function checkActiveMatch() {
-            if (actConf.value.length === 0) {
-                actWrap.classList.remove('error', 'success'); actMsg.textContent = ''; isMatchValid = false;
-            } else if (actPass.value !== actConf.value) {
-                actWrap.classList.replace('success', 'error') || actWrap.classList.add('error');
-                actMsg.textContent = 'Mật khẩu chưa khớp!'; actMsg.className = 'validation-msg error'; isMatchValid = false;
-            } else {
-                actWrap.classList.replace('error', 'success') || actWrap.classList.add('success');
-                actMsg.textContent = ''; isMatchValid = true;
-            }
-            updateActiveSubmitBtn();
-        }
-
-        function updateActiveSubmitBtn() {
-            if (isFormatValid && isMatchValid) btnActSubmit.disabled = false;
-            else btnActSubmit.disabled = true;
-        }
-
-        actPass.addEventListener('input', () => { checkActivePasswordFormat(); checkActiveMatch(); });
-        actConf.addEventListener('input', checkActiveMatch);
-
-        document.getElementById('activeForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (!passwordRegex.test(actPass.value)) {
-                showPopup("Mật khẩu yếu! Cần đủ 8 ký tự, chữ Hoa, Thường, Số và Ký tự đặc biệt.", 'error', 'activeAlertContainer'); return;
-            }
-
-            btnActSubmit.innerText = "Đang xử lý..."; btnActSubmit.disabled = true;
-
-            fetch('/api/auth/active', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('token') },
-                body: JSON.stringify({ userId: localStorage.getItem('user_id'), password: actPass.value })
-            })
-            .then(res => res.ok ? res.json() : Promise.reject("Lỗi cập nhật dữ liệu!"))
-            .then(data => {
-                if (data.accessToken) {
-                    localStorage.setItem('token', data.accessToken);
-                    setAccessTokenCookie(data.accessToken);
-                }
-                showPopup("Thành công! Đang vào Gia Phả...", 'success', 'activeAlertContainer');
-                setTimeout(() => window.location.href = '/home', 1500);
-            })
-            .catch(err => {
-                showPopup(err, 'error', 'activeAlertContainer');
-                btnActSubmit.innerText = "Vào Gia Phả"; btnActSubmit.disabled = false;
-            });
-        });
-
-        let emailReset = "", otpReset = "";
-        document.getElementById('step1Form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            emailReset = document.getElementById('forgotEmail').value;
-            const btn = document.getElementById('btnSendOtp');
-            btn.innerText = "Đang gửi..."; btn.disabled = true;
-
-            fetch('/api/auth/forgot-password/send-otp', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: emailReset })
-            })
-            .then(res => {
-                if(res.ok) {
-                    this.style.display = 'none'; document.getElementById('step2Form').style.display = 'block';
-                    document.getElementById('forgotAlertContainer').innerHTML = '';
-                } else throw "Email không tồn tại!";
-            })
-            .catch(err => showPopup(err, 'error', 'forgotAlertContainer'))
-            .finally(() => { btn.innerText = "Gửi mã xác thực"; btn.disabled = false; });
-        });
-
-        document.getElementById('step2Form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            otpReset = document.getElementById('otpCode').value;
-            const btn = document.getElementById('btnVerifyOtp');
-            btn.innerText = "Đang kiểm tra..."; btn.disabled = true;
-
-            fetch('/api/auth/forgot-password/verify-otp', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: emailReset, otp: otpReset })
-            })
-            .then(res => {
-                if(res.ok) {
-                    this.style.display = 'none'; document.getElementById('step3Form').style.display = 'block';
-                    document.getElementById('forgotAlertContainer').innerHTML = '';
-                } else throw "Mã OTP sai hoặc hết hạn!";
-            })
-            .catch(err => showPopup(err, 'error', 'forgotAlertContainer'))
-            .finally(() => { btn.innerText = "Xác nhận mã OTP"; btn.disabled = false; });
-        });
-
-        const fgPass = document.getElementById('newForgotPass');
-        const fgConf = document.getElementById('confirmForgotPass');
-        const fgPassWrap = document.getElementById('forgotPasswordWrap');
-        const fgPassError = document.getElementById('forgotPasswordError');
-        const fgWrap = document.getElementById('forgotConfirmWrap');
-        const fgMsg = document.getElementById('forgotMatchMessage');
-        const btnReset = document.getElementById('btnResetPass');
-
-        let isFgFormatValid = false;
-        let isFgMatchValid = false;
-
-        function checkForgotFormat() {
-            const pwd = fgPass.value;
-            if (pwd.length === 0) {
-                fgPassWrap.classList.remove('error', 'success');
-                fgPassError.textContent = 'Ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số & ký tự đặc biệt.';
-                fgPassError.className = ''; fgPassError.style.color = '#6B7280'; isFgFormatValid = false;
-            } else if (!passwordRegex.test(pwd)) {
-                fgPassWrap.classList.replace('success', 'error') || fgPassWrap.classList.add('error');
-                fgPassError.textContent = 'Mật khẩu yếu: Thiếu chữ hoa, thường, số hoặc ký tự đặc biệt!';
-                fgPassError.className = 'validation-msg error'; fgPassError.style.color = ''; isFgFormatValid = false;
-            } else {
-                fgPassWrap.classList.replace('error', 'success') || fgPassWrap.classList.add('success');
-                fgPassError.textContent = 'Mật khẩu hợp lệ!'; fgPassError.className = 'validation-msg success';
-                fgPassError.style.color = ''; isFgFormatValid = true;
-            }
-            updateForgotSubmitBtn();
-        }
-
-        function checkForgotMatch() {
-            if (fgConf.value.length === 0) {
-                fgWrap.classList.remove('error', 'success'); fgMsg.textContent = ''; isFgMatchValid = false;
-            } else if (fgPass.value !== fgConf.value) {
-                fgWrap.classList.replace('success', 'error') || fgWrap.classList.add('error');
-                fgMsg.textContent = 'Mật khẩu chưa khớp!'; fgMsg.className = 'validation-msg error'; isFgMatchValid = false;
-            } else {
-                fgWrap.classList.replace('error', 'success') || fgWrap.classList.add('success');
-                fgMsg.textContent = ''; isFgMatchValid = true;
-            }
-            updateForgotSubmitBtn();
-        }
-
-        function updateForgotSubmitBtn() {
-            if (isFgFormatValid && isFgMatchValid) btnReset.disabled = false;
-            else btnReset.disabled = true;
-        }
-
-        fgPass.addEventListener('input', () => { checkForgotFormat(); checkForgotMatch(); });
-        fgConf.addEventListener('input', checkForgotMatch);
-
-        document.getElementById('step3Form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            if(!passwordRegex.test(fgPass.value)) {
-                showPopup("Mật khẩu yếu!", 'error', 'forgotAlertContainer'); return;
-            }
-            btnReset.innerText = "Đang xử lý..."; btnReset.disabled = true;
-
-            fetch('/api/auth/forgot-password/reset', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: emailReset, otp: otpReset, newPassword: fgPass.value })
-            })
-            .then(res => res.ok ? res.json() : Promise.reject("Lỗi đổi mật khẩu!"))
-            .then(data => {
-                localStorage.setItem('token', data.accessToken);
-                setAccessTokenCookie(data.accessToken);
-                localStorage.setItem('full_name', data.fullName);
-                localStorage.setItem('user_id', data.userId);
-                if (data.familyId) {
-                    localStorage.setItem('my_family_id', data.familyId);
-                    localStorage.setItem('family_id', data.familyId);
-                }
-                showPopup("Đổi mật khẩu thành công!", 'success', 'forgotAlertContainer');
-                setTimeout(() => window.location.href = '/home', 1500);
-            })
-            .catch(err => {
-                showPopup(err, 'error', 'forgotAlertContainer');
-                btnReset.innerText = "Đổi mật khẩu"; btnReset.disabled = false;
-            });
-        });
     });
 </script>
 </body>

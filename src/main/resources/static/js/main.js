@@ -1160,8 +1160,7 @@ async function loadFamilyTree() {
     generation: detailPopupGeneration,
     hometown: detailPopupHometown,
     job: detailPopupJob,
-    bio: detailPopupBio,
-    spouse: detailPopupSpouse,
+    bio: detailPopupBio, spouse: detailPopupSpouse,
     children: detailPopupChildren,
     profileLink: detailPopupProfileLink,
   };

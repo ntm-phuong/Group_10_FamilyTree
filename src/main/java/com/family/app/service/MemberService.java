@@ -161,7 +161,7 @@ public class MemberService {
                         motherByChild.putIfAbsent(p2, p1);
                     }
                 }
-            } else if ("SPOUSE".equals(rel.getRelType())) {
+            } else if ("SPOUSE".equals(rel.getRelType()) && rel.getEndDate() == null) {
                 spousesByMember.computeIfAbsent(p1, k -> new HashSet<>()).add(p2);
                 spousesByMember.computeIfAbsent(p2, k -> new HashSet<>()).add(p1);
             }

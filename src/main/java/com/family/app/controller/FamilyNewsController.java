@@ -5,6 +5,7 @@ import com.family.app.dto.NewsResponse;
 import com.family.app.model.User;
 import com.family.app.service.FamilyScopeService;
 import com.family.app.service.NewsService;
+import com.family.app.service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +13,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.List;
 
 @RestController
@@ -26,6 +30,8 @@ public class FamilyNewsController {
     private NewsService newsService;
     @Autowired
     private FamilyScopeService familyScopeService;
+    @Autowired
+    private ProfileService profileService;
 
     @GetMapping("/family/{familyId}")
     @Transactional(readOnly = true)
@@ -82,5 +88,20 @@ public class FamilyNewsController {
         familyScopeService.assertCanManageFamilyNews(principal.getUserId(), existing.getFamilyId());
         newsService.deleteNews(id);
         return ResponseEntity.ok("Xóa tin tức thành công.");
+    }
+
+    @PostMapping("/upload-image")
+    public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("file") MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Thiếu file ảnh.");
+        }
+        try {
+            String imageUrl = profileService.uploadNewsCoverToCloudinary(file);
+            return ResponseEntity.ok(Map.of("url", imageUrl));
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Upload ảnh thất bại: " + e.getMessage(), e);
+        }
     }
 }
