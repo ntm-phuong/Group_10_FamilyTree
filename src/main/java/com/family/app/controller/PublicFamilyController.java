@@ -1,11 +1,18 @@
 package com.family.app.controller;
 
 import com.family.app.config.AppClanProperties;
+import com.family.app.dto.UserResponse;
+import com.family.app.model.User;
 import com.family.app.repository.CategoryRepository;
 import com.family.app.repository.FamilyRepository;
+import com.family.app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -41,4 +48,42 @@ public class PublicFamilyController {
                 ))
                 .toList();
     }
+    @Transactional(readOnly = true)
+    @GetMapping("/family-head-info")
+    public ResponseEntity<?> getFamilyHeadInfo(
+            @RequestParam(required = false) String familyId,
+            @AuthenticationPrincipal User principal) {
+
+        String fid = (familyId != null && !familyId.isBlank())
+                ? familyId.trim()
+                : (principal != null && principal.getFamily() != null
+                   ? principal.getFamily().getFamilyId()
+                   : null);
+
+        if (fid == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Không xác định được dòng họ."));
+        }
+
+        User head = UserRepository.findFamilyHeadByFamilyId(fid).orElse(null);
+
+        if (head == null) {
+            return ResponseEntity.ok(Map.of());
+        }
+
+        UserResponse dto = new UserResponse();
+        dto.setUserId(head.getUserId());
+        dto.setFullName(head.getFullName());
+        dto.setGender(head.getGender());
+        dto.setBio(head.getBio());
+        dto.setAvatar(head.getAvatar());
+        dto.setGeneration(head.getGeneration());
+        dto.setOccupation(head.getOccupation());
+        if (head.getFamily() != null) {
+            dto.setFamilyId(head.getFamily().getFamilyId());
+            dto.setFamilyName(head.getFamily().getFamilyName());
+        }
+
+        return ResponseEntity.ok(dto);
+    }
+
 }

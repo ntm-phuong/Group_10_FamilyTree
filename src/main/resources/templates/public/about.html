@@ -1,144 +1,233 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lịch sử Dòng họ - Gia Phả</title>
+    <title>Về Chúng Tôi</title>
+
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/about.css}">
+
     <script id="tailwind-config">
         tailwind.config = {
-            darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        "on-primary-fixed": "#002201",
-                        "error": "#ba1a1a",
-                        "on-secondary-fixed": "#131f00",
-                        "inverse-surface": "#2f312e",
-                        "surface-container-lowest": "#ffffff",
-                        "primary-fixed-dim": "#a1d494",
-                        "outline": "#72796e",
-                        "on-secondary-fixed-variant": "#364e00",
-                        "on-primary-fixed-variant": "#23501e",
-                        "on-tertiary-fixed": "#082007",
-                        "on-surface": "#1a1c19",
-                        "surface-variant": "#e3e3de",
-                        "surface-container-highest": "#e3e3de",
-                        "on-secondary": "#ffffff",
-                        "on-primary-container": "#9dd090",
-                        "secondary-fixed-dim": "#add461",
-                        "primary-fixed": "#bcf0ae",
-                        "surface-tint": "#3b6934",
-                        "surface-container-high": "#e8e8e3",
-                        "tertiary": "#264023",
-                        "outline-variant": "#c2c9bb",
-                        "tertiary-fixed-dim": "#b1cfa7",
-                        "on-surface-variant": "#42493e",
-                        "tertiary-fixed": "#ccebc2",
-                        "surface-bright": "#fafaf5",
-                        "surface-container": "#eeeee9",
-                        "primary-container": "#2d5a27",
-                        "on-tertiary-fixed-variant": "#334d2f",
-                        "inverse-on-surface": "#f1f1ec",
-                        "surface": "#fafaf5",
-                        "on-secondary-container": "#4e6e00",
-                        "secondary-fixed": "#c8f17a",
-                        "surface-container-low": "#f4f4ef",
-                        "secondary": "#496800",
-                        "on-error": "#ffffff",
-                        "error-container": "#ffdad6",
-                        "on-primary": "#ffffff",
                         "primary": "#154212",
-                        "on-error-container": "#410002",
-                        "on-tertiary": "#ffffff",
-                        "tertiary-container": "#3d5738",
-                        "on-tertiary-container": "#adcca4",
-                        "background": "#fafaf5",
-                        "on-background": "#1a1c19",
-                        "inverse-primary": "#a1d494"
+                        "primary-container": "#2d5a27",
+                        "primary-fixed": "#bcf0ae",
+                        "secondary": "#496800",
+                        "secondary-container": "#c8f17a",
+                        "surface": "#fafaf5",
+                        "on-surface": "#1a1c19",
+                        "on-surface-variant": "#42493e",
+                        "surface-container-low": "#f4f4ef",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#c2c9bb"
+                    },
+                    fontFamily: {
+                        headline: ["Noto Serif"],
+                        body: ["Manrope"]
                     }
                 }
             }
         };
     </script>
+
+    <style>
+        body { font-family: 'Manrope', sans-serif; }
+        h1, h2, h3, .serif-text { font-family: 'Noto Serif', serif; }
+        .bamboo-gradient { background: linear-gradient(15deg, #154212 0%, #2d5a27 100%); }
+        .drop-cap::first-letter {
+            font-family: 'Noto Serif', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #154212;
+            float: left;
+            line-height: 1;
+            margin-right: 0.75rem;
+            margin-top: 0.25rem;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-surface text-on-surface">
 
 <th:block th:replace="~{fragments/navbar :: navbar}"/>
 
-<header class="about-banner">
-    <div class="container">
-        <h1 class="display-4 fw-bold">Hành Trình Dòng Họ Nguyễn</h1>
-        <p class="lead">"Mộc bản hồ thủy, vạn cổ tầm tông" - Cây có gốc mới nở cành xanh ngọn...</p>
-    </div>
-</header>
+<main>
+    <section class="relative flex min-h-[550px] items-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img alt="Heritage Background"
+                 class="h-full w-full object-cover saturate-[0.8] brightness-[0.9]"
+                 src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&q=80&w=1600"/>
 
-<div class="container">
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="history-card">
-                <h3 class="section-title">Nguồn Gốc & Lịch Sử</h3>
-                <p>Dòng họ Nguyễn chúng ta có lịch sử lâu đời, bắt nguồn từ vùng đất Hà Tây cũ (nay thuộc Hà Nội). Trải qua bao thăng trầm của lịch sử dân tộc, các thế hệ con cháu đã lan tỏa khắp mọi miền đất nước và có nhiều đóng góp trong các lĩnh vực từ khoa bảng, quân sự đến kinh tế.</p>
+            <div class="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/60 to-transparent"></div>
+        </div>
 
+        <div class="relative z-10 mx-auto w-full max-w-[1440px] px-6 py-24 md:px-12">
+            <div class="max-w-3xl reveal-on-scroll active">
+                <span class="mb-4 block font-bold uppercase tracking-[0.3em] text-primary-fixed text-sm">Di Sản Trăm Năm</span>
+                <h1 class="mb-6 text-5xl leading-tight text-surface md:text-7xl font-headline">
+                    Lịch Sử & <span class="text-primary-fixed italic">Nguồn Cội</span>
+                </h1>
+                <p class="mb-8 font-headline text-xl italic text-primary-fixed opacity-90 border-l-4 border-primary-fixed pl-6 max-w-xl">
+                    "Cây có gốc mới nở ngành xanh ngọn, <br> nước có nguồn mới bể rộng sông sâu"
+                </p>
+            </div>
+        </div>
+    </section>
 
+    <section class="mx-auto max-w-[1440px] px-6 py-24 md:px-12">
+        <div class="grid grid-cols-1 gap-16 lg:grid-cols-12">
 
-                <div class="timeline mt-5">
-                    <div class="timeline-item">
-                        <div class="timeline-year">Năm 1890</div>
-                        <p class="fw-bold">Khởi thủy</p>
-                        <p>Cụ tổ đời thứ nhất định cư tại xã Đại Mỗ, xây dựng ngôi nhà thờ họ đầu tiên, đặt nền móng cho sự phát triển của dòng tộc.</p>
+            <div class="lg:col-span-8 space-y-12">
+                <div class="history-card reveal-on-scroll">
+                    <h2 class="section-title">Câu Chuyện Dòng Họ</h2>
+                    <div class="space-y-6 text-lg text-on-surface-variant leading-relaxed font-body">
+                        <p class="drop-cap">
+                            Khởi nguồn từ những dải đất "địa linh nhân kiệt", nơi hồn thiêng sông núi hội tụ, dòng họ chúng ta đã đặt những viên gạch đầu tiên cho một hành trình di sản kéo dài hơn một thế kỷ. Trải qua bao cuộc biến thiên của thời đại, qua những thăng trầm của lịch sử dân tộc, ngọn lửa gia tộc vẫn luôn được gìn giữ, cháy sáng nhờ sự đồng lòng và ý chí quật cường của các bậc tiền nhân.
+                        </p>
+                        <p>
+                            Mỗi trang sử của dòng họ không chỉ ghi dấu những bảng vàng thành tích hay những chức vị vẻ vang, mà quan trọng hơn cả, đó là sự kết tinh của những bài học vô giá: <span class="text-primary font-bold">Lòng hiếu thảo</span> làm gốc rễ, <span class="text-primary font-bold">sự kiên trì</span> làm thân cành, và <span class="text-primary font-bold">tinh thần học hỏi</span> làm nhựa sống để vươn tới những tầm cao mới. Các bậc tiền nhân đã đi trước không chỉ để lại cho con cháu ruộng vườn, mà là một "gia tài tâm linh" đồ sộ – đó là nếp nhà, là gia phong, là đạo lý được khắc cốt ghi tâm.
+                        </p>
+
+                        <blockquote class="border-l-4 border-secondary pl-6 italic text-primary-container bg-surface-container-low p-6 rounded-r-2xl my-8">
+                            "Hệ thống gia phả này không chỉ là một kho lưu trữ dữ liệu, mà là một <strong>nhịp cầu số</strong> thiêng liêng kết nối giá trị quá khứ với khát vọng tương lai, giúp con cháu dù ở bất cứ đâu cũng có thể tìm về nguồn cội."
+                        </blockquote>
+
+                        <p>
+                            Dù bạn là người con đang lập nghiệp nơi phương xa, hay những thế hệ trẻ sinh ra và lớn lên ở những chân trời mới, chỉ cần một cái chạm tay, bạn sẽ thấy cả một dòng chảy lịch sử hiện ra trước mắt. Chúng tôi tin rằng, khi một người trẻ hiểu rõ về cội nguồn của mình, họ sẽ có thêm sức mạnh để vững bước trên con đường đời, giống như một cái cây có gốc rễ đâm sâu vào lòng đất sẽ chẳng bao giờ sợ hãi trước gió bão.
+                        </p>
                     </div>
+                </div>
 
-                    <div class="timeline-item">
-                        <div class="timeline-year">Năm 1945</div>
-                        <p class="fw-bold">Thời kỳ kháng chiến</p>
-                        <p>Nhiều người con dòng họ Nguyễn lên đường theo tiếng gọi của Tổ quốc, góp công sức vào sự nghiệp giải phóng dân tộc.</p>
-                    </div>
-
-                    <div class="timeline-item">
-                        <div class="timeline-year">Năm 2020</div>
-                        <p class="fw-bold">Thời kỳ công nghiệp hóa</p>
-                        <p>Con cháu thành đạt ở nhiều lĩnh vực, đóng góp xây dựng lại từ đường khang trang và lập ra Quỹ khuyến học dòng họ.</p>
+                <div class="history-card reveal-on-scroll">
+                    <h2 class="section-title">Cột Mốc Di Sản</h2>
+                    <div class="timeline mt-10">
+                        <div class="timeline-item">
+                            <span class="timeline-year">Thế kỷ XIX</span>
+                            <h4 class="font-bold text-on-surface">Định tính nền móng</h4>
+                            <p class="text-on-surface-variant">Tổ tiên khai khẩn đất hoang, xây dựng từ đường và xác lập những quy ước gia phong đầu tiên.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-year">1945 - 1975</span>
+                            <h4 class="font-bold text-on-surface">Giữ lửa trong gian khó</h4>
+                            <p class="text-on-surface-variant">Bảo tồn bộ mộc bản gia phả quý hiếm qua hai cuộc kháng chiến trường kỳ của dân tộc.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-year">2026</span>
+                            <h4 class="font-bold text-on-surface">Kỷ nguyên số hóa</h4>
+                            <p class="text-on-surface-variant">Chính thức vận hành hệ thống Ancestral Grove, kết nối thành công hơn 1000 thành viên trên toàn cầu.</p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-lg-4">
-            <div class="history-card bg-success text-white">
-                <h4 class="mb-4 text-white">Giá Trị Cốt Lõi</h4>
-                <ul class="list-unstyled">
-                    <li class="mb-3"><i class="fas fa-check-circle me-2"></i> <strong>Đoàn kết:</strong> Tương trợ, giúp đỡ lẫn nhau.</li>
-                    <li class="mb-3"><i class="fas fa-check-circle me-2"></i> <strong>Hiếu học:</strong> Khuyến khích con cháu học tập.</li>
-                    <li class="mb-3"><i class="fas fa-check-circle me-2"></i> <strong>Uống nước nhớ nguồn:</strong> Giữ gìn gia phả.</li>
-                </ul>
-            </div>
+            <div class="lg:col-span-4 space-y-8">
 
-            <div class="history-card">
-                <h4 class="section-title">Trưởng họ hiện tại</h4>
-                <div class="text-center">
-                    <div class="bg-light rounded-circle p-3 d-inline-block mb-3">
-                        <i class="fas fa-user-tie fa-4x text-success"></i>
+                <div class="rounded-[2.5rem] border border-outline-variant/30 bg-surface-container-lowest p-8 shadow-sm reveal-on-scroll">
+                    <h3 class="mb-6 text-xl font-headline text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined">verified_user</span>
+                        Trưởng Họ
+                    </h3>
+                    <div id="leaderContainer" class="flex flex-col items-center text-center">
+                        <div class="animate-pulse">
+                            <div class="h-28 w-28 bg-surface-container-low rounded-full mb-4"></div>
+                            <div class="h-4 w-32 bg-surface-container-low rounded"></div>
+                        </div>
                     </div>
-                    <h5>Ông Nguyễn Hồng Sơn</h5>
-                    <p class="text-muted">Đời thứ 2</p>
-                    <hr>
-                    <p class="small italic">"Trách nhiệm của chúng ta là gìn giữ ngọn lửa truyền thống cho muôn đời sau."</p>
                 </div>
+
+                <div class="rounded-[2.5rem] bamboo-gradient p-8 text-surface shadow-xl reveal-on-scroll">
+                    <div class="space-y-10">
+                        <div>
+                            <h3 class="mb-4 text-xl font-headline text-primary-fixed flex items-center gap-2">
+                                <span class="material-symbols-outlined">diamond</span> Giá Trị Cốt Lõi
+                            </h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-center gap-3 text-sm">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-primary-fixed"></span>
+                                    <span><strong>Hiếu Đạo:</strong> Lấy chữ Hiếu làm đầu.</span>
+                                </li>
+                                <li class="flex items-center gap-3 text-sm">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-primary-fixed"></span>
+                                    <span><strong>Đoàn Kết:</strong> Tương thân tương ái.</span>
+                                </li>
+                                <li class="flex items-center gap-3 text-sm">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-primary-fixed"></span>
+                                    <span><strong>Trí Tuệ:</strong> Khuyến học, khuyến tài.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="pt-6 border-t border-white/10">
+                            <h3 class="mb-3 text-xl font-headline text-primary-fixed flex items-center gap-2">
+                                <span class="material-symbols-outlined">auto_awesome</span> Sứ Mệnh
+                            </h3>
+                            <p class="text-sm opacity-90 leading-relaxed">
+                                Số hóa và bảo tồn nguyên vẹn di sản tri thức, văn hóa của tổ tiên cho muôn đời sau thông qua công nghệ hiện đại.
+                            </p>
+                        </div>
+
+                        <div class="pt-6 border-t border-white/10">
+                            <h3 class="mb-3 text-xl font-headline text-primary-fixed flex items-center gap-2">
+                                <span class="material-symbols-outlined">visibility</span> Tầm Nhìn
+                            </h3>
+                            <p class="text-sm opacity-90 leading-relaxed">
+                                Trở thành điểm tựa tinh thần trực tuyến, gắn kết mọi trái tim cùng chung dòng máu dù ở bất cứ đâu trên thế giới.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-[2.5rem] border border-outline-variant/30 bg-surface-container-low p-8 shadow-sm reveal-on-scroll">
+                    <h3 class="mb-4 text-xl font-headline text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined">groups</span>
+                        Ban Quản Trị
+                    </h3>
+                    <p class="text-sm text-on-surface-variant mb-6 leading-relaxed">
+                        Mọi thông tin đóng góp về gia phả, hình ảnh tư liệu hoặc đính chính nhân vật, xin vui lòng gửi về Hội đồng gia tộc.
+                    </p>
+                    <div class="space-y-3">
+                        <a href="mailto:banquantri@family.vn" class="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-4 font-bold text-white transition-all hover:bg-primary-container group">
+                            <span class="material-symbols-outlined text-sm">mail</span>
+                            Gửi phản hồi trực tuyến
+                        </a>
+                        <div class="flex items-center justify-center gap-4 text-primary mt-4">
+                            <i class="fab fa-facebook text-xl hover:text-secondary cursor-pointer"></i>
+                            <i class="fas fa-phone-alt text-lg hover:text-secondary cursor-pointer"></i>
+                            <i class="fas fa-envelope text-lg hover:text-secondary cursor-pointer"></i>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
-    </div>
+    </section>
 
-</div>
+    <section class="mx-auto max-w-[1440px] px-6 pb-24 md:px-12">
+        <div class="bamboo-gradient flex flex-col items-center justify-center rounded-[3rem] p-16 text-center text-surface shadow-2xl relative overflow-hidden">
+            <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/5"></div>
+
+            <h2 class="mb-6 text-4xl font-headline">Bạn Đã Sẵn Sàng Tìm Về Cội Nguồn?</h2>
+            <p class="mb-10 max-w-2xl text-lg opacity-90 leading-relaxed">
+                Hãy bắt đầu hành trình khám phá cây gia phả để hiểu hơn về những người đã đặt nền móng cho cuộc sống của bạn ngày hôm nay.
+            </p>
+            <div class="flex flex-wrap justify-center gap-6">
+                <a th:href="@{/family-tree}" class="rounded-full bg-surface px-10 py-4 font-bold text-primary hover:bg-primary-fixed transition-all shadow-lg hover:-translate-y-1">Khám phá sơ đồ</a>
+                <a th:href="@{/news}" class="rounded-full border border-white/50 px-10 py-4 font-bold hover:bg-white/10 transition-all">Xem tin tức dòng họ</a>
+            </div>
+        </div>
+    </section>
+</main>
 
 <th:block th:replace="~{fragments/footer :: footer}"/>
 
 <script th:src="@{/js/about.js}"></script>
-<script th:src="@{/js/main.js}"></script>
 </body>
 </html>

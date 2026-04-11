@@ -52,4 +52,12 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     @Query("SELECT COUNT(DISTINCT u) FROM User u JOIN u.roles r WHERE r.roleName = :roleName AND u.userId <> :userId")
     long countDistinctByRoleNameExcludingUser(@Param("roleName") String roleName, @Param("userId") String userId);
+
+    @Query(value = "SELECT u.* FROM users u "
+            + "JOIN user_roles ur ON u.user_id = ur.user_id "
+            + "JOIN roles r ON ur.role_id = r.role_id "
+            + "WHERE u.family_id = :familyId AND r.role_name = 'FAMILY_BRANCH_MANAGER' "
+            + "LIMIT 1",
+            nativeQuery = true)
+    Optional<User> findFamilyHeadByFamilyId(@Param("familyId") String familyId)
 }
