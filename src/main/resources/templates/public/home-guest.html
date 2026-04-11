@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html class="light" lang="vi"><head>
+<html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org"><head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -90,21 +90,8 @@
     </style>
 </head>
 <body class="bg-surface text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed">
-<!-- TopNavBar -->
-<nav class="fixed top-0 w-full z-50 bg-[#fafaf5]/85 dark:bg-stone-900/85 backdrop-blur-md shadow-sm dark:shadow-none">
-    <div class="flex justify-between items-center max-w-6xl mx-auto px-6 h-16">
-        <div class="text-xl font-serif italic text-[#154212] dark:text-[#f4f4ef]">Family Care</div>
-        <div class="hidden md:flex items-center space-x-6">
-            <a class="text-[#154212] dark:text-[#ffffff] border-b-2 border-[#2D5A27] pb-0.5 font-bold text-sm" href="#">Trang chủ</a>
-            <a class="text-stone-600 dark:text-stone-400 font-medium hover:text-[#2D5A27] transition-colors text-sm" href="#about">Về chúng tôi</a>
-            <a class="text-stone-600 dark:text-stone-400 font-medium hover:text-[#2D5A27] transition-colors text-sm" href="#features">Tính năng</a>
-            <a class="text-stone-600 dark:text-stone-400 font-medium hover:text-[#2D5A27] transition-colors text-sm" href="#register">Tạo dòng họ</a>
-        </div>
-        <a href="/login" class="bamboo-gradient text-on-primary px-5 py-2 rounded-lg font-bold text-sm hover:shadow-lg transition-all active:scale-95 inline-block">
-            Đăng nhập
-        </a>
-    </div>
-</nav>
+<!-- TopNavBar Fragment -->
+<th:block th:replace="~{fragments/navbar :: navbar}"/>
 <main>
     <!-- Hero Section -->
     <section class="relative min-h-[75vh] flex items-center pt-16 overflow-hidden">
@@ -276,7 +263,7 @@
                                     Tạo dòng họ mới
                                 </a>
                                 <p class="text-center mt-6 text-xs text-on-surface-variant">
-                                    Đã có tài khoản? <a class="text-primary font-bold hover:underline" href="/login">Đăng nhập</a>
+                                    Đã có tài khoản? <a class="text-primary font-bold hover:underline cursor-pointer" onclick="openLoginModal()">Đăng nhập</a>
                                 </p>
                             </div>
                         </div>
@@ -286,6 +273,9 @@
         </div>
     </section>
 </main>
+
+<!-- Login Modal Fragment -->
+<th:block th:replace="~{fragments/login-modal}"/>
 
 <!-- Create Family Tree Modal -->
 <div id="createFamilyModal" class="hidden fixed inset-0 z-[60] bg-on-surface/40 backdrop-blur-sm flex items-center justify-center p-4">
@@ -354,7 +344,7 @@
                 <!-- Footer Link -->
                 <div class="text-center">
                     <p class="text-sm text-on-surface-variant">
-                        Đã có tài khoản? <a class="text-primary font-bold hover:underline decoration-2 underline-offset-4" href="/login">Đăng nhập</a>
+                        Đã có tài khoản? <a class="text-primary font-bold hover:underline decoration-2 underline-offset-4 cursor-pointer" onclick="openLoginModal()">Đăng nhập</a>
                     </p>
                 </div>
             </form>
@@ -396,30 +386,99 @@
 </footer>
 
 <script>
-    // Open Create Family Modal
+    document.addEventListener('DOMContentLoaded', function() {
+        // Đợi 150ms để đảm bảo navbar.js đã load xong và kiểm tra trạng thái login
+        setTimeout(function() {
+            const path = window.location.pathname;
+            // Kiểm tra trạng thái đăng nhập (Thông qua localStorage hoặc class của nút Đăng nhập)
+            const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
+            const isLogged = token !== null || !document.getElementById('navLoginBtn').offsetParent;
+
+            if (path === '/' && !isLogged) {
+                // 1. NẾU CHƯA ĐĂNG NHẬP: Bật Guest Links, Ẩn Standard Links
+                document.querySelectorAll('.guest-link').forEach(l => l.classList.remove('hidden'));
+                document.querySelectorAll('.standard-link').forEach(l => l.classList.add('hidden'));
+
+                // 2. Kích hoạt hiệu ứng cuộn mượt (Smooth Scroll)
+                document.querySelectorAll('.guest-link').forEach(anchor => {
+                    anchor.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const targetId = this.getAttribute('href');
+
+                        // Đóng menu mobile nếu đang mở
+                        const mobileMenu = document.getElementById('navMobileMenu');
+                        if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                            mobileMenu.classList.add('hidden');
+                        }
+
+                        if (targetId === '#') {
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        } else {
+                            const targetSection = document.querySelector(targetId);
+                            if (targetSection) {
+                                // Trừ đi 64px chiều cao của thanh Navbar để không bị che mất tiêu đề
+                                const offsetPosition = targetSection.getBoundingClientRect().top + window.scrollY - 64;
+                                window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                            }
+                        }
+                    });
+                });
+
+                // 3. Highlight Navbar khi cuộn (Scrollspy)
+                window.addEventListener('scroll', function() {
+                    const scrollPosition = window.scrollY + 80; // Trừ hao khoảng cách từ trên xuống
+
+                    const sections = [
+                        { id: 'home', element: document.querySelector('section.relative.min-h-\\[75vh\\]') },
+                        { id: 'about', element: document.getElementById('about') },
+                        { id: 'features', element: document.getElementById('features') },
+                        { id: 'register', element: document.getElementById('register') }
+                    ];
+
+                    let currentSection = 'home';
+                    sections.forEach(sec => {
+                        if (sec.element && scrollPosition >= sec.element.offsetTop) {
+                            currentSection = sec.id;
+                        }
+                    });
+
+                    // Cập nhật gạch chân (active class)
+                    document.querySelectorAll('.guest-link').forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('data-scroll') === currentSection) {
+                            link.classList.add('active');
+                        }
+                    });
+                });
+
+                // Chạy sự kiện cuộn một lần lúc mới load trang để highlight đúng vị trí hiện tại
+                window.dispatchEvent(new Event('scroll'));
+            }
+
+            // Logic mở Modal Đăng nhập qua URL
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('login') === 'true') {
+                openLoginModal();
+                window.history.replaceState({}, document.title, '/');
+            }
+
+        }, 150);
+    });
+
+    // Các hàm xử lý Modal giữ nguyên
     function openCreateFamilyModal() {
         document.getElementById('createFamilyModal').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
-
-    // Close Create Family Modal
     function closeCreateFamilyModal() {
         document.getElementById('createFamilyModal').classList.add('hidden');
         document.body.style.overflow = 'auto';
     }
-
-    // Close modal when clicking outside
     document.getElementById('createFamilyModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeCreateFamilyModal();
-        }
+        if (e.target === this) closeCreateFamilyModal();
     });
-
-    // Close modal with Escape key
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeCreateFamilyModal();
-        }
+        if (e.key === 'Escape') closeCreateFamilyModal();
     });
 </script>
 </body>

@@ -194,3 +194,29 @@ textarea.form-control{resize:vertical;min-height:100px;}
 @media(max-width:640px){
   .stat-grid{grid-template-columns:repeat(2,1fr);}
 }
+
+/* ---- Bamboo Gradient (Material Design) ---- */
+.bamboo-gradient {
+  background: linear-gradient(15deg, #154212 0%, #2d5a27 100%);
+}
+
+/* ---- Navbar Active Link Styling ---- */
+.nav-link {
+  position: relative;
+}
+
+.nav-link.text-primary {
+  color: #154212;
+  font-weight: 700;
+  border-bottom-color: #2d5a27;
+}
+
+.nav-link.text-primary::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #2d5a27;
+}
