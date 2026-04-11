@@ -26,6 +26,7 @@ public class PublicFamilyController {
     private final FamilyRepository familyRepository;
     private final CategoryRepository categoryRepository;
     private final AppClanProperties clanProperties;
+    private final UserRepository userRepository;
 
     /** Một bản ghi — dòng họ cấu hình ứng dụng. */
     @GetMapping("/families")
@@ -64,7 +65,7 @@ public class PublicFamilyController {
             return ResponseEntity.badRequest().body(Map.of("error", "Không xác định được dòng họ."));
         }
 
-        User head = UserRepository.findFamilyHeadByFamilyId(fid).orElse(null);
+        User head = userRepository.findFamilyHeadByFamilyId(fid).orElse(null);
 
         if (head == null) {
             return ResponseEntity.ok(Map.of());
