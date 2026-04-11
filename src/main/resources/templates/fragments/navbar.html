@@ -1,157 +1,70 @@
-<header class="pub-nav-figma" th:fragment="navbar" xmlns:th="http://www.thymeleaf.org">
-  <link rel="stylesheet" th:href="@{/css/navbar.css}">
-  <a href="/" class="nav-logo-figma" id="navLogo">
-    <img th:src="@{/images/logo-2.svg}" alt="Logo" class="logo-img">
-    Family Care
-  </a>
+<nav class="fixed top-0 w-full z-50 bg-[#fafaf5]/85 dark:bg-stone-900/85 backdrop-blur-md shadow-sm dark:shadow-none" th:fragment="navbar" xmlns:th="http://www.thymeleaf.org">
+  <div class="flex justify-between items-center max-w-6xl mx-auto px-6 h-16">
+    <a href="/" class="text-xl font-serif italic text-[#154212] dark:text-[#f4f4ef] hover:opacity-80 transition-opacity" id="navLogo">Family Care</a>
 
-  <nav class="nav-links-figma">
-    <a href="/" id="navHome"><i class="fas fa-home"></i> Trang Chủ</a>
+    <div class="hidden md:flex items-center space-x-6" id="navLinks">
 
-    <a th:href="@{/about}" id="navAbout"><i class="fas fa-info-circle"></i> Giới thiệu</a>
+      <a href="#" class="nav-link guest-link hidden text-stone-600 dark:text-stone-400 font-medium hover:text-[#2D5A27] transition-colors text-sm" data-scroll="home">Trang chủ</a>
+      <a href="#about" class="nav-link guest-link hidden text-stone-600 dark:text-stone-400 font-medium hover:text-[#2D5A27] transition-colors text-sm" data-scroll="about">Về chúng tôi</a>
+      <a href="#features" class="nav-link guest-link hidden text-stone-600 dark:text-stone-400 font-medium hover:text-[#2D5A27] transition-colors text-sm" data-scroll="features">Tính năng</a>
+      <a href="#register" class="nav-link guest-link hidden text-stone-600 dark:text-stone-400 font-medium hover:text-[#2D5A27] transition-colors text-sm" data-scroll="register">Tạo dòng họ</a>
 
-    <a href="/family-tree" id="navFamilyTree" style="display: none;"><i class="fas fa-sitemap"></i> Gia Phả</a>
+      <a href="/" class="nav-link standard-link text-stone-600 dark:text-stone-400 font-medium hover:text-[#2D5A27] transition-colors text-sm" id="navHome" data-section="home">Trang Chủ</a>
+      <a href="/about" class="nav-link standard-link text-stone-600 dark:text-stone-400 font-medium hover:text-[#2D5A27] transition-colors text-sm" id="navAbout" data-section="about">Giới thiệu</a>
+      <a href="/family-tree" class="nav-link standard-link text-stone-600 dark:text-stone-400 font-medium hover:text-[#2D5A27] transition-colors text-sm hidden" id="navFamilyTree" data-section="family-tree">Gia Phả</a>
+      <a href="/family-head" class="nav-link standard-link text-stone-600 dark:text-stone-400 font-medium hover:text-[#2D5A27] transition-colors text-sm hidden" id="navFamilyHead" data-section="family-head">Quản trị họ</a>
+      <a href="/news" class="nav-link standard-link text-stone-600 dark:text-stone-400 font-medium hover:text-[#2D5A27] transition-colors text-sm" id="navNews" data-section="news">Tin Tức</a>
+    </div>
 
-    <a href="/family-head" id="navFamilyHead" style="display: none;"><i class="fas fa-tachometer-alt"></i> Quản trị họ</a>
+    <div class="flex items-center gap-4">
+      <button onclick="openLoginModal()" class="bamboo-gradient text-on-primary px-5 py-2 rounded-lg font-bold text-sm hover:shadow-lg transition-all active:scale-95 cursor-pointer border-0" id="navLoginBtn">
+        Đăng nhập
+      </button>
 
-    <a href="/news" id="navNews"><i class="far fa-newspaper"></i> Tin Tức</a>
-  </nav>
+      <div class="relative group hidden" id="navUserDropdown">
+        <button class="flex items-center gap-2 text-stone-700 dark:text-stone-300 hover:text-[#2D5A27] transition-colors">
+          <div class="w-8 h-8 rounded-full bg-[#154212] text-white flex items-center justify-center font-bold text-xs" id="navAvatarInitials">G</div>
+          <span class="hidden md:inline text-sm font-medium" id="navFullName">Guest</span>
+          <span class="material-symbols-outlined text-lg">expand_more</span>
+        </button>
 
-  <div class="nav-right-actions">
-    <a href="#" class="btn btn-outline btn-open-login" id="navLoginBtn">
-      <img th:src="@{/images/profile-circle.svg}" alt="Login" class="login-icon-mobile">
-
-      <i class="fas fa-sign-in-alt login-icon-desktop"></i>
-      <span class="login-text">Đăng nhập</span>
-    </a>
-
-    <div class="dropdown" id="navUserDropdown" style="display: none;">
-      <div class="pub-nav-user">
-        <span class="avatar" id="navAvatarInitials">G</span>
-        <span id="navFullName">Guest</span>
-        <i class="fas fa-chevron-down"></i>
-      </div>
-
-      <div class="dropdown-menu">
-        <a href="/profile" class="dropdown-item" id="profileLink">Hồ sơ cá nhân</a>
-        <a href="/admin" class="dropdown-item" id="navAdminMenu" style="display: none;">Trang quản trị</a>
-        <a href="#" class="dropdown-item logout-btn" id="navLogoutBtn">Đăng xuất</a>
+        <div class="absolute right-0 mt-10 w-48 bg-white shadow-lg rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-gray-200 dark:bg-stone-800 dark:border-stone-600">
+          <a href="/profile" class="block px-4 py-3 text-stone-700 hover:bg-gray-50 transition-colors text-sm font-medium rounded-t-lg dark:text-stone-300 dark:hover:bg-stone-700" id="profileLink">Hồ sơ cá nhân</a>
+          <a href="/admin" class="block px-4 py-3 text-stone-700 hover:bg-gray-50 transition-colors text-sm font-medium hidden dark:text-stone-300 dark:hover:bg-stone-700" id="navAdminMenu">Trang quản trị</a>
+          <button onclick="logout()" class="w-full text-left px-4 py-3 text-stone-700 hover:bg-gray-50 transition-colors text-sm font-medium border-t border-gray-200 rounded-b-lg dark:text-stone-300 dark:hover:bg-stone-700 dark:border-stone-600" id="navLogoutBtn">Đăng xuất</button>
+        </div>
       </div>
     </div>
+
+    <button class="md:hidden text-stone-700 dark:text-stone-300" id="navToggle">
+      <span class="material-symbols-outlined text-xl">menu</span>
+    </button>
   </div>
 
-  <button class="nav-toggle-btn"><i class="fas fa-bars"></i></button>
+  <nav class="md:hidden hidden bg-white dark:bg-stone-800 border-t border-gray-200 dark:border-stone-700" id="navMobileMenu">
+    <a href="#" class="nav-link guest-link hidden block px-6 py-3 text-stone-700 dark:text-stone-300 hover:bg-gray-50 dark:hover:bg-stone-700 transition-colors font-medium border-b border-gray-100 dark:border-stone-700" data-scroll="home">Trang chủ</a>
+    <a href="#about" class="nav-link guest-link hidden block px-6 py-3 text-stone-700 dark:text-stone-300 hover:bg-gray-50 dark:hover:bg-stone-700 transition-colors font-medium border-b border-gray-100 dark:border-stone-700" data-scroll="about">Về chúng tôi</a>
+    <a href="#features" class="nav-link guest-link hidden block px-6 py-3 text-stone-700 dark:text-stone-300 hover:bg-gray-50 dark:hover:bg-stone-700 transition-colors font-medium border-b border-gray-100 dark:border-stone-700" data-scroll="features">Tính năng</a>
+    <a href="#register" class="nav-link guest-link hidden block px-6 py-3 text-stone-700 dark:text-stone-300 hover:bg-gray-50 dark:hover:bg-stone-700 transition-colors font-medium border-b border-gray-100 dark:border-stone-700" data-scroll="register">Tạo dòng họ</a>
 
-  <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Lấy thông tin từ trình duyệt
-            const token = localStorage.getItem('token');
-            const fullName = localStorage.getItem('full_name');
+    <a href="/" class="nav-link standard-link block px-6 py-3 text-stone-700 dark:text-stone-300 hover:bg-gray-50 dark:hover:bg-stone-700 transition-colors font-medium border-b border-gray-100 dark:border-stone-700" id="navHomeMobile" data-section="home">Trang Chủ</a>
+    <a href="/about" class="nav-link standard-link block px-6 py-3 text-stone-700 dark:text-stone-300 hover:bg-gray-50 dark:hover:bg-stone-700 transition-colors font-medium border-b border-gray-100 dark:border-stone-700" id="navAboutMobile" data-section="about">Giới thiệu</a>
+    <a href="/family-tree" class="nav-link standard-link hidden block px-6 py-3 text-stone-700 dark:text-stone-300 hover:bg-gray-50 dark:hover:bg-stone-700 transition-colors font-medium border-b border-gray-100 dark:border-stone-700" id="navFamilyTreeMobile" data-section="family-tree">Gia Phả</a>
+    <a href="/family-head" class="nav-link standard-link hidden block px-6 py-3 text-stone-700 dark:text-stone-300 hover:bg-gray-50 dark:hover:bg-stone-700 transition-colors font-medium border-b border-gray-100 dark:border-stone-700" id="navFamilyHeadMobile" data-section="family-head">Quản trị họ</a>
+    <a href="/news" class="nav-link standard-link block px-6 py-3 text-stone-700 dark:text-stone-300 hover:bg-gray-50 dark:hover:bg-stone-700 transition-colors font-medium dark:border-stone-700" id="navNewsMobile" data-section="news">Tin Tức</a>
+  </nav>
 
-            // Lấy các phần tử DOM
-            const navLogo = document.getElementById('navLogo');
-            const navHome = document.getElementById('navHome');
-            const navFamilyTree = document.getElementById('navFamilyTree');
-            const navFamilyHead = document.getElementById('navFamilyHead');
-            const navAdminMenu = document.getElementById('navAdminMenu');
-            const navAdmin = document.getElementById('navAdmin');
-            const navLoginBtn = document.getElementById('navLoginBtn');
-            if (navLoginBtn) {
-              navLoginBtn.addEventListener('click', function(e) {
-                  // Kiểm tra xem trang hiện tại có cái Modal id="loginModal" không
-                  const loginModal = document.getElementById('loginModal');
+  <style>
+    .nav-link.active {
+      color: #154212;
+      font-weight: bold;
+      border-bottom: 2px solid #2D5A27;
+      padding-bottom: 0.125rem;
+    }
+    .dark .nav-link.active { color: #ffffff; }
+    #navMobileMenu .nav-link.active { background-color: rgba(21, 66, 18, 0.1); }
+    .dark #navMobileMenu .nav-link.active { background-color: rgba(255, 255, 255, 0.1); }
+  </style>
 
-                  if (loginModal) {
-                      // TRƯỜNG HỢP 1: Đang ở Home (có modal) -> Chỉ việc mở nó lên
-                      e.preventDefault();
-                      // Tùy vào CSS/JS modal của bạn, thường là thêm class 'open' hoặc 'active'
-                      loginModal.classList.add('open');
-                  } else {
-                      // TRƯỜNG HỢP 2: Đang ở About, News (không có modal)
-                      // -> Chuyển hướng về trang chủ kèm dấu hiệu ?login=true
-                      e.preventDefault();
-                      window.location.href = '/?login=true';
-                  }
-              });
-              }
-            const navUserDropdown = document.getElementById('navUserDropdown');
-            const navFullName = document.getElementById('navFullName');
-            const navAvatarInitials = document.getElementById('navAvatarInitials');
-            const navLogoutBtn = document.getElementById('navLogoutBtn');
-            const profileLink = document.getElementById('profileLink');
-            const navProfileLink = document.getElementById('navProfileLink');
-
-            const toggleBtn = document.querySelector('.nav-toggle-btn');
-            const navLinks = document.querySelector('.nav-links-figma');
-
-            if (toggleBtn && navLinks) {
-                toggleBtn.addEventListener('click', function() {
-                    navLinks.classList.toggle('active');
-                    // Đổi icon từ 3 gạch sang dấu X khi mở
-                    const icon = this.querySelector('i');
-                    icon.classList.toggle('fa-bars');
-                    icon.classList.toggle('fa-times');
-                });
-            }
-
-            // NẾU ĐÃ ĐĂNG NHẬP (Có Token)
-            if (token && fullName) {
-                // 1. Đổi link Logo và Trang chủ sang /home
-                navLogo.href = '/home';
-                navHome.href = '/home';
-
-                // 2. Hiện menu Gia Phả
-                navFamilyTree.style.display = 'flex';
-                // 2b. Quản trị họ (/family-head): chỉ permission FAMILY_HEAD (đồng bộ SecurityConfig)
-                try {
-                    const perms = JSON.parse(localStorage.getItem('permissions') || '[]');
-                    const p = Array.isArray(perms) ? perms : [];
-                    if (navFamilyHead && p.indexOf('FAMILY_HEAD') >= 0) {
-                        navFamilyHead.style.display = 'flex';
-                    }
-                    if (navAdminMenu && p.indexOf('FAMILY_HEAD') >= 0) {
-                        navAdminMenu.style.display = 'block';
-                    }
-                } catch (e) { /* ignore */ }
-                // 3. Ẩn nút Đăng nhập, hiện Dropdown Profile
-                navLoginBtn.style.display = 'none';
-                navUserDropdown.style.display = 'inline-block';
-
-                // 4. Hiển thị Tên
-                navFullName.innerText = fullName;
-
-                // 5. Logic tạo Avatar chữ (VD: Nguyễn Hồng Sơn -> HS)
-                const nameParts = fullName.trim().split(' ');
-                let initials = '';
-                if (nameParts.length >= 2) {
-                    // Lấy chữ cái đầu của 2 từ cuối cùng
-                    initials = nameParts[nameParts.length - 2].charAt(0) + nameParts[nameParts.length - 1].charAt(0);
-                } else {
-                    initials = fullName.charAt(0);
-                }
-                navAvatarInitials.innerText = initials.toUpperCase();
-
-                var navNews = document.getElementById('navNews');
-                if (navNews) {
-                    navNews.href = '/news';
-                }
-                if (profileLink) {
-                    const userId = localStorage.getItem('user_id');
-                    profileLink.href = (token && userId) ? `/member/${userId}` : '/profile';
-                }
-            }
-
-            // XỬ LÝ NÚT ĐĂNG XUẤT
-            if (navLogoutBtn) {
-                navLogoutBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    document.cookie = 'accessToken=; path=/; max-age=0';
-                    // Xóa sạch bộ nhớ
-                    localStorage.clear();
-                    // Đá về trang chủ của khách
-                    window.location.href = '/';
-                });
-            }
-        });
-    </script>
-</header>
+  <script src="/js/navbar.js"></script>
+</nav>

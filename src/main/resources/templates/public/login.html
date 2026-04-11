@@ -1,125 +1,274 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập – Gia Phả</title>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Đăng nhập - Family Care</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link rel="stylesheet" th:href="@{/css/login.css}">
-
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed-dim": "#a1d494",
+                    "on-error-container": "#93000a",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-fixed": "#002201",
+                    "surface-container-high": "#e8e8e3",
+                    "secondary-fixed": "#c8f17a",
+                    "on-background": "#1a1c19",
+                    "primary-container": "#2d5a27",
+                    "background": "#fafaf5",
+                    "tertiary-fixed": "#ccebc2",
+                    "on-primary-fixed-variant": "#23501e",
+                    "on-secondary-container": "#4e6e00",
+                    "on-tertiary-fixed": "#082007",
+                    "surface-container-low": "#f4f4ef",
+                    "surface-container-highest": "#e3e3de",
+                    "secondary-container": "#c8f17a",
+                    "inverse-surface": "#2f312e",
+                    "inverse-primary": "#a1d494",
+                    "tertiary": "#264023",
+                    "on-surface": "#1a1c19",
+                    "on-primary": "#ffffff",
+                    "tertiary-fixed-dim": "#b1cfa7",
+                    "on-tertiary-container": "#adcca4",
+                    "outline-variant": "#c2c9bb",
+                    "surface-dim": "#dadad5",
+                    "on-surface-variant": "#42493e",
+                    "surface-variant": "#e3e3de",
+                    "secondary-fixed-dim": "#add461",
+                    "tertiary-container": "#3d5738",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-fixed-variant": "#364e00",
+                    "inverse-on-surface": "#f1f1ec",
+                    "on-tertiary-fixed-variant": "#334d2f",
+                    "on-error": "#ffffff",
+                    "surface-tint": "#3b6934",
+                    "surface-bright": "#fafaf5",
+                    "error": "#ba1a1a",
+                    "surface-container": "#eeeee9",
+                    "outline": "#72796e",
+                    "on-primary-container": "#9dd090",
+                    "primary-fixed": "#bcf0ae",
+                    "on-secondary": "#ffffff",
+                    "primary": "#154212",
+                    "error-container": "#ffdad6",
+                    "secondary": "#496800",
+                    "surface": "#fafaf5",
+                    "on-secondary-fixed": "#131f00"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Noto Serif"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        }
+      }
+    </script>
+    <style>
+      body { font-family: "Manrope", sans-serif; }
+      .font-serif { font-family: "Noto Serif", serif; }
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; }
+      .bg-bamboo-blur {
+          background-image: linear-gradient(rgba(26, 28, 25, 0.4), rgba(26, 28, 25, 0.4)), url(https://lh3.googleusercontent.com/aida-public/AB6AXuBHJ_8lcD00HDLeA7Nx-456t-I3cQmDA5NI88aMp3yiCdvJD-i4-Dr6DDwPFc_kFRPnmsWVkj87ZElxsxTmC7e0yCeCpLTL2Usc3TsV8a2R56axm_gdrPPBEzNW-CZcMT7gS2aFYkN7Ro1ebIsnF-GmKwKFVFU3TTDCDiMyz2QdKGGX-ZxpzOfXXt0KG9BMvVqR0z-8b0TIE1NN0p27tbOhnbrfbxNdkSpilagSkVvs9yJy1lATCM7KhD1peCCw1nsjklm9t60pOVs);
+          background-size: cover;
+          background-position: center;
+      }
+      .bamboo-gradient { background: linear-gradient(15deg, #154212 0%, #2d5a27 100%); }
+    </style>
 </head>
-<body class="login-page-bg">
+<body class="bg-background text-on-background antialiased min-h-screen flex items-center justify-center p-4 bg-bamboo-blur" data-alt="Dreamy landscape of a dense misty bamboo forest with soft atmospheric light filtering through green leaves creating depth and serenity.">
 
 <th:block th:replace="~{fragments/navbar :: navbar}"/>
 
-<main class="login-wrapper">
-    <div class="login-card-figma">
-        <div class="login-header-figma">
-            <h2>Đăng nhập</h2>
-            <p>Hệ thống quản lý gia phả họ Nguyễn</p>
-        </div>
+<!-- Modal Container -->
+<div class="relative w-full max-w-[480px] bg-surface rounded-2xl shadow-[0_24px_48px_rgba(0,0,0,0.15)] overflow-hidden border border-outline-variant/20">
+<div class="p-8 md:p-12">
+<!-- Header Section -->
+<div class="mb-10 text-left">
+<h1 class="text-4xl font-headline font-bold text-primary tracking-tight mb-2">Đăng nhập</h1>
+<p class="text-on-surface-variant font-medium leading-relaxed">Hệ thống quản lý gia phả họ Nguyễn</p>
+<div class="mt-4 flex gap-1">
+<span class="h-1 w-8 bg-primary rounded-full"></span>
+<span class="h-1 w-2 bg-primary/30 rounded-full"></span>
+</div>
+</div>
 
-        <div id="alertContainer">
-            <div th:if="${param.error}" class="alert-popup error">
-                <i class="fas fa-exclamation-circle"></i>
-                <span>Email hoặc mật khẩu không đúng.</span>
-            </div>
-        </div>
+<div id="alertContainer"></div>
 
-        <form id="loginForm" th:action="@{/login}" method="post">
-            <div class="form-group-figma">
-                <label for="email">Email</label>
-                <div class="input-icon-wrap-figma">
-                    <i class="far fa-envelope"></i>
-                    <input type="email" id="email" name="username" required placeholder="Nhập email của bạn">
+<!-- Login Form -->
+<form id="loginForm" th:action="@{/login}" method="post" class="space-y-6">
+<!-- Email Field -->
+<div class="space-y-2">
+<label class="block text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1" for="email">Email</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[20px]" data-icon="mail">mail</span>
+</div>
+<input class="block w-full pl-11 pr-4 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 placeholder:text-outline-variant/60 text-on-surface font-body" id="email" name="username" placeholder="Nhập email của bạn" type="email" required/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-2">
+<div class="flex justify-between items-end">
+<label class="block text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1" for="password">Mật khẩu</label>
+<a class="text-xs font-bold text-primary hover:text-primary-container transition-colors duration-200 cursor-pointer" id="openForgotModal">Quên mật khẩu?</a>
+</div>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[20px]" data-icon="lock">lock</span>
+</div>
+<input class="block w-full pl-11 pr-12 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 placeholder:text-outline-variant/60 text-on-surface font-body" id="password" name="password" placeholder="••••••••" type="password" required/>
+<button class="absolute inset-y-0 right-0 pr-4 flex items-center text-outline hover:text-on-surface transition-colors" type="button" id="togglePassword">
+<span class="material-symbols-outlined text-[20px]" data-icon="visibility">visibility</span>
+</button>
+</div>
+</div>
+<!-- Action Button -->
+<div class="pt-4">
+<button class="group relative w-full flex justify-center py-4 px-6 rounded-xl text-sm font-bold text-on-primary bg-primary hover:bg-primary-container hover:shadow-lg transition-all duration-300 items-center gap-2" type="submit">
+<span>Đăng nhập</span>
+<span class="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</form>
+<!-- Footer Help Text -->
+<div class="mt-12 pt-8 border-t border-outline-variant/10 text-center">
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                    Chưa có tài khoản? <br class="md:hidden"/>
+<a class="font-bold text-primary hover:underline transition-all" href="#">Liên hệ Ban Quản Trị</a> để được cấp quyền.
+                </p>
+<!-- Branding Anchor -->
+<div class="mt-8 flex items-center justify-center gap-2 opacity-30">
+<span class="font-headline italic text-lg text-primary tracking-tighter">Family Care</span>
+<span class="h-px w-8 bg-outline-variant"></span>
+<span class="text-[10px] uppercase font-label tracking-[0.2em]">Heritage Preservation</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Forgot Password Modal -->
+<div id="forgotPwModal" class="hidden fixed inset-0 z-50 bg-on-surface/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="relative w-full max-w-[480px] bg-surface rounded-2xl shadow-[0_24px_48px_rgba(0,0,0,0.15)] overflow-hidden border border-outline-variant/20">
+        <div class="p-8 md:p-12">
+            <div class="mb-10 text-left">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h1 class="text-4xl font-headline font-bold text-primary tracking-tight mb-2">Khôi phục mật khẩu</h1>
+                        <p class="text-on-surface-variant font-medium leading-relaxed text-sm">3 bước để đặt lại mật khẩu</p>
+                    </div>
+                    <button type="button" id="closeForgotModal" class="p-1.5 hover:bg-surface-container-high rounded-full transition-colors text-outline">
+                        <span class="material-symbols-outlined text-xl">close</span>
+                    </button>
+                </div>
+                <div class="mt-4 flex gap-1">
+                    <span class="h-1 w-8 bg-primary rounded-full"></span>
+                    <span class="h-1 w-2 bg-primary/30 rounded-full"></span>
                 </div>
             </div>
 
-            <div class="form-group-figma">
-                <div class="label-flex">
-                    <label for="password">Mật khẩu</label>
-                    <a href="#" class="forgot-pw" id="openForgotModal">Quên mật khẩu?</a>
-                </div>
-                <div class="input-icon-wrap-figma">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="password" name="password" required placeholder="••••••••">
-                    <i class="far fa-eye-slash toggle-pw" id="togglePassword"></i>
-                </div>
-            </div>
+            <div id="forgotAlertContainer"></div>
 
-            <button type="submit" class="btn-login-submit">Đăng nhập</button>
-        </form>
+            <form id="step1Form" class="space-y-6">
+                <p class="text-on-surface-variant text-sm leading-relaxed">Nhập email tài khoản của bạn. Chúng tôi sẽ gửi mã xác thực (OTP) gồm 6 chữ số.</p>
+                <div class="space-y-2">
+                    <label class="block text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Email</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline">
+                            <span class="material-symbols-outlined text-[20px]" data-icon="mail">mail</span>
+                        </div>
+                        <input class="block w-full pl-11 pr-4 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 placeholder:text-outline-variant/60 text-on-surface font-body" id="forgotEmail" placeholder="Nhập email của bạn..." type="email" required/>
+                    </div>
+                </div>
+                <button type="submit" class="w-full flex justify-center py-4 px-6 rounded-xl text-sm font-bold text-on-primary bg-primary hover:bg-primary-container hover:shadow-lg transition-all duration-300 items-center gap-2" id="btnSendOtp">
+                    <span>Gửi mã xác thực</span>
+                    <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+                </button>
+            </form>
 
-        <div class="login-contact-admin">
-            Chưa có tài khoản? Liên hệ <a href="#"><strong>Ban Quản Trị</strong></a> để được cấp quyền
+            <form id="step2Form" class="space-y-6 hidden">
+                <p class="text-secondary font-semibold text-sm">Mã OTP đã được gửi đến email của bạn!</p>
+                <div class="space-y-2">
+                    <label class="block text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Mã OTP</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline">
+                            <span class="material-symbols-outlined text-[20px]" data-icon="lock">lock</span>
+                        </div>
+                        <input class="block w-full pl-11 pr-4 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 placeholder:text-outline-variant/60 text-on-surface font-body" id="otpCode" placeholder="Nhập mã OTP 6 số" type="text" maxlength="6" required/>
+                    </div>
+                </div>
+                <button type="submit" class="w-full flex justify-center py-4 px-6 rounded-xl text-sm font-bold text-on-primary bg-primary hover:bg-primary-container hover:shadow-lg transition-all duration-300 items-center gap-2" id="btnVerifyOtp">
+                    <span>Xác nhận mã OTP</span>
+                    <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+                </button>
+                <button type="button" onclick="document.getElementById('step2Form').classList.add('hidden'); document.getElementById('step1Form').classList.remove('hidden'); document.getElementById('forgotAlertContainer').innerHTML = '';" class="w-full text-center text-primary font-semibold text-sm hover:underline">
+                    ← Nhập lại email khác
+                </button>
+            </form>
+
+            <form id="step3Form" class="space-y-6 hidden">
+                <p class="text-on-surface-variant text-sm">Mã xác thực chính xác. Vui lòng đặt mật khẩu mới.</p>
+                <div class="space-y-2">
+                    <label class="block text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Mật khẩu mới</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline">
+                            <span class="material-symbols-outlined text-[20px]" data-icon="lock">lock</span>
+                        </div>
+                        <input class="block w-full pl-11 pr-12 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 placeholder:text-outline-variant/60 text-on-surface font-body" id="newForgotPass" placeholder="Nhập mật khẩu mới" type="password" required/>
+                        <button class="absolute inset-y-0 right-0 pr-4 flex items-center text-outline hover:text-on-surface transition-colors" type="button" onclick="toggleNewForgotPw()">
+                            <span class="material-symbols-outlined text-[20px]" id="newPwToggle" data-icon="visibility">visibility</span>
+                        </button>
+                    </div>
+                    <span style="font-size: 0.75rem; color: #6B7280; display: block; margin-top: 5px;">
+                        Ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số & ký tự đặc biệt.
+                    </span>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Nhập lại mật khẩu</label>
+                    <div class="relative" id="forgotConfirmWrap">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline">
+                            <span class="material-symbols-outlined text-[20px]" data-icon="lock">lock</span>
+                        </div>
+                        <input class="block w-full pl-11 pr-12 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 placeholder:text-outline-variant/60 text-on-surface font-body" id="confirmForgotPass" placeholder="Nhập lại mật khẩu" type="password" required/>
+                        <button class="absolute inset-y-0 right-0 pr-4 flex items-center text-outline hover:text-on-surface transition-colors" type="button" onclick="toggleConfirmForgotPw()">
+                            <span class="material-symbols-outlined text-[20px]" id="confirmPwToggle" data-icon="visibility">visibility</span>
+                        </button>
+                    </div>
+                    <span id="forgotMatchMessage" class="text-xs font-semibold mt-1 block"></span>
+                </div>
+
+                <button type="submit" class="w-full flex justify-center py-4 px-6 rounded-xl text-sm font-bold text-on-primary bg-primary hover:bg-primary-container hover:shadow-lg transition-all duration-300 items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" id="btnResetPass" disabled>
+                    <span>Xác nhận đổi mật khẩu</span>
+                    <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+                </button>
+            </form>
         </div>
     </div>
-</main>
+</div>
 
-<div id="forgotPwModal" class="modal-overlay">
-    <div class="modal-card">
-        <span class="modal-close-btn" id="closeForgotModal">&times;</span>
-
-        <h3>Khôi phục mật khẩu</h3>
-        <div id="forgotAlertContainer"></div>
-
-        <form id="step1Form">
-            <p>Nhập email tài khoản của bạn. Chúng tôi sẽ gửi mã xác thực (OTP) gồm 6 chữ số.</p>
-            <div class="form-group-figma">
-                <div class="input-icon-wrap-figma">
-                    <i class="far fa-envelope"></i>
-                    <input type="email" id="forgotEmail" required placeholder="Nhập email của bạn...">
-                </div>
-            </div>
-            <button type="submit" class="btn-login-submit" id="btnSendOtp">Gửi mã xác thực</button>
-        </form>
-
-        <form id="step2Form" style="display: none;">
-            <p style="color: #16A34A; font-weight: 500;">Mã OTP đã được gửi đến email của bạn!</p>
-            <div class="form-group-figma">
-                <div class="input-icon-wrap-figma">
-                    <i class="fas fa-keyboard"></i>
-                    <input type="text" id="otpCode" required placeholder="Nhập mã OTP 6 số" maxlength="6">
-                </div>
-            </div>
-            <button type="submit" class="btn-login-submit" id="btnVerifyOtp">Xác nhận mã OTP</button>
-            <div style="text-align: center; margin-top: 15px;">
-                <a href="#" style="color: #4B5563; font-size: 0.85rem; text-decoration: none;" onclick="document.getElementById('step2Form').style.display='none'; document.getElementById('step1Form').style.display='block'; return false;"><i class="fas fa-arrow-left"></i> Nhập lại email khác</a>
-            </div>
-        </form>
-
-        <form id="step3Form" style="display: none;">
-            <p>Mã xác thực chính xác. Vui lòng đặt mật khẩu mới.</p>
-            <div class="form-group-figma">
-                <div class="input-icon-wrap-figma">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="newForgotPass" required placeholder="Nhập mật khẩu mới">
-                    <i class="far fa-eye-slash toggle-pw" onclick="togglePw('newForgotPass', this)"></i>
-                </div>
-                <span style="font-size: 0.75rem; color: #6B7280; display: block; margin-top: 5px;">
-                    Ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số & ký tự đặc biệt.
-                </span>
-            </div>
-
-            <div class="form-group-figma" style="margin-bottom: 1.5rem;">
-                <div class="input-icon-wrap-figma" id="forgotConfirmWrap">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="confirmForgotPass" required placeholder="Nhập lại mật khẩu">
-                    <i class="far fa-eye-slash toggle-pw" onclick="togglePw('confirmForgotPass', this)"></i>
-                </div>
-                <span id="forgotMatchMessage" class="validation-msg"></span>
-            </div>
-
-            <button type="submit" class="btn-login-submit" id="btnResetPass" disabled>Xác nhận đổi mật khẩu</button>
-        </form>
-    </div>
+<!-- Background Elements -->
+<div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+<div class="absolute -top-24 -left-24 w-96 h-96 bg-primary/5 rounded-full blur-[100px]"></div>
+<div class="absolute -bottom-24 -right-24 w-96 h-96 bg-secondary/10 rounded-full blur-[100px]"></div>
 </div>
 
 <th:block th:replace="~{fragments/footer :: footer}"/>
 
 <script th:inline="javascript">
-    /** Cookie để trang server-render (/news, …) gửi JWT giống header Authorization. */
     function setAccessTokenCookie(token) {
         if (!token) return;
         document.cookie = 'accessToken=' + encodeURIComponent(token)
@@ -128,85 +277,111 @@
 
     function showPopup(message, type = 'error', containerId = 'alertContainer') {
         const container = document.getElementById(containerId);
-        const iconClass = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
-        container.innerHTML = `<div class="alert-popup ${type}"><i class="${iconClass}"></i><span>${message}</span></div>`;
+        if (!container) return;
+        const msgSpan = document.createElement('span');
+        msgSpan.textContent = message;
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'material-symbols-outlined text-xl';
+        iconSpan.textContent = type === 'success' ? 'check_circle' : 'error';
+        const div = document.createElement('div');
+        div.className = 'bg-' + (type === 'success' ? 'secondary' : 'error') + ' text-on-primary px-4 py-3 rounded-lg flex items-center gap-3 mb-4';
+        div.appendChild(iconSpan);
+        div.appendChild(msgSpan);
+        container.innerHTML = '';
+        container.appendChild(div);
     }
 
-    function togglePw(id, el) {
-        const input = document.getElementById(id);
-        if (input.type === "password") {
-            input.type = "text"; el.classList.replace('fa-eye-slash', 'fa-eye');
+    function toggleNewForgotPw() {
+        const input = document.getElementById('newForgotPass');
+        const icon = document.getElementById('newPwToggle');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.textContent = 'visibility_off';
         } else {
-            input.type = "password"; el.classList.replace('fa-eye', 'fa-eye-slash');
+            input.type = 'password';
+            icon.textContent = 'visibility';
         }
     }
 
-    // --- LOGIC ẨN HIỆN PASSWORD CHO FORM LOGIN CHÍNH ---
+    function toggleConfirmForgotPw() {
+        const input = document.getElementById('confirmForgotPass');
+        const icon = document.getElementById('confirmPwToggle');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.textContent = 'visibility_off';
+        } else {
+            input.type = 'password';
+            icon.textContent = 'visibility';
+        }
+    }
+
+    // TOGGLE PASSWORD CHÍNH
     const togglePassword = document.querySelector('#togglePassword');
     const passwordInput = document.querySelector('#password');
     if (togglePassword) {
         togglePassword.addEventListener('click', function () {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            this.classList.toggle('fa-eye-slash');
-            this.classList.toggle('fa-eye');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                this.textContent = 'visibility_off';
+            } else {
+                passwordInput.type = 'password';
+                this.textContent = 'visibility';
+            }
         });
     }
 
-    // --- LOGIC ĐĂNG NHẬP CHÍNH ---
+    // LOGIC ĐĂNG NHẬP CHÍNH
     const loginForm = document.getElementById('loginForm');
-    loginForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        const emailValue = document.querySelector('#email').value;
-        const passwordValue = passwordInput.value;
-        const btnSubmit = document.querySelector('#loginForm .btn-login-submit');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const emailValue = document.querySelector('#email').value;
+            const passwordValue = passwordInput.value;
+            const btnSubmit = document.querySelector('#loginForm button[type="submit"]');
 
-        btnSubmit.innerText = "Đang xác thực..."; btnSubmit.disabled = true;
+            btnSubmit.innerText = "Đang xác thực..."; btnSubmit.disabled = true;
 
-        fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: emailValue, password: passwordValue })
-        })
-        .then(response => {
-            if (response.ok) return response.json();
-            throw new Error("Tài khoản hoặc mật khẩu không chính xác!");
-        })
-        .then(data => {
-            if (data.accessToken) {
-                localStorage.setItem('token', data.accessToken);
-                setAccessTokenCookie(data.accessToken);
-                localStorage.setItem('full_name', data.fullName);
-                localStorage.setItem('user_id', data.userId);
-                if (data.role) localStorage.setItem('role', data.role);
-                else localStorage.removeItem('role');
-                if (data.roles) localStorage.setItem('roles', JSON.stringify(data.roles));
-                else localStorage.removeItem('roles');
-                if (data.permissions) localStorage.setItem('permissions', JSON.stringify(data.permissions));
-                if (data.familyId) localStorage.setItem('my_family_id', data.familyId);
-                else localStorage.removeItem('my_family_id');
-                if (data.familyName) localStorage.setItem('my_family_name', data.familyName);
-                else localStorage.removeItem('my_family_name');
-                const userStatus = data.status !== null ? Number(data.status) : 0;
-                // status === 1: chưa đổi mật khẩu lần đầu — mở modal trên trang chủ (GET /active không tồn tại).
-                if (userStatus === 1) {
-                    sessionStorage.setItem('needsPasswordSetup', '1');
-                    window.location.href = '/';
-                } else {
-                    window.location.href = '/home';
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: emailValue, password: passwordValue })
+            })
+            .then(response => {
+                if (response.ok) return response.json();
+                throw new Error("Tài khoản hoặc mật khẩu không chính xác!");
+            })
+            .then(data => {
+                if (data.accessToken) {
+                    localStorage.setItem('token', data.accessToken);
+                    setAccessTokenCookie(data.accessToken);
+                    localStorage.setItem('full_name', data.fullName);
+                    localStorage.setItem('user_id', data.userId);
+                    if (data.role) localStorage.setItem('role', data.role);
+                    else localStorage.removeItem('role');
+                    if (data.roles) localStorage.setItem('roles', JSON.stringify(data.roles));
+                    else localStorage.removeItem('roles');
+                    if (data.permissions) localStorage.setItem('permissions', JSON.stringify(data.permissions));
+                    if (data.familyId) localStorage.setItem('my_family_id', data.familyId);
+                    else localStorage.removeItem('my_family_id');
+                    if (data.familyName) localStorage.setItem('my_family_name', data.familyName);
+                    else localStorage.removeItem('my_family_name');
+                    const userStatus = data.status !== null ? Number(data.status) : 0;
+                    if (userStatus === 1) {
+                        sessionStorage.setItem('needsPasswordSetup', '1');
+                        window.location.href = '/';
+                    } else {
+                        window.location.href = '/home';
+                    }
                 }
-            }
-        })
-        .catch(error => {
-            showPopup(error.message, 'error', 'alertContainer');
-            btnSubmit.innerText = "Đăng nhập"; btnSubmit.disabled = false;
+            })
+            .catch(error => {
+                showPopup(error.message, 'error', 'alertContainer');
+                btnSubmit.innerText = "Đăng nhập"; btnSubmit.disabled = false;
+            });
         });
-    });
+    }
 
-    // ==========================================
-    // ==========================================
-    // LOGIC MODAL QUÊN MẬT KHẨU (3 BƯỚC)
-    // ==========================================
+    // MODAL QUÊN MẬT KHẨU
     const modal = document.getElementById('forgotPwModal');
     const openBtn = document.getElementById('openForgotModal');
     const closeBtn = document.getElementById('closeForgotModal');
@@ -215,76 +390,85 @@
     const step3Form = document.getElementById('step3Form');
 
     let userEmailForReset = "";
-    let userOtpForReset = ""; // Biến lưu tạm OTP để gửi ở Bước 3
+    let userOtpForReset = "";
 
-    // Mở / Đóng Modal
-    openBtn.addEventListener('click', (e) => {
-        e.preventDefault(); modal.style.display = 'flex';
-        step1Form.style.display = 'block';
-        step2Form.style.display = 'none';
-        step3Form.style.display = 'none';
-        document.getElementById('forgotAlertContainer').innerHTML = '';
-        document.getElementById('forgotEmail').value = '';
-    });
-    closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
+    if (openBtn) {
+        openBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            modal.classList.remove('hidden');
+            step1Form.classList.remove('hidden');
+            step2Form.classList.add('hidden');
+            step3Form.classList.add('hidden');
+            document.getElementById('forgotAlertContainer').innerHTML = '';
+            document.getElementById('forgotEmail').value = '';
+        });
+    }
 
-    // --- SUBMIT BƯỚC 1: XIN OTP ---
-    step1Form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        userEmailForReset = document.getElementById('forgotEmail').value;
-        const btnSendOtp = document.getElementById('btnSendOtp');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => { 
+            modal.classList.add('hidden'); 
+        });
+    }
 
-        btnSendOtp.innerText = "Đang gửi mã..."; btnSendOtp.disabled = true;
+    // BƯỚC 1: GỬI OTP
+    if (step1Form) {
+        step1Form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            userEmailForReset = document.getElementById('forgotEmail').value;
+            const btnSendOtp = document.getElementById('btnSendOtp');
 
-        fetch('/api/auth/forgot-password/send-otp', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: userEmailForReset })
-        })
-        .then(response => {
-            if(response.ok) {
-                step1Form.style.display = 'none';
-                step2Form.style.display = 'block'; // Chuyển sang Bước 2
-                document.getElementById('forgotAlertContainer').innerHTML = '';
-                document.getElementById('otpCode').value = '';
-            } else {
-                throw new Error("Email không tồn tại trong hệ thống!");
-            }
-        })
-        .catch(error => showPopup(error.message, 'error', 'forgotAlertContainer'))
-        .finally(() => { btnSendOtp.innerText = "Gửi mã xác thực"; btnSendOtp.disabled = false; });
-    });
+            btnSendOtp.innerText = "Đang gửi mã..."; btnSendOtp.disabled = true;
 
-    // --- SUBMIT BƯỚC 2: KIỂM TRA OTP ---
-    step2Form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        userOtpForReset = document.getElementById('otpCode').value;
-        const btnVerifyOtp = document.getElementById('btnVerifyOtp');
+            fetch('/api/auth/forgot-password/send-otp', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: userEmailForReset })
+            })
+            .then(response => {
+                if(response.ok) {
+                    step1Form.classList.add('hidden');
+                    step2Form.classList.remove('hidden');
+                    document.getElementById('forgotAlertContainer').innerHTML = '';
+                    document.getElementById('otpCode').value = '';
+                } else {
+                    throw new Error("Email không tồn tại trong hệ thống!");
+                }
+            })
+            .catch(error => showPopup(error.message, 'error', 'forgotAlertContainer'))
+            .finally(() => { btnSendOtp.innerText = "Gửi mã xác thực"; btnSendOtp.disabled = false; });
+        });
+    }
 
-        btnVerifyOtp.innerText = "Đang kiểm tra..."; btnVerifyOtp.disabled = true;
+    // BƯỚC 2: KIỂM TRA OTP
+    if (step2Form) {
+        step2Form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            userOtpForReset = document.getElementById('otpCode').value;
+            const btnVerifyOtp = document.getElementById('btnVerifyOtp');
 
-        fetch('/api/auth/forgot-password/verify-otp', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: userEmailForReset, otp: userOtpForReset })
-        })
-        .then(response => {
-            if(response.ok) {
-                step2Form.style.display = 'none';
-                step3Form.style.display = 'block'; // Chuyển sang Bước 3
-                document.getElementById('forgotAlertContainer').innerHTML = '';
+            btnVerifyOtp.innerText = "Đang kiểm tra..."; btnVerifyOtp.disabled = true;
 
-                // Xóa sạch dữ liệu cũ ở form đặt mật khẩu
-                newForgotInput.value = '';
-                confirmForgotInput.value = '';
-                checkForgotMatch();
-            } else {
-                throw new Error("Mã OTP không chính xác hoặc đã hết hạn!");
-            }
-        })
-        .catch(error => showPopup(error.message, 'error', 'forgotAlertContainer'))
-        .finally(() => { btnVerifyOtp.innerText = "Xác nhận mã OTP"; btnVerifyOtp.disabled = false; });
-    });
+            fetch('/api/auth/forgot-password/verify-otp', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: userEmailForReset, otp: userOtpForReset })
+            })
+            .then(response => {
+                if(response.ok) {
+                    step2Form.classList.add('hidden');
+                    step3Form.classList.remove('hidden');
+                    document.getElementById('forgotAlertContainer').innerHTML = '';
+                    document.getElementById('newForgotPass').value = '';
+                    document.getElementById('confirmForgotPass').value = '';
+                    checkForgotMatch();
+                } else {
+                    throw new Error("Mã OTP không chính xác hoặc đã hết hạn!");
+                }
+            })
+            .catch(error => showPopup(error.message, 'error', 'forgotAlertContainer'))
+            .finally(() => { btnVerifyOtp.innerText = "Xác nhận mã OTP"; btnVerifyOtp.disabled = false; });
+        });
+    }
 
-    // --- LOGIC REAL-TIME CHO BƯỚC 3 ---
+    // LOGIC REAL-TIME BƯỚC 3
     const newForgotInput = document.getElementById('newForgotPass');
     const confirmForgotInput = document.getElementById('confirmForgotPass');
     const forgotConfirmWrap = document.getElementById('forgotConfirmWrap');
@@ -296,85 +480,87 @@
         const confirmPwd = confirmForgotInput.value;
 
         if (confirmPwd.length === 0) {
-            forgotConfirmWrap.classList.remove('error', 'success');
+            forgotConfirmWrap.classList.remove('border-secondary', 'border-error');
             forgotMatchMsg.textContent = '';
-            forgotMatchMsg.className = 'validation-msg';
             btnResetPass.disabled = true;
             return;
         }
 
         if (pwd !== confirmPwd) {
-            forgotConfirmWrap.classList.remove('success');
-            forgotConfirmWrap.classList.add('error');
+            forgotConfirmWrap.classList.remove('border-secondary');
+            forgotConfirmWrap.classList.add('border-error');
             forgotMatchMsg.textContent = 'Mật khẩu chưa khớp!';
-            forgotMatchMsg.className = 'validation-msg error';
+            forgotMatchMsg.className = 'text-xs font-semibold mt-1 block text-error';
             btnResetPass.disabled = true;
         } else {
-            forgotConfirmWrap.classList.remove('error');
-            forgotConfirmWrap.classList.add('success');
+            forgotConfirmWrap.classList.remove('border-error');
+            forgotConfirmWrap.classList.add('border-secondary');
             forgotMatchMsg.innerHTML = '';
-            forgotMatchMsg.className = 'validation-msg success';
+            forgotMatchMsg.className = 'text-xs font-semibold mt-1 block text-secondary';
             btnResetPass.disabled = false;
         }
     }
-    newForgotInput.addEventListener('input', checkForgotMatch);
-    confirmForgotInput.addEventListener('input', checkForgotMatch);
+    
+    if (newForgotInput) newForgotInput.addEventListener('input', checkForgotMatch);
+    if (confirmForgotInput) confirmForgotInput.addEventListener('input', checkForgotMatch);
 
-    // --- SUBMIT BƯỚC 3: ĐỔI MẬT KHẨU ---
-    step3Form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const newPassword = newForgotInput.value;
+    // BƯỚC 3: ĐỔI MẬT KHẨU
+    if (step3Form) {
+        step3Form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newPassword = newForgotInput.value;
 
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-        if(!passwordRegex.test(newPassword)) {
-            showPopup("Mật khẩu yếu! Cần đủ 8 ký tự, chữ Hoa, Thường, Số và Ký tự đặc biệt.", 'error', 'forgotAlertContainer');
-            return;
-        }
-
-        btnResetPass.innerText = "Đang xử lý..."; btnResetPass.disabled = true;
-
-        fetch('/api/auth/forgot-password/reset', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                email: userEmailForReset,
-                otp: userOtpForReset,
-                newPassword: newPassword
-            })
-        })
-        .then(response => {
-            if(response.ok) return response.json();
-            throw new Error("Có lỗi xảy ra, vui lòng thử lại!");
-        })
-        .then(data => {
-            showPopup("Đổi mật khẩu thành công! Đang vào Gia Phả...", 'success', 'forgotAlertContainer');
-
-            if (data.accessToken) {
-                localStorage.setItem('token', data.accessToken);
-                setAccessTokenCookie(data.accessToken);
-                localStorage.setItem('full_name', data.fullName);
-                localStorage.setItem('user_id', data.userId);
-                if (data.role) localStorage.setItem('role', data.role);
-                else localStorage.removeItem('role');
-                if (data.roles) localStorage.setItem('roles', JSON.stringify(data.roles));
-                else localStorage.removeItem('roles');
-                if (data.permissions) localStorage.setItem('permissions', JSON.stringify(data.permissions));
-                if (data.familyId) localStorage.setItem('my_family_id', data.familyId);
-                else localStorage.removeItem('my_family_id');
-                if (data.familyName) localStorage.setItem('my_family_name', data.familyName);
-                else localStorage.removeItem('my_family_name');
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            if(!passwordRegex.test(newPassword)) {
+                showPopup("Mật khẩu yếu! Cần đủ 8 ký tự, chữ Hoa, Thường, Số và Ký tự đặc biệt.", 'error', 'forgotAlertContainer');
+                return;
             }
 
-            setTimeout(() => {
-                window.location.href = '/home';
-            }, 1500);
-        })
-        .catch(error => {
-            showPopup(error.message, 'error', 'forgotAlertContainer');
-            btnResetPass.innerText = "Xác nhận đổi mật khẩu";
-            btnResetPass.disabled = false;
+            btnResetPass.innerText = "Đang xử lý..."; btnResetPass.disabled = true;
+
+            fetch('/api/auth/forgot-password/reset', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: userEmailForReset,
+                    otp: userOtpForReset,
+                    newPassword: newPassword
+                })
+            })
+            .then(response => {
+                if(response.ok) return response.json();
+                throw new Error("Có lỗi xảy ra, vui lòng thử lại!");
+            })
+            .then(data => {
+                showPopup("Đổi mật khẩu thành công! Đang vào Gia Phả...", 'success', 'forgotAlertContainer');
+
+                if (data.accessToken) {
+                    localStorage.setItem('token', data.accessToken);
+                    setAccessTokenCookie(data.accessToken);
+                    localStorage.setItem('full_name', data.fullName);
+                    localStorage.setItem('user_id', data.userId);
+                    if (data.role) localStorage.setItem('role', data.role);
+                    else localStorage.removeItem('role');
+                    if (data.roles) localStorage.setItem('roles', JSON.stringify(data.roles));
+                    else localStorage.removeItem('roles');
+                    if (data.permissions) localStorage.setItem('permissions', JSON.stringify(data.permissions));
+                    if (data.familyId) localStorage.setItem('my_family_id', data.familyId);
+                    else localStorage.removeItem('my_family_id');
+                    if (data.familyName) localStorage.setItem('my_family_name', data.familyName);
+                    else localStorage.removeItem('my_family_name');
+                }
+
+                setTimeout(() => {
+                    window.location.href = '/home';
+                }, 1500);
+            })
+            .catch(error => {
+                showPopup(error.message, 'error', 'forgotAlertContainer');
+                btnResetPass.innerText = "Xác nhận đổi mật khẩu";
+                btnResetPass.disabled = false;
+            });
         });
-    });
+    }
 </script>
 </body>
 </html>

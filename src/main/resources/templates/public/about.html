@@ -2,10 +2,70 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lịch sử Dòng họ - Gia Phả</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/about.css}">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-primary-fixed": "#002201",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed": "#131f00",
+                        "inverse-surface": "#2f312e",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#a1d494",
+                        "outline": "#72796e",
+                        "on-secondary-fixed-variant": "#364e00",
+                        "on-primary-fixed-variant": "#23501e",
+                        "on-tertiary-fixed": "#082007",
+                        "on-surface": "#1a1c19",
+                        "surface-variant": "#e3e3de",
+                        "surface-container-highest": "#e3e3de",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#9dd090",
+                        "secondary-fixed-dim": "#add461",
+                        "primary-fixed": "#bcf0ae",
+                        "surface-tint": "#3b6934",
+                        "surface-container-high": "#e8e8e3",
+                        "tertiary": "#264023",
+                        "outline-variant": "#c2c9bb",
+                        "tertiary-fixed-dim": "#b1cfa7",
+                        "on-surface-variant": "#42493e",
+                        "tertiary-fixed": "#ccebc2",
+                        "surface-bright": "#fafaf5",
+                        "surface-container": "#eeeee9",
+                        "primary-container": "#2d5a27",
+                        "on-tertiary-fixed-variant": "#334d2f",
+                        "inverse-on-surface": "#f1f1ec",
+                        "surface": "#fafaf5",
+                        "on-secondary-container": "#4e6e00",
+                        "secondary-fixed": "#c8f17a",
+                        "surface-container-low": "#f4f4ef",
+                        "secondary": "#496800",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-primary": "#ffffff",
+                        "primary": "#154212",
+                        "on-error-container": "#410002",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#3d5738",
+                        "on-tertiary-container": "#adcca4",
+                        "background": "#fafaf5",
+                        "on-background": "#1a1c19",
+                        "inverse-primary": "#a1d494"
+                    }
+                }
+            }
+        };
+    </script>
 </head>
 <body>
 
