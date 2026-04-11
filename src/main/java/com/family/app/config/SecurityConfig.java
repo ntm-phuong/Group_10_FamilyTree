@@ -64,6 +64,8 @@ public class SecurityConfig {
 
                         // Cho phép API login/register (trừ /me — cần JWT)
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/verify-email").permitAll()
                         .requestMatchers("/api/auth/active").permitAll()
                         .requestMatchers("/api/auth/forgot-password/**").permitAll()
 

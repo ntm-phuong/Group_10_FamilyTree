@@ -91,6 +91,10 @@ public class AuthService {
         User user = userRepository.findByEmailWithFamily(email)
                 .orElseThrow(() -> new RuntimeException("Email không tồn tại"));
 
+        if (user.getStatus() == null || user.getStatus() != 2) {
+            throw new RuntimeException("Please verify your email first");
+        }
+
         if (passwordEncoder.matches(password, user.getPassword())) {
             String token = tokenProvider.generateToken(user.getUserId());
 
