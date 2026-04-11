@@ -59,5 +59,5 @@ public interface UserRepository extends JpaRepository<User, String> {
             + "WHERE u.family_id = :familyId AND r.role_name = 'FAMILY_BRANCH_MANAGER' "
             + "LIMIT 1",
             nativeQuery = true)
-    Optional<User> findFamilyHeadByFamilyId(@Param("familyId") String familyId)
+    Optional<User> findFamilyHeadByFamilyId(@Param("familyId") String familyId);
 }
