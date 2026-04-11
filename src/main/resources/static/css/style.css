@@ -220,3 +220,31 @@ textarea.form-control{resize:vertical;min-height:100px;}
   height: 2px;
   background-color: #2d5a27;
 }
+.modal {
+  max-height: 70vh !important;
+}
+
+.modal .pt-10 {
+  padding-top: 1.5rem !important;
+}
+
+.modal .pb-8 {
+  padding-bottom: 1.5rem !important;
+}
+
+.modal .py-6 {
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+}
+
+.modal form {
+  max-height: 45vh;
+  overflow-y: auto;
+}
+.search-input {
+  transition: all 0.2s ease;
+}
+
+.search-input:hover {
+  border-color: #c2c9bb;
+}
