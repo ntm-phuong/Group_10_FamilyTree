@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Cây Gia Phả - Dòng họ</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <link rel="stylesheet" th:href="@{/css/style.css}"/>
   <link rel="stylesheet" th:href="@{/css/navbar.css}"/>
@@ -11,101 +13,134 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <script id="tailwind-config">
     tailwind.config = {
-        darkMode: "class",
-        theme: {
-            extend: {
-                colors: {
-                    "on-primary-fixed": "#002201",
-                    "error": "#ba1a1a",
-                    "on-secondary-fixed": "#131f00",
-                    "inverse-surface": "#2f312e",
-                    "surface-container-lowest": "#ffffff",
-                    "primary-fixed-dim": "#a1d494",
-                    "outline": "#72796e",
-                    "on-secondary-fixed-variant": "#364e00",
-                    "on-primary-fixed-variant": "#23501e",
-                    "on-tertiary-fixed": "#082007",
-                    "on-surface": "#1a1c19",
-                    "surface-variant": "#e3e3de",
-                    "surface-container-highest": "#e3e3de",
-                    "on-secondary": "#ffffff",
-                    "on-primary-container": "#9dd090",
-                    "secondary-fixed-dim": "#add461",
-                    "primary-fixed": "#bcf0ae",
-                    "surface-tint": "#3b6934",
-                    "surface-container-high": "#e8e8e3",
-                    "tertiary": "#264023",
-                    "outline-variant": "#c2c9bb",
-                    "tertiary-fixed-dim": "#b1cfa7",
-                    "on-surface-variant": "#42493e",
-                    "tertiary-fixed": "#ccebc2",
-                    "surface-bright": "#fafaf5",
-                    "surface-container": "#eeeee9",
-                    "primary-container": "#2d5a27",
-                    "on-tertiary-fixed-variant": "#334d2f",
-                    "inverse-on-surface": "#f1f1ec",
-                    "surface": "#fafaf5",
-                    "on-secondary-container": "#4e6e00",
-                    "secondary-fixed": "#c8f17a",
-                    "surface-container-low": "#f4f4ef",
-                    "secondary": "#496800",
-                    "on-error": "#ffffff",
-                    "error-container": "#ffdad6",
-                    "on-primary": "#ffffff",
-                    "primary": "#154212",
-                    "on-error-container": "#410002",
-                    "on-tertiary": "#ffffff",
-                    "tertiary-container": "#3d5738",
-                    "on-tertiary-container": "#adcca4",
-                    "background": "#fafaf5",
-                    "on-background": "#1a1c19",
-                    "inverse-primary": "#a1d494"
-                }
-            }
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-primary-fixed": "#002201",
+            "error": "#ba1a1a",
+            "on-secondary-fixed": "#131f00",
+            "inverse-surface": "#2f312e",
+            "surface-container-lowest": "#ffffff",
+            "primary-fixed-dim": "#a1d494",
+            "outline": "#72796e",
+            "on-secondary-fixed-variant": "#364e00",
+            "on-primary-fixed-variant": "#23501e",
+            "on-tertiary-fixed": "#082007",
+            "on-surface": "#1a1c19",
+            "surface-variant": "#e3e3de",
+            "surface-container-highest": "#e3e3de",
+            "on-secondary": "#ffffff",
+            "on-primary-container": "#9dd090",
+            "secondary-fixed-dim": "#add461",
+            "primary-fixed": "#bcf0ae",
+            "surface-tint": "#3b6934",
+            "surface-container-high": "#e8e8e3",
+            "tertiary": "#264023",
+            "outline-variant": "#c2c9bb",
+            "tertiary-fixed-dim": "#b1cfa7",
+            "on-surface-variant": "#42493e",
+            "tertiary-fixed": "#ccebc2",
+            "surface-bright": "#fafaf5",
+            "surface-container": "#eeeee9",
+            "primary-container": "#2d5a27",
+            "on-tertiary-fixed-variant": "#334d2f",
+            "inverse-on-surface": "#f1f1ec",
+            "surface": "#fafaf5",
+            "on-secondary-container": "#4e6e00",
+            "secondary-fixed": "#c8f17a",
+            "surface-container-low": "#f4f4ef",
+            "secondary": "#496800",
+            "on-error": "#ffffff",
+            "error-container": "#ffdad6",
+            "on-primary": "#ffffff",
+            "primary": "#154212",
+            "on-error-container": "#410002",
+            "on-tertiary": "#ffffff",
+            "tertiary-container": "#3d5738",
+            "on-tertiary-container": "#adcca4",
+            "background": "#fafaf5",
+            "on-background": "#1a1c19",
+            "inverse-primary": "#a1d494"
+          },
+          fontFamily: {
+            "headline": ["Noto Serif", "serif"],
+            "body": ["Manrope", "sans-serif"],
+            "label": ["Manrope", "sans-serif"]
+          }
         }
+      }
     };
   </script>
+  <style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .bamboo-scroll::-webkit-scrollbar { width: 5px; }
+    .bamboo-scroll::-webkit-scrollbar-track { background: transparent; }
+    .bamboo-scroll::-webkit-scrollbar-thumb { background: #c2c9bb; border-radius: 10px; }
+    .bamboo-scroll::-webkit-scrollbar-thumb:hover { background: #72796e; }
+
+    /* Ghi đè viền input trong modal để theo đúng thiết kế mới */
+    .modal input, .modal select, .modal textarea {
+      border: 1px solid #e3e3de !important;
+      transition: all 0.2s ease;
+    }
+    .modal input:focus, .modal select:focus, .modal textarea:focus {
+      border-color: #2d5a27 !important;
+      outline: none !important;
+      box-shadow: 0 0 0 1px #2d5a27 !important;
+    }
+  </style>
 </head>
-<body>
+<body class="font-body">
 <th:block th:replace="~{fragments/navbar :: navbar}"/>
 
 <div class="tree-page-wrap">
-
-
-  <h1 style="font-size:1.4rem;font-weight:700;margin-bottom:.3rem;">Cây gia phả dòng họ</h1>
+  <h1 style="font-size:1.4rem;font-weight:700;margin-bottom:.3rem;" class="font-headline text-primary">Cây gia phả dòng họ</h1>
   <p style="font-size:.85rem;color:var(--text-500);margin-bottom:1.25rem;">
     Một dòng họ (<strong th:text="${clanFamilyName}">—</strong>). Khám phá quan hệ qua các thế hệ; nhấn thành viên để xem chi tiết.
   </p>
 
   <div class="tree-toolbar">
-    <div id="familyFilterWrap" class="family-filter-wrap" style="display:none;" aria-hidden="true">
-      <select id="familyFilter" class="form-control form-select" style="width:220px;" aria-label="Chọn dòng họ">
+    <div id="familyFilterWrap" style="display:none;" aria-hidden="true">
+      <select id="familyFilter" class="bg-white border border-outline-variant/50 rounded-full px-4 py-2 text-sm text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%2372796e%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px_16px] bg-[right_12px_center] bg-no-repeat pr-10 cursor-pointer shadow-sm hover:border-primary/50" style="width:220px;" aria-label="Chọn dòng họ">
         <option value="">Chọn dòng họ</option>
       </select>
     </div>
-    <div class="search-input" style="min-width:200px;max-width:260px;">
-      <i class="fas fa-search"></i>
-      <input id="treeSearch" type="text" class="form-control" placeholder="Tìm kiếm thành viên..."/>
+
+    <div class="relative flex items-center shadow-sm rounded-full" style="min-width:200px;max-width:260px;">
+      <i class="fas fa-search absolute left-4 text-outline-variant"></i>
+      <input id="treeSearch" type="text" class="w-full bg-white border border-outline-variant/50 rounded-full pl-10 pr-4 py-2 text-sm text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline-variant/70 hover:border-primary/50" placeholder="Tìm kiếm thành viên..."/>
     </div>
-    <select id="genFilter" class="form-control form-select" style="width:140px;">
-      <option value="">Tất cả thế hệ</option>
-    </select>
+
+    <div class="relative" id="customGenFilterContainer" style="width:140px;">
+      <select id="genFilter" class="hidden">
+        <option value="">Tất cả thế hệ</option>
+      </select>
+
+      <button type="button" id="genFilterBtn" class="w-full bg-white border border-outline-variant/50 rounded-full px-4 py-2 text-sm text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all flex justify-between items-center shadow-sm hover:border-primary/50 cursor-pointer">
+        <span id="genFilterSelectedText" class="truncate">Tất cả thế hệ</span>
+        <span class="material-symbols-outlined text-[18px] text-outline">expand_more</span>
+      </button>
+
+      <div id="genFilterDropdown" class="absolute z-50 w-full mt-2 bg-white border border-outline-variant/30 rounded-2xl shadow-[0_10px_25px_rgba(0,0,0,0.08)] hidden flex-col overflow-hidden py-1.5 max-h-60 overflow-y-auto bamboo-scroll">
+      </div>
+    </div>
 
     <div style="display:flex;align-items:center;gap:.4rem;margin-left:.5rem;">
-      <span class="tree-zoom-display" id="zoomLabel">100%</span>
-      <button id="zoomOut" class="btn btn-white btn-icon" title="Thu nhỏ"><i class="fas fa-search-minus"></i></button>
-      <button id="zoomIn"  class="btn btn-white btn-icon" title="Phóng to"><i class="fas fa-search-plus"></i></button>
-      <button id="zoomReset" class="btn btn-white btn-icon" title="Đặt lại"><i class="fas fa-redo"></i></button>
+      <span class="tree-zoom-display text-sm font-semibold text-primary bg-primary/10 px-2 py-1 rounded-md" id="zoomLabel">100%</span>
+      <button id="zoomOut" class="btn btn-white btn-icon rounded-full border-outline-variant/40 shadow-sm hover:bg-surface-container-high hover:border-outline-variant" title="Thu nhỏ"><i class="fas fa-search-minus"></i></button>
+      <button id="zoomIn"  class="btn btn-white btn-icon rounded-full border-outline-variant/40 shadow-sm hover:bg-surface-container-high hover:border-outline-variant" title="Phóng to"><i class="fas fa-search-plus"></i></button>
+      <button id="zoomReset" class="btn btn-white btn-icon rounded-full border-outline-variant/40 shadow-sm hover:bg-surface-container-high hover:border-outline-variant" title="Đặt lại"><i class="fas fa-redo"></i></button>
     </div>
 
     <div style="margin-left:auto;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
-      <button type="button" id="treeMemberAddBtn" class="btn btn-primary btn-sm" hidden>
+      <button type="button" id="treeMemberAddBtn" class="btn btn-primary btn-sm rounded-full shadow-sm" hidden>
         <i class="fas fa-user-plus"></i> Thêm thành viên
       </button>
-      <button id="compareModeToggle" class="btn btn-white btn-sm"><i class="fas fa-code-compare"></i> So sánh quan hệ</button>
-      <button id="expandAll" class="btn btn-white btn-sm"><i class="fas fa-expand-alt"></i> Mở rộng</button>
-      <button id="collapseAll" class="btn btn-white btn-sm"><i class="fas fa-compress-alt"></i> Thu gọn</button>
-      <button id="exportPdf" class="btn btn-white btn-sm"><i class="fas fa-file-pdf"></i> Xuất file PDF</button>
+      <button id="compareModeToggle" class="btn btn-white btn-sm rounded-full shadow-sm border-outline-variant/40 hover:bg-surface-container-high"><i class="fas fa-code-compare"></i> So sánh quan hệ</button>
+      <button id="expandAll" class="btn btn-white btn-sm rounded-full shadow-sm border-outline-variant/40 hover:bg-surface-container-high"><i class="fas fa-expand-alt"></i> Mở rộng</button>
+      <button id="collapseAll" class="btn btn-white btn-sm rounded-full shadow-sm border-outline-variant/40 hover:bg-surface-container-high"><i class="fas fa-compress-alt"></i> Thu gọn</button>
+      <button id="exportPdf" class="btn btn-white btn-sm rounded-full shadow-sm border-outline-variant/40 hover:bg-surface-container-high"><i class="fas fa-file-pdf"></i> Xuất PDF</button>
     </div>
   </div>
 
@@ -119,13 +154,13 @@
     </div>
     <aside class="tree-detail-panel" id="treeDetailPanel">
       <div class="tree-detail-header">
-        <h3>Thông tin chi tiết</h3>
+        <h3 class="font-headline font-bold">Thông tin chi tiết</h3>
         <button id="treeDetailClose" class="btn btn-ghost btn-icon" type="button"><i class="fas fa-times-circle"></i></button>
       </div>
-        <div class="tree-detail-avatar" id="detailInitial" style="background-size: cover; background-position: center;">
-            <span id="detailInitialText">--</span>
-        </div>
-        <div class="tree-detail-name" id="detailName">Chưa chọn thành viên</div>
+      <div class="tree-detail-avatar" id="detailInitial" style="background-size: cover; background-position: center;">
+        <span id="detailInitialText">--</span>
+      </div>
+      <div class="tree-detail-name font-bold" id="detailName">Chưa chọn thành viên</div>
       <div class="tree-detail-meta">
         <div id="detailYears">-</div>
         <div id="detailGeneration">-</div>
@@ -133,10 +168,10 @@
       <div class="tree-detail-item"><i class="fas fa-map-marker-alt"></i><span id="detailHometown">-</span></div>
       <div class="tree-detail-item"><i class="fas fa-briefcase"></i><span id="detailJob">-</span></div>
       <div class="divider"></div>
-      <h4>Tiểu sử</h4>
+      <h4 class="font-bold">Tiểu sử</h4>
       <p id="detailBio" class="tree-detail-bio">Chọn thành viên bên trái để xem thông tin.</p>
       <div class="divider"></div>
-      <h4>Quan hệ gia đình</h4>
+      <h4 class="font-bold">Quan hệ gia đình</h4>
       <div class="tree-detail-rel">
         <div><strong>Vợ/chồng:</strong> <span id="detailSpouse">-</span></div>
         <div><strong>Con:</strong> <span id="detailChildren">-</span></div>
@@ -157,183 +192,189 @@
   </div>
 
   <div id="treeMemberEditModal" class="modal-overlay" aria-hidden="true">
-    <div class="modal" style="max-width:560px;">
-      <div class="modal-header">
-        <div>
-          <h3 id="treeMemberModalTitle">Sửa thành viên</h3>
-          <p style="font-size:.82rem;color:var(--text-500);margin-top:.2rem;">Lưu qua API quản lý thành viên (gia phả).</p>
-        </div>
-        <button type="button" class="modal-close" id="treeMemberModalClose" aria-label="Đóng"><i class="fas fa-times"></i></button>
+    <div class="modal w-full max-w-[520px] max-h-[95vh] flex flex-col rounded-xl shadow-2xl relative overflow-hidden !p-0 bg-surface border-0">
+      <div class="px-8 pt-10 pb-6 text-center relative shrink-0">
+        <button type="button" class="modal-close absolute top-6 right-6 text-on-surface-variant hover:text-error transition-colors" id="treeMemberModalClose" aria-label="Đóng">
+          <span class="material-symbols-outlined" data-icon="close">close</span>
+        </button>
+        <h3 id="treeMemberModalTitle" class="font-headline text-2xl font-bold text-primary tracking-tight mb-2">Sửa thành viên</h3>
       </div>
-      <form id="treeMemberForm">
-        <input type="hidden" id="tmMemberEditId" value=""/>
-        <div class="fh-form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem 1rem;">
-          <div style="grid-column:1/-1;">
-            <label for="tmMemFullName">Họ và tên <span style="color:#b91c1c;">*</span></label>
-            <input type="text" id="tmMemFullName" class="form-control" required maxlength="200"/>
+      <div class="px-10 pb-8 overflow-y-auto bamboo-scroll flex-1">
+        <form id="treeMemberForm" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
+          <input type="hidden" id="tmMemberEditId" value=""/>
+
+          <div class="md:col-span-2">
+            <label for="tmMemFullName" class="block text-sm font-semibold text-primary mb-2">Họ và tên <span class="text-error">*</span></label>
+            <input type="text" id="tmMemFullName" class="w-full bg-white rounded-lg px-4 py-2.5 text-on-surface" required maxlength="200"/>
           </div>
-          <div>
-            <label for="tmMemEmail">Email</label>
-            <input type="email" id="tmMemEmail" class="form-control"/>
+          <div class="col-span-1">
+            <label for="tmMemEmail" class="block text-sm font-semibold text-primary mb-2">Email</label>
+            <input type="email" id="tmMemEmail" class="w-full bg-white rounded-lg px-4 py-2.5 text-on-surface"/>
           </div>
-          <div>
-            <label for="tmMemPhone">Điện thoại</label>
-            <input type="text" id="tmMemPhone" class="form-control" maxlength="20"/>
+          <div class="col-span-1">
+            <label for="tmMemPhone" class="block text-sm font-semibold text-primary mb-2">Điện thoại</label>
+            <input type="text" id="tmMemPhone" class="w-full bg-white rounded-lg px-4 py-2.5 text-on-surface" maxlength="20"/>
           </div>
-          <div>
-            <label for="tmMemGender">Giới tính</label>
-            <select id="tmMemGender" class="form-control form-select">
+          <div class="col-span-1">
+            <label for="tmMemGender" class="block text-sm font-semibold text-primary mb-2">Giới tính</label>
+            <select id="tmMemGender" class="w-full bg-white rounded-lg px-4 py-2.5 text-on-surface appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%2372796e%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px_20px] bg-[right_12px_center] bg-no-repeat">
               <option value="">—</option>
               <option value="MALE">Nam</option>
               <option value="FEMALE">Nữ</option>
             </select>
           </div>
-          <div>
-            <label for="tmMemDob">Ngày sinh</label>
-            <input type="date" id="tmMemDob" class="form-control"/>
+          <div class="col-span-1">
+            <label for="tmMemDob" class="block text-sm font-semibold text-primary mb-2">Ngày sinh</label>
+            <input type="date" id="tmMemDob" class="w-full bg-white rounded-lg px-4 py-2.5 text-on-surface"/>
           </div>
-          <div style="grid-column:1/-1;">
-            <label for="tmMemFamilyId">Dòng họ <span style="color:#b91c1c;">*</span></label>
-            <select id="tmMemFamilyId" class="form-control form-select" required></select>
+          <div class="md:col-span-2">
+            <label for="tmMemFamilyId" class="block text-sm font-semibold text-primary mb-2">Dòng họ <span class="text-error">*</span></label>
+            <select id="tmMemFamilyId" class="w-full bg-white rounded-lg px-4 py-2.5 text-on-surface appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%2372796e%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px_20px] bg-[right_12px_center] bg-no-repeat" required></select>
           </div>
-          <div style="grid-column:1/-1;">
-            <label for="tmMemParentId">Cha / mẹ (trong dòng họ)</label>
-            <select id="tmMemParentId" class="form-control form-select">
+          <div class="md:col-span-2">
+            <label for="tmMemParentId" class="block text-sm font-semibold text-primary mb-2">Cha / mẹ (trong dòng họ)</label>
+            <select id="tmMemParentId" class="w-full bg-white rounded-lg px-4 py-2.5 text-on-surface appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%2372796e%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px_20px] bg-[right_12px_center] bg-no-repeat">
               <option value="">— Không (đời đầu) —</option>
             </select>
-            <p id="tmMemParentLockHint" class="text-xs text-muted" style="margin:.35rem 0 0;" hidden>
-              Thêm con: cha/mẹ và chi đã chọn trên cây — các ô này tự điền và <strong>không chỉnh sửa</strong> được.
+            <p id="tmMemParentLockHint" class="text-xs text-on-surface-variant mt-2" hidden>
+              Thêm con: cha/mẹ và chi đã chọn trên cây — các ô này tự điền và <strong class="font-bold">không chỉnh sửa</strong> được.
             </p>
-            <p id="tmMemParentHelp" class="text-xs text-muted" style="margin:.35rem 0 0;">Chọn người làm cha hoặc mẹ trực tiếp; thế hệ và thứ tự được tính tự động. Chỉ được thêm con khi người đó đã có vợ/chồng (nút &quot;Thêm vợ/chồng&quot; tạo hồ sơ vợ/chồng mới).</p>
           </div>
-          <div>
-            <label for="tmMemGeneration">Thế hệ <span class="text-muted" style="font-weight:400;">(tự tính)</span></label>
-            <input type="number" id="tmMemGeneration" class="form-control" min="1" step="1" readonly tabindex="-1" style="background:var(--bg);cursor:not-allowed;"/>
+          <div class="col-span-1">
+            <label for="tmMemGeneration" class="block text-sm font-semibold text-primary mb-2">Thế hệ <span class="font-normal text-on-surface-variant">(tự tính)</span></label>
+            <input type="number" id="tmMemGeneration" class="w-full bg-surface-container-low rounded-lg px-4 py-2.5 text-on-surface-variant font-medium cursor-not-allowed opacity-75" min="1" step="1" readonly tabindex="-1"/>
           </div>
-          <div>
-            <label for="tmMemOrder">Thứ tự trong chi <span class="text-muted" style="font-weight:400;">(tự tính)</span></label>
-            <input type="number" id="tmMemOrder" class="form-control" min="1" step="1" readonly tabindex="-1" style="background:var(--bg);cursor:not-allowed;"/>
+          <div class="col-span-1">
+            <label for="tmMemOrder" class="block text-sm font-semibold text-primary mb-2">Thứ tự <span class="font-normal text-on-surface-variant">(tự tính)</span></label>
+            <input type="number" id="tmMemOrder" class="w-full bg-surface-container-low rounded-lg px-4 py-2.5 text-on-surface-variant font-medium cursor-not-allowed opacity-75" min="1" step="1" readonly tabindex="-1"/>
           </div>
-          <div style="grid-column:1/-1;">
-            <label for="tmMemHometown">Quê quán</label>
-            <input type="text" id="tmMemHometown" class="form-control"/>
+          <div class="md:col-span-2">
+            <label for="tmMemHometown" class="block text-sm font-semibold text-primary mb-2">Quê quán</label>
+            <input type="text" id="tmMemHometown" class="w-full bg-white rounded-lg px-4 py-2.5 text-on-surface"/>
           </div>
-          <div style="grid-column:1/-1;">
-            <label for="tmMemCurrentAddress">Chỗ ở hiện tại</label>
-            <input type="text" id="tmMemCurrentAddress" class="form-control"/>
+          <div class="md:col-span-2">
+            <label for="tmMemCurrentAddress" class="block text-sm font-semibold text-primary mb-2">Chỗ ở hiện tại</label>
+            <input type="text" id="tmMemCurrentAddress" class="w-full bg-white rounded-lg px-4 py-2.5 text-on-surface"/>
           </div>
-          <div style="grid-column:1/-1;">
-            <label for="tmMemOccupation">Nghề nghiệp</label>
-            <input type="text" id="tmMemOccupation" class="form-control"/>
+          <div class="md:col-span-2">
+            <label for="tmMemOccupation" class="block text-sm font-semibold text-primary mb-2">Nghề nghiệp</label>
+            <input type="text" id="tmMemOccupation" class="w-full bg-white rounded-lg px-4 py-2.5 text-on-surface"/>
           </div>
-          <div style="grid-column:1/-1;">
-            <label for="tmMemBio">Tiểu sử</label>
-            <textarea id="tmMemBio" class="form-control" rows="3"></textarea>
+          <div class="md:col-span-2">
+            <label for="tmMemBio" class="block text-sm font-semibold text-primary mb-2">Tiểu sử</label>
+            <textarea id="tmMemBio" class="w-full bg-white rounded-lg p-4 text-on-surface text-sm leading-relaxed" rows="3"></textarea>
           </div>
-          <div style="grid-column:1/-1;">
-            <label for="tmMemRoleId">Vai trò &amp; quyền <span class="text-muted" style="font-weight:400;">(Ctrl/Cmd + click để chọn nhiều)</span></label>
-            <select id="tmMemRoleId" class="form-control form-select" multiple size="4">
+          <div class="md:col-span-2">
+            <label for="tmMemRoleId" class="block text-sm font-semibold text-primary mb-2">Vai trò &amp; quyền <span class="font-normal text-on-surface-variant">(Ctrl/Cmd + click để chọn nhiều)</span></label>
+            <select id="tmMemRoleId" class="w-full bg-white rounded-lg px-4 py-2.5 text-on-surface" multiple size="4">
               <option value="">Đang tải…</option>
             </select>
-            <p class="text-xs text-muted" style="margin:.35rem 0 0;">Thành viên: xem gia phả; phụ trách tin: quản lý tin/sự kiện nhiều chi; trưởng họ: quản lý thành viên trong phạm vi chi của họ.</p>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-white" id="treeMemberModalCancel">Hủy</button>
-          <button type="submit" class="btn btn-primary">Lưu</button>
-        </div>
-      </form>
+        </form>
+      </div>
+      <div class="px-10 py-6 flex justify-center items-center gap-4 border-t border-outline-variant/20 shrink-0 bg-surface">
+        <button type="button" class="font-bold text-on-surface-variant hover:text-primary transition-colors text-sm" id="treeMemberModalCancel">Hủy bỏ</button>
+        <button type="submit" form="treeMemberForm" class="px-10 py-3 rounded-full bg-primary-container text-on-primary font-bold shadow-lg shadow-primary/20 hover:bg-primary transition-all text-sm flex items-center gap-2">
+          <span class="material-symbols-outlined text-[18px]" data-icon="save">save</span> Lưu thông tin
+        </button>
+      </div>
     </div>
   </div>
 
   <div id="treeSpouseLinkModal" class="modal-overlay" aria-hidden="true">
-    <div class="modal" style="max-width:560px;">
-      <div class="modal-header">
-        <div>
-          <h3 id="treeSpouseLinkModalTitle">Thêm vợ/chồng</h3>
-          <p id="tsSpouseIntro" class="text-xs text-muted" style="margin-top:.35rem;line-height:1.45;"></p>
-        </div>
-        <button type="button" class="modal-close" id="treeSpouseLinkModalClose" aria-label="Đóng"><i class="fas fa-times"></i></button>
+    <div class="modal w-full max-w-[520px] max-h-[95vh] flex flex-col rounded-xl shadow-2xl relative overflow-hidden !p-0 bg-surface border-0">
+      <div class="px-8 pt-10 pb-6 text-center relative shrink-0">
+        <button type="button" class="modal-close absolute top-6 right-6 text-on-surface-variant hover:text-error transition-colors" id="treeSpouseLinkModalClose" aria-label="Đóng">
+          <span class="material-symbols-outlined" data-icon="close">close</span>
+        </button>
+        <h3 id="treeSpouseLinkModalTitle" class="font-headline text-2xl font-bold text-primary tracking-tight mb-2">Thêm vợ/chồng</h3>
+        <p id="tsSpouseIntro" class="font-headline italic text-on-surface-variant text-sm"></p>
       </div>
-      <form id="treeSpouseLinkForm">
-        <input type="hidden" id="tsSpouseGenderHidden" value=""/>
-        <div class="fh-form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem 1rem;">
-          <div style="grid-column:1/-1;">
-            <label for="tsSpouseFullName">Họ và tên <span style="color:#b91c1c;">*</span></label>
-            <input type="text" id="tsSpouseFullName" class="form-control" required maxlength="200"/>
+      <div class="px-10 pb-8 overflow-y-auto bamboo-scroll flex-1">
+        <form id="treeSpouseLinkForm" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
+          <input type="hidden" id="tsSpouseGenderHidden" value=""/>
+          <div class="md:col-span-2">
+            <label for="tsSpouseFullName" class="block text-sm font-semibold text-primary mb-2">Họ và tên <span class="text-error">*</span></label>
+            <input type="text" id="tsSpouseFullName" class="w-full bg-white rounded-lg px-4 py-2.5 text-on-surface" required maxlength="200"/>
           </div>
-          <div>
-            <label for="tsSpouseEmail">Email</label>
-            <input type="email" id="tsSpouseEmail" class="form-control"/>
+          <div class="col-span-1">
+            <label for="tsSpouseEmail" class="block text-sm font-semibold text-primary mb-2">Email</label>
+            <input type="email" id="tsSpouseEmail" class="w-full bg-white rounded-lg px-4 py-2.5 text-on-surface"/>
           </div>
-          <div>
-            <label for="tsSpousePhone">Điện thoại</label>
-            <input type="text" id="tsSpousePhone" class="form-control" maxlength="20"/>
+          <div class="col-span-1">
+            <label for="tsSpousePhone" class="block text-sm font-semibold text-primary mb-2">Điện thoại</label>
+            <input type="text" id="tsSpousePhone" class="w-full bg-white rounded-lg px-4 py-2.5 text-on-surface" maxlength="20"/>
           </div>
-          <div>
-            <label for="tsSpouseDob">Ngày sinh</label>
-            <input type="date" id="tsSpouseDob" class="form-control"/>
+          <div class="col-span-1">
+            <label for="tsSpouseDob" class="block text-sm font-semibold text-primary mb-2">Ngày sinh</label>
+            <input type="date" id="tsSpouseDob" class="w-full bg-white rounded-lg px-4 py-2.5 text-on-surface"/>
           </div>
-          <div style="grid-column:1/-1;">
-            <label>Giới tính (vợ/chồng)</label>
-            <input type="text" id="tsSpouseGenderLabel" class="form-control" readonly tabindex="-1" style="background:var(--bg);cursor:not-allowed;"/>
+          <div class="col-span-1">
+            <label class="block text-sm font-semibold text-primary mb-2">Giới tính (vợ/chồng)</label>
+            <input type="text" id="tsSpouseGenderLabel" class="w-full bg-surface-container-low rounded-lg px-4 py-2.5 text-on-surface-variant font-medium cursor-not-allowed opacity-75" readonly tabindex="-1"/>
           </div>
-          <div style="grid-column:1/-1;">
-            <label for="tsSpouseHometown">Quê quán</label>
-            <input type="text" id="tsSpouseHometown" class="form-control"/>
+          <div class="md:col-span-2">
+            <label for="tsSpouseHometown" class="block text-sm font-semibold text-primary mb-2">Quê quán</label>
+            <input type="text" id="tsSpouseHometown" class="w-full bg-white rounded-lg px-4 py-2.5 text-on-surface"/>
           </div>
-          <div style="grid-column:1/-1;">
-            <label for="tsSpouseAddress">Chỗ ở hiện tại</label>
-            <input type="text" id="tsSpouseAddress" class="form-control"/>
+          <div class="md:col-span-2">
+            <label for="tsSpouseAddress" class="block text-sm font-semibold text-primary mb-2">Chỗ ở hiện tại</label>
+            <input type="text" id="tsSpouseAddress" class="w-full bg-white rounded-lg px-4 py-2.5 text-on-surface"/>
           </div>
-          <div style="grid-column:1/-1;">
-            <label for="tsSpouseOccupation">Nghề nghiệp</label>
-            <input type="text" id="tsSpouseOccupation" class="form-control"/>
+          <div class="md:col-span-2">
+            <label for="tsSpouseOccupation" class="block text-sm font-semibold text-primary mb-2">Nghề nghiệp</label>
+            <input type="text" id="tsSpouseOccupation" class="w-full bg-white rounded-lg px-4 py-2.5 text-on-surface"/>
           </div>
-          <div style="grid-column:1/-1;">
-            <label for="tsSpouseBio">Tiểu sử</label>
-            <textarea id="tsSpouseBio" class="form-control" rows="2"></textarea>
+          <div class="md:col-span-2">
+            <label for="tsSpouseBio" class="block text-sm font-semibold text-primary mb-2">Tiểu sử</label>
+            <textarea id="tsSpouseBio" class="w-full bg-white rounded-lg p-4 text-on-surface text-sm leading-relaxed" rows="2"></textarea>
           </div>
-        </div>
-        <p class="text-xs text-muted" style="margin:.5rem 0 0;">Chỉ nam–nữ; hệ thống tạo tài khoản mới và mật khẩu mặc định như thêm thành viên.</p>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-white" id="treeSpouseLinkCancel">Hủy</button>
-          <button type="submit" class="btn btn-primary">Tạo và gắn vợ/chồng</button>
-        </div>
-      </form>
+          <div class="md:col-span-2">
+            <p class="text-xs text-on-surface-variant mt-2">Chỉ nam–nữ; hệ thống tạo tài khoản mới và mật khẩu mặc định như thêm thành viên.</p>
+          </div>
+        </form>
+      </div>
+      <div class="px-10 py-6 flex justify-center items-center gap-4 border-t border-outline-variant/20 shrink-0 bg-surface">
+        <button type="button" class="font-bold text-on-surface-variant hover:text-primary transition-colors text-sm" id="treeSpouseLinkCancel">Hủy bỏ</button>
+        <button type="submit" form="treeSpouseLinkForm" class="px-10 py-3 rounded-full bg-primary-container text-on-primary font-bold shadow-lg shadow-primary/20 hover:bg-primary transition-all text-sm flex items-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">family_restroom</span> Tạo và gắn vợ/chồng
+        </button>
+      </div>
     </div>
   </div>
 
   <div id="compareModal" class="modal-overlay" aria-hidden="true">
-    <div class="modal compare-modal">
-      <div class="compare-modal-head">
-        <h3>So sánh thành viên</h3>
-        <button id="compareModalClose" class="modal-close" type="button"><i class="fas fa-times"></i></button>
+    <div class="modal compare-modal w-full max-w-[640px] max-h-[95vh] flex flex-col rounded-xl shadow-2xl relative overflow-hidden !p-0 bg-surface border-0">
+      <div class="compare-modal-head px-8 pt-10 pb-6 text-center relative shrink-0">
+        <h3 class="font-headline text-2xl font-bold text-white tracking-tight mb-2">So sánh thành viên</h3>
+        <button id="compareModalClose" class="modal-close absolute top-6 right-6 text-on-surface-variant hover:text-error transition-colors" type="button"><span class="material-symbols-outlined" data-icon="close">close</span></button>
       </div>
-      <div class="compare-members">
-        <div class="compare-member-card" id="compareA"></div>
-        <div class="compare-arrow"><i class="fas fa-arrows-left-right"></i></div>
-        <div class="compare-member-card" id="compareB"></div>
-      </div>
-      <div class="compare-result">
-        <div class="compare-result-label">Mối quan hệ</div>
-        <div class="compare-result-main" id="compareRelationText">-</div>
-      </div>
-      <div class="compare-common-box">
-        <div class="compare-common-title">Tổ tiên chung</div>
-        <div class="compare-common-list" id="compareCommonAncestors">Chưa xác định</div>
+      <div class="px-10 pb-10 overflow-y-auto bamboo-scroll flex-1">
+        <div class="compare-members flex items-center justify-between gap-4 mb-8">
+          <div class="compare-member-card flex-1 bg-surface-container-low rounded-xl p-4 text-center border border-outline-variant/30 font-semibold text-on-surface" id="compareA"></div>
+          <div class="compare-arrow text-primary opacity-60"><span class="material-symbols-outlined text-2xl">compare_arrows</span></div>
+          <div class="compare-member-card flex-1 bg-surface-container-low rounded-xl p-4 text-center border border-outline-variant/30 font-semibold text-on-surface" id="compareB"></div>
+        </div>
+        <div class="compare-result text-center mb-8">
+          <div class="compare-result-label text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Mối quan hệ</div>
+          <div class="compare-result-main text-2xl font-bold text-primary" id="compareRelationText">-</div>
+        </div>
+        <div class="compare-common-box bg-primary/5 rounded-xl p-6 border border-primary/10 text-center">
+          <div class="compare-common-title text-sm font-bold text-primary uppercase tracking-wider mb-3">Tổ tiên chung</div>
+          <div class="compare-common-list text-on-surface font-medium" id="compareCommonAncestors">Chưa xác định</div>
+        </div>
       </div>
     </div>
   </div>
 
   <div id="treeFullscreenModal" class="modal-overlay" aria-hidden="true">
-    <div class="modal tree-fullscreen-modal">
-      <div class="compare-modal-head">
-        <h3>Xem cây gia phả mở rộng</h3>
-        <button id="treeFullscreenClose" class="modal-close" type="button"><i class="fas fa-times"></i></button>
+    <div class="modal tree-fullscreen-modal w-[95vw] h-[95vh] max-w-none flex flex-col rounded-xl shadow-2xl relative overflow-hidden !p-0 bg-surface border-0">
+      <div class="compare-modal-head px-6 py-4 flex justify-between items-center bg-surface-container-low border-b border-outline-variant/20 shrink-0">
+        <h3 class="font-headline text-xl font-bold text-primary tracking-tight">Xem cây gia phả mở rộng</h3>
+        <button id="treeFullscreenClose" class="modal-close text-on-surface-variant hover:text-error transition-colors" type="button"><span class="material-symbols-outlined">close</span></button>
       </div>
-      <div class="tree-fullscreen-body">
-        <div class="tree-container tree-fullscreen-canvas">
+      <div class="tree-fullscreen-body flex-1 overflow-hidden relative bg-surface-container-lowest">
+        <div class="tree-container tree-fullscreen-canvas w-full h-full">
           <div id="treeFullscreenContent"></div>
         </div>
       </div>
@@ -341,38 +382,105 @@
   </div>
 
   <div id="treeDetailPopupModal" class="modal-overlay" aria-hidden="true">
-    <div class="modal tree-detail-popup-modal">
-      <aside class="tree-detail-panel tree-detail-popup">
-        <div class="tree-detail-header">
-          <h3>Thông tin chi tiết</h3>
-          <button id="treeDetailPopupClose" class="btn btn-ghost btn-icon" type="button"><i class="fas fa-times-circle"></i></button>
+    <div class="modal tree-detail-popup-modal w-full max-w-[400px] flex flex-col rounded-xl shadow-2xl relative overflow-hidden !p-0 bg-surface border-0">
+      <aside class="tree-detail-panel tree-detail-popup p-8 flex flex-col gap-4">
+        <div class="tree-detail-header flex justify-between items-start mb-2">
+          <h3 class="font-headline text-2xl font-bold text-primary">Thông tin chi tiết</h3>
+          <button id="treeDetailPopupClose" class="btn btn-ghost btn-icon modal-close text-on-surface-variant hover:text-error transition-colors" type="button"><span class="material-symbols-outlined">close</span></button>
         </div>
-          <div class="tree-detail-avatar" id="detailPopupInitial" style="background-size: cover; background-position: center;">
-              <span id="detailPopupInitialText">--</span>
+        <div class="flex flex-col items-center text-center gap-3">
+          <div class="tree-detail-avatar w-20 h-20 rounded-full bg-primary-container/20 text-primary flex items-center justify-center text-2xl font-bold shadow-inner border border-primary/10" id="detailPopupInitial" style="background-size: cover; background-position: center;">
+            <span id="detailPopupInitialText">--</span>
           </div>
-        <div class="tree-detail-name" id="detailPopupName">Chưa chọn thành viên</div>
-        <div class="tree-detail-meta">
-          <div id="detailPopupYears">-</div>
-          <div id="detailPopupGeneration">-</div>
+          <div class="tree-detail-name text-xl font-bold text-on-surface" id="detailPopupName">Chưa chọn thành viên</div>
+          <div class="tree-detail-meta flex gap-3 text-sm font-medium text-on-surface-variant">
+            <div id="detailPopupYears" class="bg-surface-container-high px-3 py-1 rounded-full">-</div>
+            <div id="detailPopupGeneration" class="bg-primary/10 text-primary px-3 py-1 rounded-full">-</div>
+          </div>
         </div>
-        <div class="tree-detail-item"><i class="fas fa-map-marker-alt"></i><span id="detailPopupHometown">-</span></div>
-        <div class="tree-detail-item"><i class="fas fa-briefcase"></i><span id="detailPopupJob">-</span></div>
-        <div class="divider"></div>
-        <h4>Tiểu sử</h4>
-        <p id="detailPopupBio" class="tree-detail-bio">Chọn thành viên trên cây để xem thông tin.</p>
-        <div class="divider"></div>
-        <h4>Quan hệ gia đình</h4>
-        <div class="tree-detail-rel">
-          <div><strong>Vợ/chồng:</strong> <span id="detailPopupSpouse">-</span></div>
-          <div><strong>Con:</strong> <span id="detailPopupChildren">-</span></div>
+        <div class="flex flex-col gap-2 mt-2 text-sm text-on-surface">
+          <div class="tree-detail-item flex items-center gap-3"><span class="material-symbols-outlined text-outline text-lg">location_on</span><span id="detailPopupHometown">-</span></div>
+          <div class="tree-detail-item flex items-center gap-3"><span class="material-symbols-outlined text-outline text-lg">work</span><span id="detailPopupJob">-</span></div>
         </div>
-        <a id="detailPopupProfileLink" class="btn btn-primary btn-sm mt-4" href="#">Xem hồ sơ đầy đủ</a>
+        <div class="divider h-px bg-outline-variant/30 my-2"></div>
+        <h4 class="font-semibold text-primary text-sm uppercase tracking-wider">Tiểu sử</h4>
+        <p id="detailPopupBio" class="tree-detail-bio text-sm text-on-surface-variant leading-relaxed">Chọn thành viên trên cây để xem thông tin.</p>
+        <div class="divider h-px bg-outline-variant/30 my-2"></div>
+        <h4 class="font-semibold text-primary text-sm uppercase tracking-wider">Quan hệ gia đình</h4>
+        <div class="tree-detail-rel text-sm text-on-surface space-y-2">
+          <div class="flex gap-2"><strong>Vợ/chồng:</strong> <span id="detailPopupSpouse" class="text-on-surface-variant font-medium">-</span></div>
+          <div class="flex gap-2"><strong>Con:</strong> <span id="detailPopupChildren" class="text-on-surface-variant font-medium">-</span></div>
+        </div>
+        <a id="detailPopupProfileLink" class="mt-4 px-6 py-3 rounded-full bg-primary-container text-on-primary font-bold shadow-md hover:bg-primary transition-all text-sm text-center" href="#">Xem hồ sơ đầy đủ</a>
       </aside>
     </div>
   </div>
+
 </div>
 
 <th:block th:replace="~{fragments/footer :: footer}"/>
 <script th:src="@{/js/main.js}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Logic cho Custom Dropdown Thế hệ
+    const nativeSelect = document.getElementById('genFilter');
+    const customBtn = document.getElementById('genFilterBtn');
+    const customDropdown = document.getElementById('genFilterDropdown');
+    const selectedText = document.getElementById('genFilterSelectedText');
+
+    if (nativeSelect && customBtn && customDropdown) {
+      // Hàm tạo giao diện menu từ thẻ select gốc
+      function renderCustomDropdown() {
+        customDropdown.innerHTML = '';
+        Array.from(nativeSelect.options).forEach((option, index) => {
+          const item = document.createElement('div');
+          // Class Tailwind tạo độ bo góc nhẹ, hover màu xanh lục Bamboo
+          item.className = 'mx-1.5 px-3 py-2 text-sm text-on-surface rounded-lg cursor-pointer transition-colors duration-150';
+
+          if (nativeSelect.selectedIndex === index) {
+            item.classList.add('bg-primary/10', 'font-bold', 'text-primary'); // Trạng thái đang chọn
+          } else {
+            item.classList.add('hover:bg-surface-container-high', 'hover:text-primary'); // Trạng thái hover
+          }
+
+          item.textContent = option.text;
+
+          // Sự kiện khi click chọn 1 thế hệ
+          item.addEventListener('click', function() {
+            nativeSelect.selectedIndex = index;
+            selectedText.textContent = option.text;
+            customDropdown.classList.add('hidden');
+
+            // Kích hoạt event 'change' để báo cho hệ thống cũ biết dữ liệu đã đổi
+            nativeSelect.dispatchEvent(new Event('change'));
+            renderCustomDropdown();
+          });
+
+          customDropdown.appendChild(item);
+        });
+      }
+
+      // Đóng mở menu khi nhấn nút
+      customBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        customDropdown.classList.toggle('hidden');
+      });
+
+      // Bấm ra ngoài thì đóng menu
+      document.addEventListener('click', function(e) {
+        if (!customBtn.contains(e.target) && !customDropdown.contains(e.target)) {
+          customDropdown.classList.add('hidden');
+        }
+      });
+
+      // Tự động cập nhật menu nếu API phía sau (JS cũ) có thêm bớt thế hệ
+      const observer = new MutationObserver(renderCustomDropdown);
+      observer.observe(nativeSelect, { childList: true });
+
+      // Render lần đầu
+      renderCustomDropdown();
+    }
+  });
+</script>
 </body>
 </html>
