@@ -242,6 +242,9 @@
 
 <th:block th:replace="~{fragments/footer :: footer}"/>
 
+<!-- Login Modal Fragment -->
+<th:block th:replace="~{fragments/login-modal}"/>
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const token = localStorage.getItem('token');

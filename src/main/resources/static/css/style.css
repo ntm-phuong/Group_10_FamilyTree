@@ -194,3 +194,57 @@ textarea.form-control{resize:vertical;min-height:100px;}
 @media(max-width:640px){
   .stat-grid{grid-template-columns:repeat(2,1fr);}
 }
+
+/* ---- Bamboo Gradient (Material Design) ---- */
+.bamboo-gradient {
+  background: linear-gradient(15deg, #154212 0%, #2d5a27 100%);
+}
+
+/* ---- Navbar Active Link Styling ---- */
+.nav-link {
+  position: relative;
+}
+
+.nav-link.text-primary {
+  color: #154212;
+  font-weight: 700;
+  border-bottom-color: #2d5a27;
+}
+
+.nav-link.text-primary::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #2d5a27;
+}
+.modal {
+  max-height: 70vh !important;
+}
+
+.modal .pt-10 {
+  padding-top: 1.5rem !important;
+}
+
+.modal .pb-8 {
+  padding-bottom: 1.5rem !important;
+}
+
+.modal .py-6 {
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+}
+
+.modal form {
+  max-height: 45vh;
+  overflow-y: auto;
+}
+.search-input {
+  transition: all 0.2s ease;
+}
+
+.search-input:hover {
+  border-color: #c2c9bb;
+}

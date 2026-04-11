@@ -1,14 +1,18 @@
 package com.family.app.controller;
 
+import com.family.app.dto.FamilyRegisterRequest;
 import com.family.app.dto.LoginRequest;
+import com.family.app.dto.VerifyEmailRequest;
 import com.family.app.model.User;
 import com.family.app.service.AuthService;
+import com.family.app.service.RegistrationService;
 import com.family.app.security.JwtTokenProvider; // Thêm dòng import này để gọi công cụ Token
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +23,8 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private RegistrationService registrationService;
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
@@ -49,6 +55,26 @@ public class AuthController {
             return ResponseEntity.status(401).body(Map.of("error", "Chưa đăng nhập hoặc token không hợp lệ"));
         }
         return ResponseEntity.ok(authService.buildSessionProfile(u.getUserId()));
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody FamilyRegisterRequest request) {
+        try {
+            registrationService.registerFamily(request);
+            return ResponseEntity.ok(Map.of("message", "Đăng ký thành công. Vui lòng kiểm tra email để xác thực."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<?> verifyEmail(@RequestBody VerifyEmailRequest request) {
+        try {
+            registrationService.verifyEmail(request.getEmail(), request.getOtp());
+            return ResponseEntity.ok(Map.of("message", "Xác thực thành công. Tài khoản đã được kích hoạt."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/active")
