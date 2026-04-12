@@ -39,6 +39,11 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Stri
             + "AND r.person1.userId = :p1 AND r.person2.userId = :p2")
     void deleteParentChildBetween(@Param("p1") String parentUserId, @Param("p2") String childUserId);
 
+    /** Mọi cạnh cha/mẹ → con (person2 = con), dùng khi đổi parent_id hoặc đồng bộ từ parent_id. */
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("DELETE FROM Relationship r WHERE r.relType = 'PARENT_CHILD' AND r.person2.userId = :childId")
+    void deleteParentChildLinksToChild(@Param("childId") String childId);
+
     /** Xóa mọi quan hệ có tham chiếu tới user (vợ/chồng, cha–con, …) trước khi xóa user. */
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM Relationship r WHERE r.person1.userId = :userId OR r.person2.userId = :userId")

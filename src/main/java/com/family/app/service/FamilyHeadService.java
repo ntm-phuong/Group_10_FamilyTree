@@ -288,6 +288,7 @@ public class FamilyHeadService {
         applyMemberRole(user, request, null, managerUserId);
 
         User savedUser = userRepository.save(user);
+        syncParentChildEdgesForChild(savedUser);
         return mapToResponse(savedUser, buildSpousePartnerMap(managedFamilyId));
     }
 
@@ -325,7 +326,69 @@ public class FamilyHeadService {
         applyMemberRole(user, request, id, managerUserId);
 
         User updatedUser = userRepository.save(user);
+        syncParentChildEdgesForChild(updatedUser);
         return mapToResponse(updatedUser, buildSpousePartnerMap(user.getFamily().getFamilyId()));
+    }
+
+    /**
+     * Trang công khai và cây gia phả đọc cha/mẹ qua {@code Relationship} kiểu PARENT_CHILD (person1 = cha/mẹ, person2 = con).
+     * Khi lưu chỉ cập nhật {@code User.parentId} thì phải đồng bộ các cạnh này.
+     */
+    private void syncParentChildEdgesForChild(User child) {
+        String childId = child.getUserId();
+        if (childId == null) {
+            return;
+        }
+        relationshipRepository.deleteParentChildLinksToChild(childId);
+        String pid = child.getParentId();
+        if (pid == null || pid.isBlank()) {
+            return;
+        }
+        pid = pid.trim();
+        LinkedHashSet<String> parentIds = new LinkedHashSet<>();
+        parentIds.add(pid);
+        for (Relationship sr : relationshipRepository.findSpouses(pid)) {
+            String partner = spousePartnerUserId(sr, pid);
+            if (partner != null) {
+                parentIds.add(partner);
+            }
+        }
+        for (String parentUserId : parentIds) {
+            ensureParentChildRelationship(parentUserId, childId);
+        }
+    }
+
+    private static String spousePartnerUserId(Relationship spouseRel, String oneEndUserId) {
+        if (spouseRel.getPerson1() != null && oneEndUserId.equals(spouseRel.getPerson1().getUserId())) {
+            return spouseRel.getPerson2() != null ? spouseRel.getPerson2().getUserId() : null;
+        }
+        if (spouseRel.getPerson2() != null && oneEndUserId.equals(spouseRel.getPerson2().getUserId())) {
+            return spouseRel.getPerson1() != null ? spouseRel.getPerson1().getUserId() : null;
+        }
+        return null;
+    }
+
+    private void ensureParentChildRelationship(String parentUserId, String childUserId) {
+        if (parentUserId == null || childUserId == null) {
+            return;
+        }
+        if (relationshipRepository.existsByRelTypeAndPerson1_UserIdAndPerson2_UserId(
+                "PARENT_CHILD", parentUserId, childUserId)) {
+            return;
+        }
+        User p = userRepository.findById(parentUserId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Không tìm thấy cha/mẹ."));
+        User c = userRepository.findById(childUserId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy con."));
+        if (p.getFamily() == null || c.getFamily() == null
+                || !p.getFamily().getFamilyId().equals(c.getFamily().getFamilyId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cha/mẹ và con phải cùng dòng họ.");
+        }
+        Relationship r = new Relationship();
+        r.setPerson1(p);
+        r.setPerson2(c);
+        r.setRelType("PARENT_CHILD");
+        relationshipRepository.save(r);
     }
 
     /**

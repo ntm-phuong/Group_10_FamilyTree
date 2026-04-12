@@ -1,16 +1,13 @@
-package com.family.app.controller;
+package com.family.app.service;
 
 import com.family.app.model.Relationship;
 import com.family.app.model.User;
 import com.family.app.repository.RelationshipRepository;
 import com.family.app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -22,54 +19,44 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@Controller
-@RequestMapping("/member")
+/**
+ * Dữ liệu cho trang hồ sơ thành viên công khai ({@code /member/...}).
+ * Tách khỏi controller để có thể gọi từ {@code PageController} (mapping ổn định với DispatcherServlet).
+ */
+@Service
 @RequiredArgsConstructor
-public class PublicMemberController {
+public class PublicMemberProfileService {
 
     private final UserRepository userRepository;
     private final RelationshipRepository relationshipRepository;
 
-    @GetMapping("/{id}")
     @Transactional(readOnly = true)
-    public String memberDetail(@PathVariable String id, Model model) {
-        User member = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Thành viên không tồn tại: " + id));
-
-        User spouse = findSpouse(member.getUserId());
-        List<User> parents = findParents(member.getUserId());
-        User father = parents.stream().filter(p -> "MALE".equalsIgnoreCase(p.getGender())).findFirst().orElse(null);
-        User mother = parents.stream().filter(p -> "FEMALE".equalsIgnoreCase(p.getGender())).findFirst().orElse(null);
-
-        List<User> children = findChildren(member.getUserId());
-        List<User> siblings = findSiblings(member.getUserId(), parents);
-
-        model.addAttribute("member", member);
-        model.addAttribute("memberAge", calculateAge(member.getDob(), member.getDod()));
-        model.addAttribute("father", father);
-        model.addAttribute("mother", mother);
-        model.addAttribute("spouse", spouse);
-        model.addAttribute("children", children);
-        model.addAttribute("siblings", siblings);
+    public void addMemberDetailToModel(String id, Model model) {
+        User member = loadMemberOrThrow(id);
+        populateRelationAttributes(member, model);
         model.addAttribute("activeMenu", "family-tree");
-        return "public/member-detail";
     }
 
-    @GetMapping("/edit/{id}")
     @Transactional(readOnly = true)
-    public String editMemberDetail(@PathVariable String id, Model model) {
-        User member = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Thành viên không tồn tại: " + id));
+    public void addMemberEditToModel(String id, Model model) {
+        User member = loadMemberOrThrow(id);
+        populateRelationAttributes(member, model);
+    }
 
-        // Lấy thêm các thông tin phụ trợ (giống y hệt trang Detail)
+    private User loadMemberOrThrow(String id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Thành viên không tồn tại: " + id));
+    }
+
+    private void populateRelationAttributes(User member, Model model) {
         User spouse = findSpouse(member.getUserId());
         List<User> parents = findParents(member.getUserId());
         User father = parents.stream().filter(p -> "MALE".equalsIgnoreCase(p.getGender())).findFirst().orElse(null);
         User mother = parents.stream().filter(p -> "FEMALE".equalsIgnoreCase(p.getGender())).findFirst().orElse(null);
+
         List<User> children = findChildren(member.getUserId());
         List<User> siblings = findSiblings(member.getUserId(), parents);
 
-        // Gửi toàn bộ data sang file giao diện HTML
         model.addAttribute("member", member);
         model.addAttribute("memberAge", calculateAge(member.getDob(), member.getDod()));
         model.addAttribute("father", father);
@@ -77,9 +64,8 @@ public class PublicMemberController {
         model.addAttribute("spouse", spouse);
         model.addAttribute("children", children);
         model.addAttribute("siblings", siblings);
-
-        return "public/edit-member-detail";
     }
+
     private User findSpouse(String userId) {
         List<Relationship> spouseRelations = relationshipRepository.findSpouses(userId);
         if (spouseRelations.isEmpty()) {

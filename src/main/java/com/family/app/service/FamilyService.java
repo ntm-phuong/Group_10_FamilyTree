@@ -1,7 +1,6 @@
 package com.family.app.service;
 
 import com.family.app.dto.HomeResponse;
-import com.family.app.dto.NewsResponse;
 import com.family.app.model.Family;
 import com.family.app.repository.FamilyRepository;
 import com.family.app.repository.UserRepository;
@@ -9,8 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Service
 public class FamilyService {
@@ -26,28 +26,22 @@ public class FamilyService {
 
     @Transactional(readOnly = true)
     public HomeResponse getHomeData(String familyId) {
-        // 1. Lấy thông tin dòng họ gốc
+        // 1. Lấy thông tin dòng họ
         Family family = familyRepository.findById(familyId)
                 .orElseThrow(() -> new RuntimeException("Dòng họ không tồn tại"));
 
-        // 2. Lấy danh sách familyId bao gồm cả chi/nhánh con (đệ quy)
-        List<String> familyIds = familyRepository.findDescendantFamilyIds(familyId);
-        if (familyIds == null || familyIds.isEmpty()) {
-            familyIds = Collections.singletonList(familyId);
+        // 2. Cùng phạm vi cây gia phả: gốc + mọi chi con (parent_family_id)
+        Set<String> scopeIds = subtreeFamilyIds(familyId);
+        if (scopeIds.isEmpty()) {
+            scopeIds.add(familyId);
         }
 
-        // 3. Thống kê trên toàn bộ phạm vi familyIds
-        long totalMembers = userRepository.countByFamily_FamilyIdIn(familyIds);
-        long maleCount = userRepository.countByFamily_FamilyIdInAndGender(familyIds, "MALE");
-        long femaleCount = userRepository.countByFamily_FamilyIdInAndGender(familyIds, "FEMALE");
+        long totalMembers = userRepository.countByFamily_FamilyIdIn(scopeIds);
+        long maleCount = userRepository.countByFamily_FamilyIdInAndGender(scopeIds, "MALE");
+        long femaleCount = userRepository.countByFamily_FamilyIdInAndGender(scopeIds, "FEMALE");
 
-        // Lấy số đời lớn nhất trên phạm vi
-        Integer maxGen = userRepository.findMaxGenerationByFamilyIds(familyIds);
+        Integer maxGen = userRepository.findMaxGenerationByFamilyIdIn(scopeIds);
         int totalGenerations = (maxGen != null) ? maxGen : 0;
-
-        // 4. Lấy sự kiện / tin tức trên phạm vi nhiều chi
-        List<NewsResponse> upcomingEvents = newsService.getUpcomingEventsForFamilies(familyIds, "cat-002");
-        List<NewsResponse> latestNews = newsService.getLatestNewsForFamilies(familyIds);
 
         return HomeResponse.builder()
                 .familyName(family.getFamilyName())
@@ -56,8 +50,25 @@ public class FamilyService {
                 .totalGenerations(totalGenerations)
                 .maleCount(maleCount)
                 .femaleCount(femaleCount)
-                .upcomingEvents(upcomingEvents)
-                .latestNews(latestNews)
+                .upcomingEvents(newsService.getUpcomingEvents(familyId, "cat-002"))
+                .latestNews(newsService.getLatestNewsForHome(familyId))
                 .build();
+    }
+
+    /** Gốc {@code familyId} và mọi chi con (đồng bộ với {@link MemberService#getFamilyTreeData}). */
+    private Set<String> subtreeFamilyIds(String rootFamilyId) {
+        Set<String> ids = new LinkedHashSet<>();
+        ArrayDeque<String> q = new ArrayDeque<>();
+        q.add(rootFamilyId);
+        while (!q.isEmpty()) {
+            String id = q.poll();
+            if (!ids.add(id)) {
+                continue;
+            }
+            for (Family c : familyRepository.findByParentFamily_FamilyId(id)) {
+                q.add(c.getFamilyId());
+            }
+        }
+        return ids;
     }
 }

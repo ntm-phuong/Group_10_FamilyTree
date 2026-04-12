@@ -40,11 +40,10 @@ public interface UserRepository extends JpaRepository<User, String> {
     List<User> findByFamily_FamilyIdAndGenerationOrderByOrderInFamilyAsc(String familyId, Integer generation);
     long countByFamily_FamilyId(String familyId);
 
+    long countByFamily_FamilyIdIn(Collection<String> familyIds);
+
     // 2. Đếm Nam (Lưu ý: "Nam" phải khớp với dữ liệu bạn lưu trong DB)
     long countByFamily_FamilyIdAndGender(String familyId, String gender);
-
-    // --- Các phương thức hỗ trợ thống kê theo phạm vi nhiều chi (familyIds) ---
-    long countByFamily_FamilyIdIn(Collection<String> familyIds);
 
     long countByFamily_FamilyIdInAndGender(Collection<String> familyIds, String gender);
 
@@ -53,7 +52,7 @@ public interface UserRepository extends JpaRepository<User, String> {
     Integer findMaxGenerationByFamilyId(@Param("familyId") String familyId);
 
     @Query("SELECT MAX(u.generation) FROM User u WHERE u.family.familyId IN :familyIds")
-    Integer findMaxGenerationByFamilyIds(@Param("familyIds") Collection<String> familyIds);
+    Integer findMaxGenerationByFamilyIdIn(@Param("familyIds") Collection<String> familyIds);
 
     @Query("SELECT COUNT(DISTINCT u) FROM User u JOIN u.roles r WHERE r.roleName = :roleName")
     long countDistinctByRoleName(@Param("roleName") String roleName);
