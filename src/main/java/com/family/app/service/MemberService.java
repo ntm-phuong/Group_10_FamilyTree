@@ -223,20 +223,237 @@ public class MemberService {
 
         String relationshipAToB = inferRelationship(memberAId, memberBId, userById, parentsByChild, fatherByChild, motherByChild, spousesByMember);
         String relationshipBToA = inferRelationship(memberBId, memberAId, userById, parentsByChild, fatherByChild, motherByChild, spousesByMember);
+        relationshipAToB = reconcileCompareForwardKinship(
+                relationshipAToB,
+                relationshipBToA,
+                memberAId,
+                memberBId,
+                userById,
+                parentsByChild,
+                fatherByChild,
+                motherByChild,
+                spousesByMember);
+        String relationshipHeadline = preferSpecificCompareHeadline(
+                relationshipAToB, relationshipBToA, memberAId, memberBId, userById);
         List<String> commonAncestors = getCommonAncestorNames(memberAId, memberBId, userById, parentsByChild, spousesByMember);
-        String relationGroup = classifyRelationGroup(relationshipAToB);
+        String relationGroup = classifyRelationGroup(relationshipHeadline);
         List<String> notes = buildCoverageNotes();
 
         return RelationshipCompareResponse.builder()
                 .memberAId(memberAId)
                 .memberBId(memberBId)
-                .relationship(relationshipAToB)
+                .relationship(relationshipHeadline)
                 .relationshipFromAToB(relationshipAToB)
                 .relationshipFromBToA(relationshipBToA)
                 .relationGroup(relationGroup)
                 .commonAncestors(commonAncestors)
                 .notes(notes)
                 .build();
+    }
+
+    /**
+     * So sánh A rồi B: nếu suy luận A→B rơi vào "Họ hàng" nhưng B→A đã nhận diện được (vd. vợ gọi "Chú chồng"),
+     * suy ngược A→B từ quan hệ máu A với chồng của B — đối xứng khi đổi thứ tự chọn.
+     */
+    private String reconcileCompareForwardKinship(
+            String aToB,
+            String bToA,
+            String aId,
+            String bId,
+            Map<String, User> userById,
+            Map<String, Set<String>> parentsByChild,
+            Map<String, String> fatherByChild,
+            Map<String, String> motherByChild,
+            Map<String, Set<String>> spousesByMember
+    ) {
+        if (aToB != null && !"Họ hàng".equals(aToB)) {
+            return aToB;
+        }
+        if (bToA == null || "Họ hàng".equals(bToA)) {
+            return aToB != null ? aToB : "Họ hàng";
+        }
+        User ua = userById.get(aId);
+        User ub = userById.get(bId);
+        if (ua == null || ub == null) {
+            return aToB != null ? aToB : "Họ hàng";
+        }
+
+        if ("MALE".equalsIgnoreCase(upper(ua.getGender())) && "FEMALE".equalsIgnoreCase(upper(ub.getGender()))) {
+            String s = reconcileMaleViewerToWifeWhenSheAddressesHusbandKin(bToA, aId, bId, userById, parentsByChild, fatherByChild, motherByChild, spousesByMember);
+            if (s != null) {
+                return s;
+            }
+        }
+        if ("FEMALE".equalsIgnoreCase(upper(ua.getGender())) && "MALE".equalsIgnoreCase(upper(ub.getGender()))) {
+            String s = reconcileFemaleViewerToHusbandWhenHeAddressesWifeKin(bToA, aId, bId, userById, parentsByChild, fatherByChild, motherByChild, spousesByMember);
+            if (s != null) {
+                return s;
+            }
+        }
+        return aToB != null ? aToB : "Họ hàng";
+    }
+
+    /**
+     * Tiêu đề so sánh: nếu A→B chỉ còn “Họ hàng”/“Không xác định” mà B→A đã có nhãn cụ thể thì hiển thị nhãn đó
+     * kèm hướng (B → A) để khớp nghĩa; tránh quy hết về họ hàng khi đổi thứ tự chọn.
+     */
+    private String preferSpecificCompareHeadline(
+            String aToB,
+            String bToA,
+            String aId,
+            String bId,
+            Map<String, User> userById
+    ) {
+        if (!isUnspecificKinship(aToB)) {
+            return aToB;
+        }
+        if (isUnspecificKinship(bToA)) {
+            return aToB != null ? aToB : "Họ hàng";
+        }
+        User ua = userById.get(aId);
+        User ub = userById.get(bId);
+        String an = ua != null && ua.getFullName() != null && !ua.getFullName().isBlank()
+                ? ua.getFullName().trim() : "Người thứ nhất";
+        String bn = ub != null && ub.getFullName() != null && !ub.getFullName().isBlank()
+                ? ub.getFullName().trim() : "Người thứ hai";
+        return bToA + " (" + bn + " → " + an + ")";
+    }
+
+    private static boolean isUnspecificKinship(String s) {
+        return s == null || "Họ hàng".equals(s) || "Không xác định".equals(s);
+    }
+
+    /** B (vợ) gọi A (bên máu chồng) kiểu * chồng → A gọi B là con/cháu dâu. */
+    private String reconcileMaleViewerToWifeWhenSheAddressesHusbandKin(
+            String bToA,
+            String maleViewerId,
+            String wifeId,
+            Map<String, User> userById,
+            Map<String, Set<String>> parentsByChild,
+            Map<String, String> fatherByChild,
+            Map<String, String> motherByChild,
+            Map<String, Set<String>> spousesByMember
+    ) {
+        if (bToA == null || !bToA.contains("chồng")) {
+            return null;
+        }
+        if (bToA.contains("Vợ chồng")) {
+            return null;
+        }
+        if (bToA.contains("Cha chồng") || bToA.contains("Mẹ chồng") || bToA.contains("cha/mẹ chồng")) {
+            return null;
+        }
+        String hId = maleSpouseId(wifeId, spousesByMember, userById);
+        if (hId == null || hId.equals(maleViewerId)) {
+            return null;
+        }
+        String maleToHusband = inferRelationship(
+                maleViewerId,
+                hId,
+                userById,
+                parentsByChild,
+                fatherByChild,
+                motherByChild,
+                spousesByMember);
+        if (maleToHusband == null || "Họ hàng".equals(maleToHusband)) {
+            return null;
+        }
+        return mapHusbandBloodKinshipToHowHeCallsNephewWife(maleToHusband, bToA);
+    }
+
+    /** B (chồng) gọi A (bên máu vợ) kiểu * vợ → A gọi B là con/cháu rể (đối xứng). */
+    private String reconcileFemaleViewerToHusbandWhenHeAddressesWifeKin(
+            String bToA,
+            String femaleViewerId,
+            String husbandId,
+            Map<String, User> userById,
+            Map<String, Set<String>> parentsByChild,
+            Map<String, String> fatherByChild,
+            Map<String, String> motherByChild,
+            Map<String, Set<String>> spousesByMember
+    ) {
+        if (bToA == null || !bToA.contains("vợ")) {
+            return null;
+        }
+        if (bToA.contains("Bố vợ") || bToA.contains("Mẹ vợ") || bToA.contains("cha/mẹ vợ")) {
+            return null;
+        }
+        String wId = femaleSpouseId(husbandId, spousesByMember, userById);
+        if (wId == null || wId.equals(femaleViewerId)) {
+            return null;
+        }
+        String femaleToWife = inferRelationship(
+                femaleViewerId,
+                wId,
+                userById,
+                parentsByChild,
+                fatherByChild,
+                motherByChild,
+                spousesByMember);
+        if (femaleToWife == null || "Họ hàng".equals(femaleToWife)) {
+            return null;
+        }
+        return mapWifeBloodKinshipToHowSheCallsNieceHusband(femaleToWife, bToA);
+    }
+
+    private String mapHusbandBloodKinshipToHowHeCallsNephewWife(String maleToHusbandKinship, String wifeToMaleLabel) {
+        if (wifeToMaleLabel.contains("Anh chồng")) {
+            return "Em dâu";
+        }
+        if (wifeToMaleLabel.contains("Chị chồng")) {
+            return "Em dâu";
+        }
+        if (wifeToMaleLabel.contains("Em chồng")) {
+            return "Chị dâu";
+        }
+        String k = maleToHusbandKinship;
+        if (k.contains("Chú") || k.contains("Bác") || k.contains("Cô") || k.contains("Cậu") || k.contains("Dì")) {
+            return "Cháu dâu";
+        }
+        if (k.contains("ông nội") || k.contains("Bà nội") || k.contains("ông ngoại") || k.contains("Bà ngoại")
+                || k.contains("Cụ") || k.contains("Kị") || k.contains("Tổ tiên")) {
+            return "Cháu dâu";
+        }
+        if ("Con".equals(k) || k.startsWith("Con ") || k.contains("Cha/mẹ") || k.contains("Cha ") || k.contains("Mẹ ")) {
+            return "Con dâu";
+        }
+        if (k.contains("Cháu") || k.contains("Chắt") || k.contains("Chít")) {
+            return "Cháu dâu";
+        }
+        if (k.contains("Anh") || k.contains("Chị") || k.contains("Em")) {
+            return "Em dâu";
+        }
+        return "Cháu dâu";
+    }
+
+    private String mapWifeBloodKinshipToHowSheCallsNieceHusband(String femaleToWifeKinship, String husbandToFemaleLabel) {
+        if (husbandToFemaleLabel.contains("Anh vợ")) {
+            return "Em rể";
+        }
+        if (husbandToFemaleLabel.contains("Chị vợ")) {
+            return "Em rể";
+        }
+        if (husbandToFemaleLabel.contains("Em vợ")) {
+            return "Anh rể";
+        }
+        String k = femaleToWifeKinship;
+        if (k.contains("Chú") || k.contains("Bác") || k.contains("Cô") || k.contains("Cậu") || k.contains("Dì")) {
+            return "Cháu rể";
+        }
+        if (k.contains("ông nội") || k.contains("Bà nội") || k.contains("ông ngoại") || k.contains("Bà ngoại")
+                || k.contains("Cụ") || k.contains("Kị") || k.contains("Tổ tiên")) {
+            return "Cháu rể";
+        }
+        if ("Con".equals(k) || k.startsWith("Con ") || k.contains("Cha/mẹ") || k.contains("Cha ") || k.contains("Mẹ ")) {
+            return "Con rể";
+        }
+        if (k.contains("Cháu") || k.contains("Chắt") || k.contains("Chít")) {
+            return "Cháu rể";
+        }
+        if (k.contains("Anh") || k.contains("Chị") || k.contains("Em")) {
+            return "Em rể";
+        }
+        return "Cháu rể";
     }
 
     private String inferRelationship(
@@ -270,6 +487,12 @@ public class MemberService {
         String spouseLineBridge = spouseBloodlineBridgeKinship(aId, bId, userById, parentsByChild, fatherByChild, motherByChild, spousesByMember);
         if (spouseLineBridge != null) {
             return spouseLineBridge;
+        }
+
+        String viaOthersSpouse = kinshipViaBloodRelativeToSpouseOfOther(
+                aId, bId, userById, parentsByChild, fatherByChild, motherByChild, spousesByMember);
+        if (viaOthersSpouse != null) {
+            return viaOthersSpouse;
         }
 
         String twoSpousesLine = twoSpousesOnSameBloodlineKinship(aId, bId, userById, parentsByChild, fatherByChild, motherByChild, spousesByMember);
@@ -315,10 +538,71 @@ public class MemberService {
             return uncleAunt;
         }
 
+        String collateralAcrossBranches = collateralKinshipAcrossBranchesByGeneration(
+                aId, bId, a, b, parentsByChild, 6);
+        if (collateralAcrossBranches != null) {
+            return collateralAcrossBranches;
+        }
+
         if (hasCommonAncestorWithinDepth(aId, bId, parentsByChild, 6)) {
             return cousinLabel(a, b);
         }
         return "Họ hàng";
+    }
+
+    /**
+     * Hai nhánh song song có tổ tiên chung nhưng không rơi vào nhận diện chú/bác (chỉ xét cha/mẹ một đời):
+     * nếu {@code generation} lệch từ 2 bậc trở lên thì không gọi là anh/chị/em họ — dùng ông/bà/cụ ↔ cháu/chắt/chít
+     * theo khoảng thế hệ (vd. em của ông nội ↔ chắt: ông – cháu).
+     */
+    private String collateralKinshipAcrossBranchesByGeneration(
+            String aId,
+            String bId,
+            User a,
+            User b,
+            Map<String, Set<String>> parentsByChild,
+            int maxDepthForCommonAnc
+    ) {
+        if (a == null || b == null) {
+            return null;
+        }
+        Integer ga = a.getGeneration();
+        Integer gb = b.getGeneration();
+        if (ga == null || gb == null) {
+            return null;
+        }
+        if (!hasCommonAncestorWithinDepth(aId, bId, parentsByChild, maxDepthForCommonAnc)) {
+            return null;
+        }
+        int genDiff = gb - ga;
+        if (genDiff >= 2) {
+            return collateralElderToYoungerByGenerationGap(genDiff);
+        }
+        if (genDiff <= -2) {
+            return collateralYoungerToElderByGenerationGap(b, -genDiff);
+        }
+        return null;
+    }
+
+    /** Người thế hệ nhỏ hơn (số đời lớn hơn) gọi người thế hệ trên — không phân nội/ngoại. */
+    private static String collateralElderToYoungerByGenerationGap(int generationGap) {
+        return switch (generationGap) {
+            case 2 -> "Cháu";
+            case 3 -> "Chắt";
+            case 4 -> "Chít";
+            default -> generationGap > 4 ? "Hậu duệ" : "Cháu";
+        };
+    }
+
+    /** Người thế hệ sau gọi người thế hệ trước trên nhánh bàng phụ — không phân nội/ngoại. */
+    private static String collateralYoungerToElderByGenerationGap(User elder, int generationGap) {
+        String g = upper(elder.getGender());
+        return switch (generationGap) {
+            case 2 -> "MALE".equals(g) ? "Ông" : ("FEMALE".equals(g) ? "Bà" : "Ông/bà");
+            case 3 -> "Cụ";
+            case 4 -> "Kị";
+            default -> generationGap > 4 ? "Tổ tiên" : "Cụ";
+        };
     }
 
     private String siblingLabel(
@@ -556,7 +840,7 @@ public class MemberService {
 
     private List<String> buildCoverageNotes() {
         List<String> notes = new ArrayList<>();
-        notes.add("Đã hỗ trợ: trực hệ, nội/ngoại, anh/chị/em ruột/cùng cha mẹ, bác/chú/cô/cậu/dì, họ, thông gia cơ bản.");
+        notes.add("Đã hỗ trợ: trực hệ, nội/ngoại, anh/chị/em ruột/cùng cha mẹ, bác/chú/cô/cậu/dì, họ (cùng đời), ông/bà–cháu giữa nhánh khi lệch ≥2 thế hệ và có tổ tiên chung, thông gia cơ bản.");
         notes.add("Vợ/chồng (chỉ SPOUSE): hậu duệ máu của chồng/vợ được gọi như chồng/vợ (Cháu, Chắt, Chít…); chiều ngược: Bà nội/Cụ… theo nhánh máu chồng (và đối xứng bên vợ).");
         notes.add("Hai nữ (hai dâu) có chồng cùng nhánh máu: Con dâu / Cháu dâu / Chắt dâu / Chít dâu theo bậc chồng; chiều ngược: Mẹ chồng, Bà nội, Cụ… (tương tự hai rể bên vợ).");
         notes.add("Con dâu ↔ nhà chồng: cha/mẹ chồng, anh/chị/em chồng, chị/em dâu & anh/em rể (vợ/chồng của anh chị em chồng), cháu (bác dâu/thím/cô), bác/chú/cô/cậu/dì chồng và vợ/chồng của họ (thím, bác gái, dượng…).");
@@ -695,9 +979,83 @@ public class MemberService {
             names.addAll(bloodlineBridgeCommonAncestors(aId, bId, userById, parentsByChild, spousesByMember));
         }
         if (names.isEmpty()) {
+            names.addAll(sharedBloodAncestorsViaSpouses(aId, bId, userById, parentsByChild, spousesByMember));
+        }
+        if (names.isEmpty()) {
             names.add("Không có dữ liệu tổ tiên chung");
         }
         return names;
+    }
+
+    /**
+     * Hai người (thường dâu) không có cạnh cha–con trong đồ thị nhưng chồng cùng nằm trên cây máu:
+     * tổ tiên chung = giao tập tổ tiên máu của hai chồng (và đối xứng qua vợ nếu cả hai là nam có vợ).
+     */
+    private List<String> sharedBloodAncestorsViaSpouses(
+            String aId,
+            String bId,
+            Map<String, User> userById,
+            Map<String, Set<String>> parentsByChild,
+            Map<String, Set<String>> spousesByMember
+    ) {
+        List<String> out = new ArrayList<>();
+        String h1 = maleSpouseId(aId, spousesByMember, userById);
+        String h2 = maleSpouseId(bId, spousesByMember, userById);
+        if (h1 != null && h2 != null) {
+            appendIntersectingAncestorNames(out, h1, h2, userById, parentsByChild);
+        }
+        if (out.isEmpty()) {
+            String w1 = femaleSpouseId(aId, spousesByMember, userById);
+            String w2 = femaleSpouseId(bId, spousesByMember, userById);
+            if (w1 != null && w2 != null) {
+                appendIntersectingAncestorNames(out, w1, w2, userById, parentsByChild);
+            }
+        }
+        if (out.isEmpty()) {
+            User ua = userById.get(aId);
+            User ub = userById.get(bId);
+            if (ua != null && ub != null) {
+                if ("MALE".equalsIgnoreCase(upper(ua.getGender()))
+                        && "FEMALE".equalsIgnoreCase(upper(ub.getGender()))) {
+                    String hB = maleSpouseId(bId, spousesByMember, userById);
+                    if (hB != null) {
+                        appendIntersectingAncestorNames(out, aId, hB, userById, parentsByChild);
+                    }
+                } else if ("FEMALE".equalsIgnoreCase(upper(ua.getGender()))
+                        && "MALE".equalsIgnoreCase(upper(ub.getGender()))) {
+                    String hA = maleSpouseId(aId, spousesByMember, userById);
+                    if (hA != null) {
+                        appendIntersectingAncestorNames(out, hA, bId, userById, parentsByChild);
+                    }
+                }
+            }
+        }
+        return out;
+    }
+
+    private void appendIntersectingAncestorNames(
+            List<String> out,
+            String bloodId1,
+            String bloodId2,
+            Map<String, User> userById,
+            Map<String, Set<String>> parentsByChild
+    ) {
+        Map<String, Integer> d1 = collectAncestorDistance(bloodId1, parentsByChild, 16);
+        Map<String, Integer> d2 = collectAncestorDistance(bloodId2, parentsByChild, 16);
+        Set<String> seen = new LinkedHashSet<>();
+        for (String id : d1.keySet()) {
+            if (!d2.containsKey(id)) {
+                continue;
+            }
+            User u = userById.get(id);
+            if (u == null || u.getFullName() == null || u.getFullName().isBlank()) {
+                continue;
+            }
+            String nm = u.getFullName().trim();
+            if (seen.add(nm)) {
+                out.add(nm);
+            }
+        }
     }
 
     /**
@@ -826,6 +1184,209 @@ public class MemberService {
             frontier = next;
         }
         return dist;
+    }
+
+    /**
+     * Nam so với nữ chỉ nối cây qua chồng (dâu), hoặc hai nữ — đối phương là vợ của người nam trên nhánh máu:
+     * suy luận quan hệ máu người xem ↔ chồng của đối phương (chú/bác/ông…), rồi ánh xạ sang cách gọi vợ (thím/mợ/bà…).
+     * Bổ sung cho {@link #spouseBloodlineBridgeKinship} — chỉ bắt tổ tiên thẳng trên chuỗi cha–con, không bắt bàng hệ.
+     */
+    private String kinshipViaBloodRelativeToSpouseOfOther(
+            String viewerId,
+            String otherId,
+            Map<String, User> userById,
+            Map<String, Set<String>> parentsByChild,
+            Map<String, String> fatherByChild,
+            Map<String, String> motherByChild,
+            Map<String, Set<String>> spousesByMember
+    ) {
+        User viewer = userById.get(viewerId);
+        User other = userById.get(otherId);
+        if (viewer == null || other == null) {
+            return null;
+        }
+
+        if ("MALE".equalsIgnoreCase(upper(viewer.getGender()))
+                && "FEMALE".equalsIgnoreCase(upper(other.getGender()))) {
+            String hId = maleSpouseId(otherId, spousesByMember, userById);
+            if (hId == null || hId.equals(viewerId)) {
+                return null;
+            }
+            String kin = inferRelationship(
+                    viewerId,
+                    hId,
+                    userById,
+                    parentsByChild,
+                    fatherByChild,
+                    motherByChild,
+                    spousesByMember);
+            return mapMaleViewerKinshipToWifeOfMaleBloodKin(kin);
+        }
+
+        if ("FEMALE".equalsIgnoreCase(upper(viewer.getGender()))
+                && "FEMALE".equalsIgnoreCase(upper(other.getGender()))) {
+            String hOther = maleSpouseId(otherId, spousesByMember, userById);
+            if (hOther == null || hOther.equals(viewerId)) {
+                return null;
+            }
+            String kin = inferRelationship(
+                    viewerId,
+                    hOther,
+                    userById,
+                    parentsByChild,
+                    fatherByChild,
+                    motherByChild,
+                    spousesByMember);
+            return mapFemaleViewerKinshipToWifeOfMaleBloodKin(kin);
+        }
+
+        if ("FEMALE".equalsIgnoreCase(upper(viewer.getGender()))
+                && "MALE".equalsIgnoreCase(upper(other.getGender()))) {
+            String hViewer = maleSpouseId(viewerId, spousesByMember, userById);
+            if (hViewer == null || hViewer.equals(otherId)) {
+                return null;
+            }
+            String kin = inferRelationship(
+                    hViewer,
+                    otherId,
+                    userById,
+                    parentsByChild,
+                    fatherByChild,
+                    motherByChild,
+                    spousesByMember);
+            return mapWifeViewerThroughHusbandToMaleKin(kin);
+        }
+
+        return null;
+    }
+
+    /**
+     * Nữ so với nam trên nhánh máu: lấy quan hệ chồng mình ↔ đối phương, thêm ngữ cảnh nhà chồng khi cần
+     * (Chú → Chú chồng), còn lại giữ nhãn đã suy (anh họ, ông nội…).
+     */
+    private String mapWifeViewerThroughHusbandToMaleKin(String kin) {
+        if (kin == null || "Họ hàng".equals(kin) || "Không xác định".equals(kin)) {
+            return null;
+        }
+        if (kin.contains("Vợ chồng")) {
+            return null;
+        }
+        if (kin.contains("chồng") || kin.contains("vợ") || kin.contains("dâu") || kin.contains("rể")) {
+            return kin;
+        }
+        if (kin.contains("Chú")) {
+            return "Chú chồng";
+        }
+        if (kin.contains("Bác")) {
+            return "Bác chồng";
+        }
+        if (kin.contains("Cậu")) {
+            return "Cậu chồng";
+        }
+        if (kin.contains("Dì")) {
+            return "Dì chồng";
+        }
+        if (kin.contains("Cô")) {
+            return "Cô chồng";
+        }
+        return kin;
+    }
+
+    /** Nam gọi vợ của người nam có quan hệ máu {@code kin} với mình (vd. Ông → Bà, Chú → Thím). */
+    private String mapMaleViewerKinshipToWifeOfMaleBloodKin(String kin) {
+        if (kin == null || "Họ hàng".equals(kin) || "Không xác định".equals(kin)) {
+            return null;
+        }
+        if (kin.contains("Vợ chồng")) {
+            return null;
+        }
+        if (kin.contains("Chú chồng")) {
+            return "Thím chồng";
+        }
+        if (kin.contains("Chú")) {
+            return "Thím";
+        }
+        if (kin.contains("Bác")) {
+            return "Mợ";
+        }
+        if (kin.contains("Cậu")) {
+            return "Mợ";
+        }
+        if (kin.contains("Ông nội") || kin.contains("ông nội")) {
+            return "Bà nội";
+        }
+        if (kin.contains("Ông ngoại") || kin.contains("ông ngoại")) {
+            return "Bà ngoại";
+        }
+        if (kin.contains("Bà nội") || kin.contains("bà nội")) {
+            return "Ông nội";
+        }
+        if (kin.contains("Bà ngoại") || kin.contains("bà ngoại")) {
+            return "Ông ngoại";
+        }
+        if (kin.contains("Ông") || kin.contains("Cụ") || kin.contains("Kị") || kin.contains("Tổ tiên")) {
+            return "Bà";
+        }
+        if (kin.startsWith("Bà") || kin.equals("Bà")) {
+            return "Ông";
+        }
+        return mapHusbandBloodKinshipToHowHeCallsNephewWife(kin, "");
+    }
+
+    /** Nữ gọi vợ của người nam có quan hệ {@code kin} với mình (thường qua nhà chồng: Chú chồng → Thím chồng). */
+    private String mapFemaleViewerKinshipToWifeOfMaleBloodKin(String kin) {
+        if (kin == null || "Họ hàng".equals(kin) || "Không xác định".equals(kin)) {
+            return null;
+        }
+        if (kin.contains("Vợ chồng")) {
+            return null;
+        }
+        if (kin.contains("Chú chồng")) {
+            return "Thím chồng";
+        }
+        if (kin.contains("Bác chồng")) {
+            return "Mợ chồng";
+        }
+        if (kin.contains("Cậu chồng")) {
+            return "Mợ chồng";
+        }
+        if (kin.contains("Anh chồng")) {
+            return "Chị dâu";
+        }
+        if (kin.contains("Chị chồng")) {
+            return "Chị dâu";
+        }
+        if (kin.contains("Em chồng")) {
+            return "Em dâu";
+        }
+        if (kin.contains("Ông nội") || kin.contains("ông nội")) {
+            return "Bà nội";
+        }
+        if (kin.contains("Ông ngoại") || kin.contains("ông ngoại")) {
+            return "Bà ngoại";
+        }
+        if (kin.contains("Bà nội") || kin.contains("bà nội")) {
+            return "Ông nội";
+        }
+        if (kin.contains("Bà ngoại") || kin.contains("bà ngoại")) {
+            return "Ông ngoại";
+        }
+        if (kin.contains("Chú")) {
+            return "Thím";
+        }
+        if (kin.contains("Bác")) {
+            return "Mợ";
+        }
+        if (kin.contains("Cậu")) {
+            return "Mợ";
+        }
+        if (kin.contains("Ông") || kin.contains("Cụ") || kin.contains("Kị") || kin.contains("Tổ tiên")) {
+            return "Bà";
+        }
+        if (kin.startsWith("Bà") || kin.equals("Bà")) {
+            return "Ông";
+        }
+        return mapHusbandBloodKinshipToHowHeCallsNephewWife(kin, "");
     }
 
     /**
