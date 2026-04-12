@@ -94,7 +94,7 @@
 <main>
     <section class="relative flex min-h-[600px] items-center overflow-hidden">
         <div class="absolute inset-0 z-0">
-            <img alt="Bamboo Forest Background" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida/ADBb0uiDXfj6LbDvTcda5w6-OAFiovzR-c0mXKDqaHle-fQq22_iiSGjI6LfMq7cnYTl3xLSNPw1GGHh6kvBT3csawxdFjYbVkd9hDW5-b2FEeD8gLURbQfiRi7oytYMXJraEzdZrFsACrIzI2WmAdCPKXprjcopdmoab7ytGE0qudEvAC6rUuYr3nqsz5rRY1Y1fLnG4IUhEQrMzeieCRfJfexcgfCNw1wxsQny9Dn-ddZ1ZLtMCO7qH2BreCjKe0kAnh2p90GbZDA9"/>
+            <img class="w-full h-full object-cover opacity-90 grayscale-[20%]" alt="Bamboo forest background" th:src="@{/images/bamboo-bg.png}"/>
             <div class="absolute inset-0 bg-gradient-to-r from-on-surface/80 via-on-surface/40 to-transparent"></div>
         </div>
         <div class="relative z-10 mx-auto w-full max-w-6xl px-6 py-24">
@@ -120,7 +120,7 @@
             <div class="rounded-xl border-l-4 border-primary bg-surface-container-lowest p-6 shadow-sm">
                 <div class="flex items-start justify-between">
                     <div>
-                        <p class="mb-1 text-label-md font-label uppercase tracking-wider text-on-surface-variant">Members</p>
+                        <p class="mb-1 text-label-md font-label uppercase tracking-wider text-on-surface-variant">Thành Viên</p>
                         <h3 id="statTotalMembers" class="text-3xl font-headline font-bold text-primary">0</h3>
                     </div>
                     <span class="material-symbols-outlined text-secondary">groups</span>
@@ -129,7 +129,7 @@
             <div class="rounded-xl border-l-4 border-secondary bg-surface-container-lowest p-6 shadow-sm">
                 <div class="flex items-start justify-between">
                     <div>
-                        <p class="mb-1 text-label-md font-label uppercase tracking-wider text-on-surface-variant">Generations</p>
+                        <p class="mb-1 text-label-md font-label uppercase tracking-wider text-on-surface-variant">Thế Hệ</p>
                         <h3 id="statGenerations" class="text-3xl font-headline font-bold text-primary">0</h3>
                     </div>
                     <span class="material-symbols-outlined text-secondary">account_tree</span>
@@ -138,7 +138,7 @@
             <div class="rounded-xl border-l-4 border-primary-container bg-surface-container-lowest p-6 shadow-sm">
                 <div class="flex items-start justify-between">
                     <div>
-                        <p class="mb-1 text-label-md font-label uppercase tracking-wider text-on-surface-variant">Males</p>
+                        <p class="mb-1 text-label-md font-label uppercase tracking-wider text-on-surface-variant">Nam Giới</p>
                         <h3 id="statMaleCount" class="text-3xl font-headline font-bold text-primary">0</h3>
                     </div>
                     <span class="material-symbols-outlined text-secondary">male</span>
@@ -147,7 +147,7 @@
             <div class="rounded-xl border-l-4 border-tertiary bg-surface-container-lowest p-6 shadow-sm">
                 <div class="flex items-start justify-between">
                     <div>
-                        <p class="mb-1 text-label-md font-label uppercase tracking-wider text-on-surface-variant">Females</p>
+                        <p class="mb-1 text-label-md font-label uppercase tracking-wider text-on-surface-variant">Nữ Giới</p>
                         <h3 id="statFemaleCount" class="text-3xl font-headline font-bold text-primary">0</h3>
                     </div>
                     <span class="material-symbols-outlined text-secondary">female</span>
@@ -310,19 +310,31 @@
         // ==================================================
         function renderEvents(events) {
             const container = document.getElementById('eventsContainer');
+
             if (!events || events.length === 0) {
-                container.innerHTML = '<p style="grid-column: span 4; text-align: center; color: #6B7280;">Hiện không có sự kiện nào sắp tới.</p>';
+                container.className = "w-full";
+                container.innerHTML = '<p style="text-align: center; color: #6B7280;">Hiện không có sự kiện nào sắp tới.</p>';
                 return;
             }
 
+            // XỬ LÝ LAYOUT LINH HOẠT:
+            if (events.length === 1) {
+                // Chỉ có 1 ô: Xóa mx-auto để bám lề trái, dùng w-fit để khung tự ôm sát nội dung
+                container.className = "w-fit min-w-[380px] max-w-full";
+            } else if (events.length === 2) {
+                // Có 2 ô: Chia 2 cột như cũ
+                container.className = "grid grid-cols-1 gap-8 md:grid-cols-2";
+            } else {
+                // Có từ 3 ô trở lên: Chia 3 cột trên màn hình lớn (lg), 2 cột trên tablet (md)
+                container.className = "grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3";
+            }
+
             container.innerHTML = events.map(event => {
-                // Xử lý ngày tháng (Dùng startAt hoặc createdAt)
                 const dateObj = event.startAt ? new Date(event.startAt) : new Date();
                 const monthStr = 'Tháng ' + (dateObj.getMonth() + 1);
                 const dayStr = dateObj.getDate();
                 const timeStr = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 
-                // Tính số ngày còn lại
                 const diffTime = dateObj - new Date();
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 let daysLeftStr = '';
@@ -335,7 +347,7 @@
                         <div class="event-date"><span>${monthStr}</span><strong>${dayStr}</strong></div>
                         <div class="event-info">
                             <span class="badge badge-warning">${event.categoryName || 'Sự kiện'} - ${daysLeftStr}</span>
-                            <h4>${event.title}</h4>
+                            <h4 style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${event.title}</h4>
                             <p><i class="fas fa-map-marker-alt"></i> ${event.location || 'Tại nhà thờ họ'}</p>
                             <p><i class="far fa-clock"></i> ${timeStr}</p>
                         </div>

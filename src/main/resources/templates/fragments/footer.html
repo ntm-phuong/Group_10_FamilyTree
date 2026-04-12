@@ -1,39 +1,81 @@
-<footer th:fragment="footer" class="footer-figma" xmlns:th="http://www.thymeleaf.org">
-    <link rel="stylesheet" th:href="@{/css/footer.css}">
+<footer th:fragment="footer" xmlns:th="http://www.thymeleaf.org" class="w-full py-12 mt-auto bg-surface-container-low border-t border-outline-variant/30">
+    <div class="mx-auto w-full max-w-6xl px-6">
 
-    <div class="footer-container-figma">
-        <div class="footer-grid-figma">
-            <div class="footer-col-figma">
-                <div class="footer-brand-figma">
-                    <img th:src="@{/images/logo-2.svg}" alt="Logo" class="footer-logo-img">
-                    <span style="margin-top: 10px;margin-left: -35px; display: block; font-weight: 700;">Gia phả dòng họ Nguyễn</span>
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8 mb-10">
+
+            <div class="md:col-span-5 flex flex-col gap-4">
+                <div class="flex items-center gap-3 text-primary font-headline font-bold text-2xl">
+                    <span class="italic">Family Care</span>
                 </div>
-                <p class="footer-desc-figma">Hệ thống quản lý gia phả trực tuyến, giúp kết nối các thế hệ trong gia đình.</p>
+                <p class="text-on-surface-variant text-sm leading-relaxed font-body pr-4 md:pr-10">
+                    Hệ thống quản lý gia phả trực tuyến, giúp kết nối các thế hệ trong gia đình. Lưu giữ truyền thống, hướng tới tương lai.
+                </p>
             </div>
 
-            <div class="footer-col-figma">
-                <div class="footer-title-figma">Liên kết nhanh</div>
-                <nav class="footer-links-figma">
-                    <a th:href="@{/}">Trang chủ</a>
-                    <a th:href="@{/family-tree}">Xem gia phả</a>
-                    <a th:href="@{/news}">Tin tức dòng họ</a>
-                </nav>
+            <div class="md:col-span-3 md:col-start-7 flex flex-col gap-4">
+                <h4 class="font-bold text-primary text-sm uppercase tracking-widest font-label">Liên Kết Nhanh</h4>
+                <div class="flex flex-col gap-3 font-body">
+                    <a id="footerHomeLink" th:href="@{/}" class="text-on-surface-variant hover:text-primary text-sm transition-colors">Trang Chủ</a>
+                    <a th:href="@{/about}" class="footer-auth-link text-on-surface-variant hover:text-primary text-sm transition-colors">Giới thiệu</a>
+                    <a th:href="@{/family-tree}" class="footer-auth-link text-on-surface-variant hover:text-primary text-sm transition-colors">Gia Phả</a>
+                    <a th:href="@{/news}" class="footer-auth-link text-on-surface-variant hover:text-primary text-sm transition-colors">Tin Tức</a>
+                </div>
             </div>
 
-            <div class="footer-col-figma">
-                <div class="footer-title-figma">Thông tin liên hệ</div>
-                <div class="footer-info-figma">
-                    <p><i class="fas fa-map-marker-alt fa-fw"></i> Xã Đại Mỗ, Từ Liêm, Hà Nội</p>
-                    <p><i class="fas fa-user fa-fw"></i> Trưởng họ: Nguyễn Hồng Sơn</p>
-                    <p><i class="fas fa-phone fa-fw"></i> 0934 567 890</p>
-                    <p><i class="fas fa-envelope fa-fw"></i> contact@giapha.vn</p>
+            <div class="md:col-span-3 md:col-start-10 flex flex-col gap-4">
+                <h4 class="font-bold text-primary text-sm uppercase tracking-widest font-label">Liên Hệ</h4>
+                <div class="flex flex-col gap-3 text-sm text-on-surface-variant font-body">
+                    <p class="flex items-start gap-3"><i class="fas fa-map-marker-alt text-secondary mt-1 w-4 text-center"></i> <span>Xã Đại Mỗ, Từ Liêm, Hà Nội</span></p>
+                    <p class="flex items-start gap-3"><i class="fas fa-user text-secondary mt-1 w-4 text-center"></i> <span>Trưởng họ: Nguyễn Hồng Sơn</span></p>
+                    <p class="flex items-start gap-3"><i class="fas fa-phone text-secondary mt-1 w-4 text-center"></i> <span>0934 567 890</span></p>
+                    <p class="flex items-start gap-3"><i class="fas fa-envelope text-secondary mt-1 w-4 text-center"></i> <span>contact@giapha.vn</span></p>
                 </div>
+            </div>
+
+        </div>
+
+        <div class="border-t border-outline-variant/30 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-on-surface-variant font-body">
+            <span>© 2026 Family Care - Dòng họ Nguyễn. Mọi quyền được bảo lưu.</span>
+            <div class="flex items-center gap-5 text-lg text-primary">
+                <a href="#" class="hover:text-secondary transition-transform hover:-translate-y-1"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="hover:text-secondary transition-transform hover:-translate-y-1"><i class="fab fa-youtube"></i></a>
+                <a href="mailto:contact@giapha.vn" class="hover:text-secondary transition-transform hover:-translate-y-1"><i class="fas fa-envelope"></i></a>
             </div>
         </div>
 
-        <div class="footer-bottom-figma">
-            <span>© 2026 Dòng họ Nguyễn. Mọi quyền được bảo lưu.</span>
-            <span>Được xây dựng với SE2</span>
-        </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Kiểm tra trạng thái đăng nhập
+            const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
+            const footerHomeLink = document.getElementById('footerHomeLink');
+            const authLinks = document.querySelectorAll('.footer-auth-link');
+
+            if (token) {
+                // NẾU ĐÃ ĐĂNG NHẬP:
+                // 1. Đổi link "Trang Chủ" về /home
+                if (footerHomeLink) {
+                    footerHomeLink.setAttribute('href', '/home');
+                }
+                // (Các link Giới thiệu, Gia phả, Tin tức vẫn giữ nguyên href mặc định để chuyển trang bình thường)
+            } else {
+                // NẾU LÀ KHÁCH (CHƯA ĐĂNG NHẬP):
+                // Bắt sự kiện click vào Giới thiệu, Gia phả, Tin tức
+                authLinks.forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault(); // Ngăn không cho chuyển trang
+
+                        // Kiểm tra xem trang hiện tại có hàm mở Modal Đăng nhập không
+                        if (typeof openLoginModal === 'function') {
+                            openLoginModal();
+                        } else {
+                            // Nếu không có (lỗi ngoài ý muốn), đẩy về trang chủ kèm biến kích hoạt Modal
+                            window.location.href = '/?login=true';
+                        }
+                    });
+                });
+            }
+        });
+    </script>
 </footer>
