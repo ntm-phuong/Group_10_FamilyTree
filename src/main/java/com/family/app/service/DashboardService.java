@@ -1,6 +1,9 @@
 package com.family.app.service;
 
 import com.family.app.dto.DashboardResponse;
+import com.family.app.dto.NewsEventSummaryDTO;
+import com.family.app.dto.UserSummaryDTO;
+import com.family.app.model.NewsEvent;
 import com.family.app.model.User;
 import com.family.app.repository.NewsEventRepository;
 import com.family.app.repository.UserRepository;
@@ -64,6 +67,30 @@ public class DashboardService {
         dto.setGenerationDistribution(genDist);
 
         dto.setTotalNews(newsEventRepository.countVisibleByFamilyFamilyIdIn(familyIds));
+
+        // -- Thành vên mới (5 người mới tạo gần nhất)
+        List<UserSummaryDTO> newMembers = users.stream()
+                .filter(u -> u.getCreatedAt() != null)
+                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                .limit(5)
+                .map(u -> new UserSummaryDTO(
+                        u.getFullName(),
+                        u.getGeneration() != null ? u.getGeneration() : 0,
+                        u.getGender()))
+                .collect(Collectors.toList());
+        dto.setNewMembers(newMembers);
+
+        // --- Tin tức mới nhất (5 bài) ---
+        String firstFamilyId = familyIds.iterator().next();
+        List<NewsEvent> newsEvents = newsEventRepository
+                .findTop5ByFamily_FamilyIdOrderByCreatedAtDesc(firstFamilyId);
+        List<NewsEventSummaryDTO> recentNews = newsEvents.stream()
+                .map(n -> new NewsEventSummaryDTO(
+                        n.getTitle(),
+                        n.getCreatedAt(),
+                        n.getVisibility() != null ? n.getVisibility().name() : "FAMILY_ONLY"))
+                .collect(Collectors.toList());
+        dto.setRecentNews(recentNews);
 
         return dto;
     }

@@ -40,6 +40,9 @@ document.addEventListener("DOMContentLoaded", function () {
             // Thực hiện đổ dữ liệu
             updateStatistics(data);
             renderGenerationProgress(data);
+            renderRecentMembers(data.newMembers);
+            renderRecentNews(data.recentNews);
+            renderActivityLog(data.recentNews, data.newMembers);
 
         } catch (error) {
             console.error("Lỗi Dashboard JS:", error);
@@ -74,19 +77,136 @@ document.addEventListener("DOMContentLoaded", function () {
         Object.entries(dist).forEach(([gen, count]) => {
             const percentage = Math.round((count / total) * 100);
 
-            const genHtml = `
-                <div class="gen-item" style="margin-bottom: 1.2rem;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem;">
-                        <span style="font-weight: 600;">Đời thứ ${gen}</span>
-                        <span class="text-muted">${count} thành viên</span>
+            container.insertAdjacentHTML('beforeend', `
+                <div>
+                    <div class="flex justify-between mb-1 text-sm">
+                        <span class="font-semibold text-slate-700">Đời thứ ${gen}</span>
+                        <span class="text-slate-400">${count} thành viên</span>
                     </div>
-                    <div style="background: #e9ecef; height: 10px; border-radius: 5px; overflow: hidden;">
-                        <div style="width: ${percentage}%; background: #34495e; height: 100%; transition: width 0.5s ease;"></div>
+                    <div class="h-2 rounded-full bg-slate-100 overflow-hidden">
+                        <div class="h-full rounded-full bg-emerald-600 transition-all duration-500" style="width: ${percentage}%"></div>
                     </div>
                 </div>
-            `;
-            container.insertAdjacentHTML('beforeend', genHtml);
+            `);
         });
+    }
+
+    // 5. Thành viên mới
+    function renderRecentMembers(members) {
+        const container = document.getElementById('recentMembers');
+        if (!container) return;
+
+        if (!members || members.length === 0) {
+            container.innerHTML = `<p class="text-sm text-slate-400 italic py-4 text-center">Chưa có thành viên nào.</p>`;
+            return;
+        }
+
+        container.innerHTML = members.map(m => {
+            const isMale = m.gender === 'MALE';
+            const initials = (m.fullName || '?').trim().split(' ').pop().substring(0, 2).toUpperCase();
+            const avatarColor = isMale
+                ? 'bg-blue-100 text-blue-700'
+                : 'bg-rose-100 text-rose-600';
+            const genderLabel = isMale ? 'Nam' : 'Nữ';
+            const genderBadge = isMale
+                ? 'bg-blue-50 text-blue-600'
+                : 'bg-rose-50 text-rose-500';
+
+            return `
+                <div class="flex items-center gap-3 py-3">
+                    <div class="h-10 w-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${avatarColor}">
+                        ${initials}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-slate-800 truncate">${m.fullName || '—'}</p>
+                        <p class="text-xs text-slate-400">Đời thứ ${m.generation || '?'}</p>
+                    </div>
+                    <span class="text-xs font-medium px-2 py-0.5 rounded-full ${genderBadge}">${genderLabel}</span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // 6. Tin tức & Thông báo
+    function renderRecentNews(newsList) {
+        const container = document.getElementById('recentNews');
+        if (!container) return;
+
+        if (!newsList || newsList.length === 0) {
+            container.innerHTML = `<p class="text-sm text-slate-400 italic py-4 text-center col-span-2">Chưa có bài viết nào.</p>`;
+            return;
+        }
+
+        container.innerHTML = newsList.map(n => {
+            const date = n.createdAt
+                ? new Date(n.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                : '—';
+            const isPublic = n.status === 'PUBLIC_SITE';
+            const badgeClass = isPublic ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700';
+            const badgeLabel = isPublic ? 'Công khai' : 'Nội bộ';
+
+            return `
+                <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4 hover:shadow-sm transition-shadow">
+                    <div class="flex items-start justify-between gap-2 mb-2">
+                        <span class="text-xs font-medium px-2 py-0.5 rounded-full ${badgeClass}">${badgeLabel}</span>
+                        <span class="text-xs text-slate-400 shrink-0">${date}</span>
+                    </div>
+                    <p class="text-sm font-semibold text-slate-800 leading-snug line-clamp-2">${n.title || '—'}</p>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // 7. Hoạt động hệ thống (tổng hợp từ tin tức + thành viên mới)
+    function renderActivityLog(newsList, members) {
+        const container = document.getElementById('activityList');
+        if (!container) return;
+
+        const activities = [];
+
+        // Từ tin tức
+        if (newsList && newsList.length > 0) {
+            newsList.slice(0, 3).forEach(n => {
+                const date = n.createdAt
+                    ? new Date(n.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                    : '—';
+                activities.push({
+                    icon: 'far fa-newspaper',
+                    iconBg: 'bg-blue-50 text-blue-600',
+                    text: `Bài viết <strong>"${n.title}"</strong> được đăng tải`,
+                    date
+                });
+            });
+        }
+
+        // Từ thành viên mới
+        if (members && members.length > 0) {
+            members.slice(0, 2).forEach(m => {
+                activities.push({
+                    icon: 'fas fa-user-plus',
+                    iconBg: 'bg-emerald-50 text-emerald-600',
+                    text: `Thành viên <strong>${m.fullName}</strong> được thêm vào gia phả`,
+                    date: ''
+                });
+            });
+        }
+
+        if (activities.length === 0) {
+            container.innerHTML = `<p class="text-sm text-slate-400 italic py-4 text-center">Chưa có hoạt động nào.</p>`;
+            return;
+        }
+
+        container.innerHTML = activities.map(a => `
+            <div class="flex items-start gap-4">
+                <div class="h-9 w-9 rounded-xl flex items-center justify-center shrink-0 ${a.iconBg}">
+                    <i class="${a.icon} text-sm"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-slate-700 leading-relaxed">${a.text}</p>
+                    ${a.date ? `<p class="text-xs text-slate-400 mt-0.5">${a.date}</p>` : ''}
+                </div>
+            </div>
+        `).join('');
     }
 
     // Khởi chạy
