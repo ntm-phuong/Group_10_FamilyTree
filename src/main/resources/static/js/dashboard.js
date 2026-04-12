@@ -55,14 +55,23 @@ document.addEventListener("DOMContentLoaded", function () {
             'totalMembers': data.totalMembers || 0,
             'livingCount': `${data.livingMembers || 0} còn sống`,
             'deceasedCount': `${data.deceasedMembers || 0} đã mất`,
-            'genCount': data.totalGenerations || 0,
-            'newsCount': data.totalNews || 0 // Nếu backend chưa có thì mặc định 0
+            'genCount': data.totalGenerations || 0
         };
 
         for (const [id, value] of Object.entries(elements)) {
             const el = document.getElementById(id);
             if (el) el.innerText = value;
         }
+
+        const pub = data.publishedNewsCount != null ? data.publishedNewsCount : 0;
+        const dr = data.draftNewsCount != null ? data.draftNewsCount : 0;
+        const total = data.totalNews != null ? data.totalNews : pub + dr;
+        const newsTotalEl = document.getElementById('newsCount');
+        if (newsTotalEl) newsTotalEl.innerText = total;
+        const pubEl = document.getElementById('publishedCount');
+        if (pubEl) pubEl.innerText = `${pub} đã đăng`;
+        const draftEl = document.getElementById('draftCount');
+        if (draftEl) draftEl.innerText = `${dr} nháp`;
     }
 
     // 4. Vẽ danh sách phân bổ đời (Thanh Progress Bar)

@@ -42,8 +42,8 @@ public class FamilyHeadService {
     private static final Set<String> ASSIGNABLE_MEMBER_ROLE_NAMES = Set.of(
             "MEMBER", "FAMILY_NEWS_MANAGER", "FAMILY_BRANCH_MANAGER");
 
-    /** Không gán qua màn trưởng họ (quản trị hệ thống). */
-    private static final Set<String> NON_ASSIGNABLE_FAMILY_UI_ROLE_NAMES = Set.of("ADMIN");
+    /** Chỉ tài khoản có role {@code ADMIN} mới thấy và gán được (Trưởng tộc / quản trị dòng họ). */
+    private static final String CLAN_ADMIN_ROLE_NAME = "ADMIN";
 
     @Autowired
     private UserRepository userRepository;
@@ -104,10 +104,20 @@ public class FamilyHeadService {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Không thể xóa dòng họ từ tài khoản trưởng họ.");
     }
 
-    /** Vai trò có thể chọn khi thêm/sửa thành viên (theo nhánh dòng họ). */
+    /**
+     * Vai trò có thể chọn khi thêm/sửa thành viên.
+     * Option {@code ADMIN} (nhãn Trưởng tộc) chỉ có khi người gọi mang role ADMIN.
+     */
     @Transactional(readOnly = true)
-    public List<MemberRoleOptionResponse> listAssignableMemberRoles() {
+    public List<MemberRoleOptionResponse> listAssignableMemberRoles(String managerUserId) {
+        User manager = userRepository.findByIdWithFamily(managerUserId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Không tìm thấy người dùng."));
+        boolean callerIsClanAdmin = UserRoleSupport.hasRoleName(manager, CLAN_ADMIN_ROLE_NAME);
+
         Map<String, String> labels = new LinkedHashMap<>();
+        if (callerIsClanAdmin) {
+            labels.put(CLAN_ADMIN_ROLE_NAME, "Trưởng tộc (ADMIN)");
+        }
         labels.put("MEMBER", "Thành viên");
         labels.put("FAMILY_NEWS_MANAGER", "Phụ trách tin & sự kiện");
         labels.put("FAMILY_BRANCH_MANAGER", "Phụ trách chi (tin + thành viên trong nhánh)");
@@ -472,15 +482,21 @@ public class FamilyHeadService {
         }
     }
 
-    private void assertAssignableFamilyMemberRole(Role role) {
+    private void assertAssignableFamilyMemberRole(Role role, String managerUserId) {
         if (role == null || role.getRoleName() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vai trò không hợp lệ.");
         }
-        if (NON_ASSIGNABLE_FAMILY_UI_ROLE_NAMES.contains(role.getRoleName())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Vai trò hệ thống (ADMIN) không gán qua màn trưởng họ.");
+        String name = role.getRoleName();
+        if (CLAN_ADMIN_ROLE_NAME.equals(name)) {
+            User mgr = userRepository.findByIdWithFamily(managerUserId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Không tìm thấy người dùng."));
+            if (!UserRoleSupport.hasRoleName(mgr, CLAN_ADMIN_ROLE_NAME)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        "Chỉ tài khoản Trưởng tộc (ADMIN) mới được gán vai trò này.");
+            }
+            return;
         }
-        if (!ASSIGNABLE_MEMBER_ROLE_NAMES.contains(role.getRoleName())) {
+        if (!ASSIGNABLE_MEMBER_ROLE_NAMES.contains(name)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Vai trò này không được phép gán cho thành viên dòng họ.");
         }
@@ -524,17 +540,19 @@ public class FamilyHeadService {
             }
             Role newRole = roleRepository.findById(rid.trim())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Không tìm thấy vai trò."));
-            if ("ADMIN".equals(newRole.getRoleName())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                        "Role ADMIN chỉ do hệ thống cấp — không gán qua quản lý thành viên.");
-            }
-            assertAssignableFamilyMemberRole(newRole);
+            assertAssignableFamilyMemberRole(newRole, managerUserId);
             next.add(newRole);
         }
         if (next.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Chọn ít nhất một vai trò hợp lệ.");
         }
         if (editingUserId != null && editingUserId.equals(managerUserId)) {
+            boolean hadAdmin = UserRoleSupport.hasRoleName(user, CLAN_ADMIN_ROLE_NAME);
+            boolean willAdmin = next.stream().anyMatch(r -> CLAN_ADMIN_ROLE_NAME.equals(r.getRoleName()));
+            if (hadAdmin && !willAdmin) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Không thể tự gỡ vai trò Trưởng tộc (ADMIN). Nhờ tài khoản ADMIN khác thực hiện.");
+            }
             boolean had = UserRoleSupport.hasPermissionViaRoles(user, AppPermissions.MANAGE_FAMILY_MEMBERS);
             boolean will = next.stream().anyMatch(r -> roleHasPermission(r, AppPermissions.MANAGE_FAMILY_MEMBERS));
             if (had && !will) {

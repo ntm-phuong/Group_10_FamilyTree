@@ -23,6 +23,8 @@ public class AuthService {
     private JwtTokenProvider tokenProvider;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private FamilyScopeService familyScopeService;
 
     public void generateAndSendOtp(String email) {
         // 1. Tìm user theo email
@@ -108,6 +110,7 @@ public class AuthService {
             if (user.getFamily() != null) {
                 authData.put("familyId", user.getFamily().getFamilyId());
                 authData.put("familyName", user.getFamily().getFamilyName());
+                authData.put("familyRootId", familyScopeService.resolveRootFamilyId(user.getFamily().getFamilyId()));
             }
 
             List<String> permNames = UserRoleSupport.mergedPermissionNames(user);
@@ -143,14 +146,14 @@ public class AuthService {
         userRepository.save(user);
     }
     public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailWithFamily(email)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
     }
 
     /** Hồ sơ tối giản cho FE (sau khi đã xác thực JWT). */
     @Transactional(readOnly = true)
     public Map<String, Object> buildSessionProfile(String userId) {
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByIdWithFamily(userId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
         Map<String, Object> m = new HashMap<>();
         m.put("userId", user.getUserId());
@@ -171,6 +174,7 @@ public class AuthService {
         if (user.getFamily() != null) {
             m.put("familyId", user.getFamily().getFamilyId());
             m.put("familyName", user.getFamily().getFamilyName());
+            m.put("familyRootId", familyScopeService.resolveRootFamilyId(user.getFamily().getFamilyId()));
         }
         return m;
     }

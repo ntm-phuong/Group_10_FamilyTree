@@ -56,7 +56,7 @@
         }
     </style>
 </head>
-<body class="bg-surface text-on-surface">
+<body class="bg-surface text-on-surface" th:data-about-scope-family-id="${aboutScopeFamilyId}">
 
 <th:block th:replace="~{fragments/navbar :: navbar}"/>
 
@@ -75,6 +75,7 @@
                 <span class="mb-4 block font-bold uppercase tracking-[0.3em] text-primary-fixed text-sm">Di Sản Trăm Năm</span>
                 <h1 class="mb-6 text-5xl leading-tight text-surface md:text-7xl font-headline">
                     Lịch Sử & <span class="text-primary-fixed italic">Nguồn Cội</span>
+                    <span class="mt-4 block text-2xl font-normal text-primary-fixed/95 md:text-3xl" th:text="${aboutFamilyName}">Dòng họ</span>
                 </h1>
                 <p class="mb-8 font-headline text-xl italic text-primary-fixed opacity-90 border-l-4 border-primary-fixed pl-6 max-w-xl">
                     "Cây có gốc mới nở ngành xanh ngọn, <br> nước có nguồn mới bể rộng sông sâu"
@@ -88,8 +89,11 @@
 
             <div class="lg:col-span-8 space-y-12">
                 <div class="history-card reveal-on-scroll">
-                    <h2 class="section-title">Câu Chuyện Dòng Họ</h2>
-                    <div class="space-y-6 text-lg text-on-surface-variant leading-relaxed font-body">
+                    <h2 class="section-title" th:text="|Câu chuyện — ${aboutFamilyName}|">Câu Chuyện Dòng Họ</h2>
+                    <div th:if="${aboutFamilyDescription != null}" class="space-y-6 text-lg text-on-surface-variant leading-relaxed font-body">
+                        <p class="drop-cap whitespace-pre-wrap" th:text="${aboutFamilyDescription}">Mô tả từ hồ sơ dòng họ.</p>
+                    </div>
+                    <div th:unless="${aboutFamilyDescription != null}" class="space-y-6 text-lg text-on-surface-variant leading-relaxed font-body">
                         <p class="drop-cap">
                             Khởi nguồn từ những dải đất "địa linh nhân kiệt", nơi hồn thiêng sông núi hội tụ, dòng họ chúng ta đã đặt những viên gạch đầu tiên cho một hành trình di sản kéo dài hơn một thế kỷ. Trải qua bao cuộc biến thiên của thời đại, qua những thăng trầm của lịch sử dân tộc, ngọn lửa gia tộc vẫn luôn được gìn giữ, cháy sáng nhờ sự đồng lòng và ý chí quật cường của các bậc tiền nhân.
                         </p>

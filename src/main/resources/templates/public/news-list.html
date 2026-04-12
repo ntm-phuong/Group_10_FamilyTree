@@ -378,10 +378,16 @@
               <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-200">Ban tin dòng họ</p>
               <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">Tin tức</h1>
               <p class="max-w-2xl text-sm leading-7 text-emerald-50/85 sm:text-base">
-                Tin công khai và nội bộ của
-                <strong th:text="${clanDisplayName}">dòng họ</strong>.
-                Phạm vi hiện tại:
-                <strong th:text="${filterFamilyName}">—</strong>.
+                <th:block th:if="${!viewingOtherClanPublic}">
+                  Tin trong phạm vi dòng họ
+                  <strong th:text="${filterFamilyName}">—</strong>
+                  (mặc định theo tài khoản khi đã đăng nhập). Chọn dòng họ khác ở bộ lọc bên dưới để chỉ xem tin <strong>công khai</strong> của họ.
+                </th:block>
+                <th:block th:if="${viewingOtherClanPublic}">
+                  Đang xem <strong>chỉ tin công khai</strong> của dòng họ
+                  <strong th:text="${filterFamilyName}">—</strong>.
+                  <a th:href="@{/news(q=${q})}" class="ml-1 font-semibold text-white underline underline-offset-2 hover:text-emerald-100">← Về tin dòng họ tôi</a>
+                </th:block>
               </p>
             </div>
           </div>
@@ -405,41 +411,61 @@
               <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Bộ lọc hiển thị</p>
               <h2 class="mt-2 text-2xl font-semibold text-slate-900">Khám phá bản tin</h2>
             </div>
+            <div class="max-w-md space-y-2">
+              <label class="block text-xs font-semibold uppercase tracking-[0.22em] text-slate-400" for="newsFamilyScopeSelect">Dòng họ</label>
+              <form th:action="@{/news}" method="get" id="newsFamilyScopeForm" class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <input type="hidden" name="q" th:value="${q}"/>
+                <input type="hidden" th:if="${selectedCategory != null}" name="category" th:value="${selectedCategory.name()}"/>
+                <input type="hidden" th:if="${visibilityParam != null}" name="visibility" th:value="${visibilityParam}"/>
+                <select id="newsFamilyScopeSelect" name="familyId" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" onchange="this.form.submit()">
+                  <option value="" th:selected="${!viewingOtherClanPublic}" th:text="|Tin của ${defaultNewsFamilyName}|">Tin của dòng họ tôi</option>
+                  <option th:each="rf : ${rootFamiliesForNewsFilter}"
+                          th:if="${rf.familyId != defaultNewsFamilyId}"
+                          th:value="${rf.familyId}"
+                          th:selected="${filterFamilyId == rf.familyId}"
+                          th:text="${rf.familyName}">
+                  </option>
+                </select>
+              </form>
+              <p th:if="${viewingOtherClanPublic}" class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                Chỉ hiển thị tin <strong>công khai</strong> của dòng họ đã chọn — không gồm tin nội bộ của bạn.
+              </p>
+            </div>
             <div class="flex flex-wrap gap-3">
               <a th:if="${selectedCategory != null}"
-                 th:href="@{/news(q=${q},category=${selectedCategory.name()})}"
+                 th:href="@{/news(q=${q},category=${selectedCategory.name()},familyId=${newsUrlFamilyId})}"
                  class="rounded-full border px-4 py-2 text-sm font-semibold transition"
                  th:classappend="${visibilityParam == null} ? ' border-emerald-700 bg-emerald-700 text-white shadow-sm' : ' border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'">
                 Tất cả
               </a>
               <a th:unless="${selectedCategory != null}"
-                 th:href="@{/news(q=${q})}"
+                 th:href="@{/news(q=${q},familyId=${newsUrlFamilyId})}"
                  class="rounded-full border px-4 py-2 text-sm font-semibold transition"
                  th:classappend="${visibilityParam == null} ? ' border-emerald-700 bg-emerald-700 text-white shadow-sm' : ' border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'">
                 Tất cả
               </a>
 
               <a th:if="${selectedCategory != null}"
-                 th:href="@{/news(q=${q},category=${selectedCategory.name()},visibility='PUBLIC_SITE')}"
+                 th:href="@{/news(q=${q},category=${selectedCategory.name()},visibility='PUBLIC_SITE',familyId=${newsUrlFamilyId})}"
                  class="rounded-full border px-4 py-2 text-sm font-semibold transition"
                  th:classappend="${visibilityParam == 'PUBLIC_SITE'} ? ' border-emerald-700 bg-emerald-700 text-white shadow-sm' : ' border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'">
                 Công khai
               </a>
               <a th:unless="${selectedCategory != null}"
-                 th:href="@{/news(q=${q},visibility='PUBLIC_SITE')}"
+                 th:href="@{/news(q=${q},visibility='PUBLIC_SITE',familyId=${newsUrlFamilyId})}"
                  class="rounded-full border px-4 py-2 text-sm font-semibold transition"
                  th:classappend="${visibilityParam == 'PUBLIC_SITE'} ? ' border-emerald-700 bg-emerald-700 text-white shadow-sm' : ' border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'">
                 Công khai
               </a>
 
-              <a th:if="${selectedCategory != null}"
-                 th:href="@{/news(q=${q},category=${selectedCategory.name()},visibility='FAMILY_ONLY')}"
+              <a th:if="${selectedCategory != null and !viewingOtherClanPublic}"
+                 th:href="@{/news(q=${q},category=${selectedCategory.name()},visibility='FAMILY_ONLY',familyId=${newsUrlFamilyId})}"
                  class="rounded-full border px-4 py-2 text-sm font-semibold transition"
                  th:classappend="${visibilityParam == 'FAMILY_ONLY'} ? ' border-emerald-700 bg-emerald-700 text-white shadow-sm' : ' border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'">
                 Nội bộ
               </a>
-              <a th:unless="${selectedCategory != null}"
-                 th:href="@{/news(q=${q},visibility='FAMILY_ONLY')}"
+              <a th:if="${selectedCategory == null and !viewingOtherClanPublic}"
+                 th:href="@{/news(q=${q},visibility='FAMILY_ONLY',familyId=${newsUrlFamilyId})}"
                  class="rounded-full border px-4 py-2 text-sm font-semibold transition"
                  th:classappend="${visibilityParam == 'FAMILY_ONLY'} ? ' border-emerald-700 bg-emerald-700 text-white shadow-sm' : ' border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'">
                 Nội bộ
@@ -450,6 +476,7 @@
           <form th:action="@{/news}" method="get" class="w-full max-w-md">
             <input type="hidden" name="category" th:if="${selectedCategory != null}" th:value="${selectedCategory.name()}"/>
             <input type="hidden" name="visibility" th:if="${visibilityParam != null}" th:value="${visibilityParam}"/>
+            <input type="hidden" name="familyId" th:if="${newsUrlFamilyId != null}" th:value="${newsUrlFamilyId}"/>
             <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.22em] text-slate-400" for="newsSearchInput">Tìm kiếm</label>
             <div class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 focus-within:border-emerald-500 focus-within:bg-white">
               <i class="fas fa-search text-slate-400"></i>
@@ -460,13 +487,13 @@
 
         <div class="mt-6 flex flex-wrap items-center gap-3">
           <a th:if="${visibilityParam != null}"
-             th:href="@{/news(q=${q},visibility=${visibilityParam})}"
+             th:href="@{/news(q=${q},visibility=${visibilityParam},familyId=${newsUrlFamilyId})}"
              class="rounded-full border px-4 py-2 text-sm font-medium transition"
              th:classappend="${selectedCategory == null} ? ' border-slate-900 bg-slate-900 text-white' : ' border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'">
             Tất cả danh mục
           </a>
           <a th:unless="${visibilityParam != null}"
-             th:href="@{/news(q=${q})}"
+             th:href="@{/news(q=${q},familyId=${newsUrlFamilyId})}"
              class="rounded-full border px-4 py-2 text-sm font-medium transition"
              th:classappend="${selectedCategory == null} ? ' border-slate-900 bg-slate-900 text-white' : ' border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'">
             Tất cả danh mục
@@ -474,14 +501,14 @@
 
           <th:block th:each="cat : ${categories}">
             <a th:if="${visibilityParam != null}"
-               th:href="@{/news(category=${cat.name()},q=${q},visibility=${visibilityParam})}"
+               th:href="@{/news(category=${cat.name()},q=${q},visibility=${visibilityParam},familyId=${newsUrlFamilyId})}"
                class="rounded-full border px-4 py-2 text-sm font-medium transition"
                th:classappend="${selectedCategory != null and selectedCategory.name() == cat.name()} ? ' border-amber-500 bg-amber-50 text-amber-700' : ' border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'"
                th:text="${cat.label}">
               Danh mục
             </a>
             <a th:unless="${visibilityParam != null}"
-               th:href="@{/news(category=${cat.name()},q=${q})}"
+               th:href="@{/news(category=${cat.name()},q=${q},familyId=${newsUrlFamilyId})}"
                class="rounded-full border px-4 py-2 text-sm font-medium transition"
                th:classappend="${selectedCategory != null and selectedCategory.name() == cat.name()} ? ' border-amber-500 bg-amber-50 text-amber-700' : ' border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'"
                th:text="${cat.label}">

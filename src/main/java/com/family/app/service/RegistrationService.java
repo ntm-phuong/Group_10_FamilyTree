@@ -34,17 +34,30 @@ public class RegistrationService {
     public void registerFamily(FamilyRegisterRequest req) {
         if (req == null) throw new RuntimeException("Thiếu dữ liệu đăng ký");
         if (req.getEmail() == null || req.getEmail().isBlank()) throw new RuntimeException("Email bắt buộc");
-        if (userRepository.findByEmail(req.getEmail()).isPresent()) throw new RuntimeException("Email đã tồn tại");
+        if (req.getFullName() == null || req.getFullName().isBlank()) {
+            throw new RuntimeException("Họ và tên bắt buộc");
+        }
+        String familyName = req.getFamilyName() != null ? req.getFamilyName().trim() : "";
+        if (familyName.isEmpty()) {
+            throw new RuntimeException("Tên dòng họ bắt buộc");
+        }
+        if (req.getPassword() == null || req.getPassword().length() < 6) {
+            throw new RuntimeException("Mật khẩu tối thiểu 6 ký tự");
+        }
+        String emailNorm = req.getEmail().trim().toLowerCase();
+        if (userRepository.findByEmail(emailNorm).isPresent()) {
+            throw new RuntimeException("Email đã tồn tại");
+        }
 
         Family family = Family.builder()
-                .familyName(req.getFamilyName() != null ? req.getFamilyName().trim() : "Dòng họ")
+                .familyName(familyName)
                 .privacySetting("PUBLIC")
                 .build();
         family = familyRepository.save(family);
 
         User user = new User();
-        user.setFullName(req.getFullName());
-        user.setEmail(req.getEmail());
+        user.setFullName(req.getFullName().trim());
+        user.setEmail(emailNorm);
         user.setPassword(passwordEncoder.encode(req.getPassword()));
         user.setFamily(family);
         user.setStatus(0); // pending
@@ -61,7 +74,8 @@ public class RegistrationService {
     @Transactional
     public void verifyEmail(String email, String code) {
         if (email == null || email.isBlank()) throw new RuntimeException("Email bắt buộc");
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng."));
+        String emailNorm = email.trim().toLowerCase();
+        User user = userRepository.findByEmail(emailNorm).orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng."));
         if (user.getOtpCode() == null || !user.getOtpCode().equals(code)) {
             throw new RuntimeException("Mã xác thực không chính xác");
         }
@@ -74,10 +88,10 @@ public class RegistrationService {
         user.setOtpExpiry(null);
         user.setStatus(2);
 
-        Role role = roleRepository.findByRoleName("ADMIN").orElse(null);
-        if (role != null) {
-            user.setRoles(new HashSet<>(java.util.Set.of(role)));
-        }
+        Role adminRole = roleRepository.findByRoleName("ADMIN")
+                .orElseThrow(() -> new RuntimeException(
+                        "Hệ thống chưa có role ADMIN (cần seed DB). Liên hệ quản trị hoặc khởi động lại ứng dụng."));
+        user.setRoles(new HashSet<>(java.util.Set.of(adminRole)));
 
         userRepository.save(user);
 

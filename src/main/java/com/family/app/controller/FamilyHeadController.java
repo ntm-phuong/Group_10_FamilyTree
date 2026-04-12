@@ -71,8 +71,8 @@ public class FamilyHeadController {
     @GetMapping("/member-roles")
     @PreAuthorize(
             "hasAnyAuthority('MANAGE_FAMILY_MEMBERS','MANAGE_CLAN','FAMILY_HEAD','ROLE_FAMILY_BRANCH_MANAGER')")
-    public ResponseEntity<List<MemberRoleOptionResponse>> listMemberRoles() {
-        return ResponseEntity.ok(familyHeadService.listAssignableMemberRoles());
+    public ResponseEntity<List<MemberRoleOptionResponse>> listMemberRoles(@AuthenticationPrincipal User principal) {
+        return ResponseEntity.ok(familyHeadService.listAssignableMemberRoles(principal.getUserId()));
     }
 
     @GetMapping("/members")

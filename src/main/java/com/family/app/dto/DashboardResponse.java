@@ -19,6 +19,9 @@ public class DashboardResponse {
     private long deceasedMembers;
     private long totalGenerations;
     private long totalNews;
+    /** Bài không phải nháp (PUBLIC_SITE, FAMILY_ONLY, hoặc visibility null). */
+    private long publishedNewsCount;
+    private long draftNewsCount;
     private long upcomingEvents;
 
     // Phân bố thế hệ (Biểu đồ cột bên trái)

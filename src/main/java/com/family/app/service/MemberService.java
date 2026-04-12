@@ -1,5 +1,6 @@
 package com.family.app.service;
 
+import com.family.app.dto.ClanMemberStatistics;
 import com.family.app.dto.FamilyTreeResponse;
 import com.family.app.dto.RelationshipCompareResponse;
 import com.family.app.model.Relationship;
@@ -15,6 +16,7 @@ import com.family.app.model.Family;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -33,14 +35,49 @@ public class MemberService {
     private final AppClanProperties clanProperties;
 
     public FamilyTreeResponse getFamilyTreeDataForPublic(String familyId) {
-        String resolvedFamilyId = familyId;
-        if (resolvedFamilyId == null || resolvedFamilyId.isBlank()) {
-            resolvedFamilyId = clanProperties.getFamilyId();
+        return getFamilyTreeData(resolvePublicFamilyTreeRootId(familyId));
+    }
+
+    /**
+     * Thống kê thành viên trên tập chi đã xác định (vd. cây từ tổ tông) — một nguồn cho /home, /family-tree, dashboard.
+     */
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public ClanMemberStatistics computeStatisticsForScope(Collection<String> scopeFamilyIds) {
+        if (scopeFamilyIds == null || scopeFamilyIds.isEmpty()) {
+            return ClanMemberStatistics.empty();
         }
-        if (!clanProperties.getFamilyId().equals(resolvedFamilyId)) {
-            throw new IllegalStateException("Chỉ hỗ trợ dòng họ đã cấu hình.");
+        long total = userRepository.countByFamily_FamilyIdIn(scopeFamilyIds);
+        long male = userRepository.countByFamily_FamilyIdInAndGender(scopeFamilyIds, "MALE");
+        long female = userRepository.countByFamily_FamilyIdInAndGender(scopeFamilyIds, "FEMALE");
+        Integer maxGen = userRepository.findMaxGenerationByFamilyIdIn(scopeFamilyIds);
+        int gen = maxGen != null ? maxGen : 0;
+        return new ClanMemberStatistics(total, male, female, gen);
+    }
+
+    /** Thống kê cho cây gốc {@code rootFamilyId} (gồm mọi chi con). */
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public ClanMemberStatistics getClanMemberStatistics(String rootFamilyId) {
+        familyRepository.findById(rootFamilyId)
+                .orElseThrow(() -> new RuntimeException("Dòng họ không tồn tại"));
+        Set<String> scopeIds = subtreeFamilyIds(rootFamilyId);
+        if (scopeIds.isEmpty()) {
+            scopeIds = new LinkedHashSet<>();
+            scopeIds.add(rootFamilyId);
         }
-        return getFamilyTreeData(resolvedFamilyId);
+        return computeStatisticsForScope(scopeIds);
+    }
+
+    /** Gốc cây hiển thị: {@code familyId} nếu có và tồn tại; không thì {@code app.clan.family-id}. */
+    private String resolvePublicFamilyTreeRootId(String familyId) {
+        String resolved = (familyId != null && !familyId.isBlank())
+                ? familyId.trim()
+                : (clanProperties.getFamilyId() != null ? clanProperties.getFamilyId().trim() : "");
+        if (resolved.isEmpty()) {
+            throw new IllegalStateException("Chưa cấu hình dòng họ (app.clan.family-id).");
+        }
+        familyRepository.findById(resolved)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy dòng họ: " + resolved));
+        return resolved;
     }
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
@@ -53,6 +90,8 @@ public class MemberService {
         if (scopeIds.isEmpty()) {
             scopeIds.add(familyId);
         }
+
+        ClanMemberStatistics stats = computeStatisticsForScope(scopeIds);
 
         // 2. Thành viên + quan hệ trên toàn bộ nhánh (root và các family phụ thuộc)
         List<User> users = userRepository.findByFamily_FamilyIdInOrderByGenerationAscOrderInFamilyAsc(scopeIds);
@@ -99,15 +138,29 @@ public class MemberService {
             return node;
         }).collect(Collectors.toList());
 
-        // Tính tổng số đời (Max generation)
-        Integer maxGen = users.stream()
-                .map(u -> u.getGeneration())
-                .filter(g -> g != null)
-                .max(Integer::compare).orElse(1);
+        Map<String, User> userByIdLocal = users.stream().collect(Collectors.toMap(User::getUserId, u -> u));
+        for (FamilyTreeResponse.MemberNode node : nodes) {
+            User u = userByIdLocal.get(node.getUser_id());
+            if (u == null || u.getParentId() == null || u.getParentId().isBlank()) {
+                continue;
+            }
+            User p = userByIdLocal.get(u.getParentId().trim());
+            if (p == null) {
+                continue;
+            }
+            if (p.getGender() != null && "MALE".equalsIgnoreCase(p.getGender()) && node.getFatherId() == null) {
+                node.setFatherId(p.getUserId());
+            } else if (p.getGender() != null && "FEMALE".equalsIgnoreCase(p.getGender()) && node.getMotherId() == null) {
+                node.setMotherId(p.getUserId());
+            }
+        }
 
         return FamilyTreeResponse.builder()
                 .familyName(familyName)
-                .totalGenerations(maxGen)
+                .totalGenerations(stats.totalGenerations())
+                .totalMembers(stats.totalMembers())
+                .maleCount(stats.maleCount())
+                .femaleCount(stats.femaleCount())
                 .members(nodes)
                 .build();
     }
@@ -118,10 +171,10 @@ public class MemberService {
             throw new IllegalArgumentException("Bắt buộc truyền memberAId/memberBId");
         }
 
-        String clanRoot = clanProperties.getFamilyId();
+        String clanRoot = resolvePublicFamilyTreeRootId(familyId);
         Set<String> clanScope = subtreeFamilyIds(clanRoot);
-        if (familyId != null && !familyId.isBlank() && !clanRoot.equals(familyId.trim())) {
-            throw new IllegalArgumentException("Chỉ hỗ trợ dòng họ đã cấu hình.");
+        if (clanScope.isEmpty()) {
+            clanScope.add(clanRoot);
         }
 
         User ua = userRepository.findByIdWithFamily(memberAId)
@@ -133,7 +186,7 @@ public class MemberService {
         }
         if (!clanScope.contains(ua.getFamily().getFamilyId())
                 || !clanScope.contains(ub.getFamily().getFamilyId())) {
-            throw new IllegalArgumentException("Thành viên không thuộc dòng họ đã cấu hình.");
+            throw new IllegalArgumentException("Thành viên không thuộc phạm vi dòng họ đang xem.");
         }
 
         List<User> users = userRepository.findByFamily_FamilyIdInOrderByGenerationAscOrderInFamilyAsc(clanScope);
@@ -166,6 +219,7 @@ public class MemberService {
                 spousesByMember.computeIfAbsent(p2, k -> new HashSet<>()).add(p1);
             }
         }
+        mergeParentIdColumnIntoKinshipGraph(userById, parentsByChild, fatherByChild, motherByChild);
 
         String relationshipAToB = inferRelationship(memberAId, memberBId, userById, parentsByChild, fatherByChild, motherByChild, spousesByMember);
         String relationshipBToA = inferRelationship(memberBId, memberAId, userById, parentsByChild, fatherByChild, motherByChild, spousesByMember);
@@ -1547,6 +1601,41 @@ public class MemberService {
             }
         }
         return sibs;
+    }
+
+    /**
+     * Bổ sung cạnh cha–con từ {@link User#getParentId()} khi đồng bộ {@code Relationship} chưa có hoặc chưa nạp đủ,
+     * để so sánh quan hệ / tổ tiên chung khớp với cây và hồ sơ.
+     */
+    private void mergeParentIdColumnIntoKinshipGraph(
+            Map<String, User> userById,
+            Map<String, Set<String>> parentsByChild,
+            Map<String, String> fatherByChild,
+            Map<String, String> motherByChild
+    ) {
+        for (User child : userById.values()) {
+            if (child == null) {
+                continue;
+            }
+            String pid = child.getParentId();
+            if (pid == null || pid.isBlank()) {
+                continue;
+            }
+            User parent = userById.get(pid.trim());
+            if (parent == null) {
+                continue;
+            }
+            String cid = child.getUserId();
+            String puid = parent.getUserId();
+            parentsByChild.computeIfAbsent(cid, k -> new HashSet<>()).add(puid);
+            if (parent.getGender() != null) {
+                if ("MALE".equalsIgnoreCase(parent.getGender())) {
+                    fatherByChild.putIfAbsent(cid, puid);
+                } else if ("FEMALE".equalsIgnoreCase(parent.getGender())) {
+                    motherByChild.putIfAbsent(cid, puid);
+                }
+            }
+        }
     }
 
     /** Một {@link Family} và mọi chi con (theo {@code parent_family_id}). */

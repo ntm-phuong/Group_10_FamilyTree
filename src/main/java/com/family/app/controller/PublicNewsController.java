@@ -1,6 +1,7 @@
 package com.family.app.controller;
 
 import com.family.app.config.AppClanProperties;
+import com.family.app.model.Family;
 import com.family.app.model.NewsCategory;
 import com.family.app.model.NewsEvent;
 import com.family.app.model.NewsVisibility;
@@ -8,6 +9,7 @@ import com.family.app.model.User;
 import com.family.app.repository.FamilyRepository;
 import com.family.app.repository.UserRepository;
 import com.family.app.security.AppPermissions;
+import com.family.app.service.FamilyScopeService;
 import com.family.app.service.SiteNewsService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -21,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Tin tức công khai / nội bộ — một dòng họ ({@link AppClanProperties}).
+ * Tin tức /news — mặc định theo tổ tông người đăng nhập; có thể chọn xem tin công khai của dòng họ gốc khác.
  */
 @Controller
 public class PublicNewsController {
@@ -30,17 +32,20 @@ public class PublicNewsController {
     private final FamilyRepository familyRepository;
     private final UserRepository userRepository;
     private final AppClanProperties clanProperties;
+    private final FamilyScopeService familyScopeService;
 
     public PublicNewsController(
             SiteNewsService siteNewsService,
             FamilyRepository familyRepository,
             UserRepository userRepository,
-            AppClanProperties clanProperties
+            AppClanProperties clanProperties,
+            FamilyScopeService familyScopeService
     ) {
         this.siteNewsService = siteNewsService;
         this.familyRepository = familyRepository;
         this.userRepository = userRepository;
         this.clanProperties = clanProperties;
+        this.familyScopeService = familyScopeService;
     }
 
     @GetMapping("/news")
@@ -48,6 +53,7 @@ public class PublicNewsController {
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String visibility,
+            @RequestParam(required = false) String familyId,
             Model model,
             Authentication auth
     ) {
@@ -62,18 +68,42 @@ public class PublicNewsController {
             visibilityParam = NewsVisibility.FAMILY_ONLY.name();
         }
 
-        String filterFamilyId = clanProperties.getFamilyId();
-        String filterFamilyName = familyRepository.findById(filterFamilyId)
-                .map(f -> f.getFamilyName())
-                .orElse(clanProperties.getDisplayName());
+        String configRoot = clanProperties.getFamilyId() != null ? clanProperties.getFamilyId().trim() : "";
+        String defaultRootId = configRoot;
+        if (viewer != null && viewer.getFamily() != null && viewer.getFamily().getFamilyId() != null) {
+            defaultRootId = familyScopeService.resolveRootFamilyId(viewer.getFamily().getFamilyId());
+        }
+
+        String requested = familyId != null ? familyId.trim() : "";
+        String effectiveScopeId = defaultRootId;
+        if (!requested.isEmpty() && familyRepository.findById(requested).isPresent()) {
+            effectiveScopeId = familyScopeService.resolveRootFamilyId(requested);
+        }
+
+        String effectiveScopeForService = effectiveScopeId.isBlank() ? null : effectiveScopeId;
+        boolean viewingOtherClanPublic = effectiveScopeForService != null
+                && !defaultRootId.isBlank()
+                && !effectiveScopeId.equals(defaultRootId);
+
+        if (viewingOtherClanPublic && visibilityFilter == NewsVisibility.FAMILY_ONLY) {
+            visibilityFilter = null;
+            visibilityParam = null;
+        }
 
         List<NewsEvent> articles = siteNewsService.findPublishedForNewsPage(
-                query, cat, filterFamilyId, viewer, visibilityFilter);
+                query, cat, effectiveScopeForService, viewer, visibilityFilter, viewingOtherClanPublic);
 
-        boolean showFeatured = cat == null && query.isEmpty();
+        boolean showFeatured = cat == null && query.isEmpty() && effectiveScopeForService != null;
         List<NewsEvent> featured = showFeatured
-                ? siteNewsService.findFeaturedPublished(2, filterFamilyId)
+                ? siteNewsService.findFeaturedPublishedForScope(2, effectiveScopeId)
                 : Collections.emptyList();
+
+        String filterFamilyName = familyRepository.findById(effectiveScopeId)
+                .map(Family::getFamilyName)
+                .orElse(clanProperties.getDisplayName());
+        String defaultFamilyName = familyRepository.findById(defaultRootId)
+                .map(Family::getFamilyName)
+                .orElse(clanProperties.getDisplayName());
 
         model.addAttribute("articles", articles);
         model.addAttribute("featuredArticles", featured);
@@ -81,8 +111,13 @@ public class PublicNewsController {
         model.addAttribute("categories", NewsCategory.values());
         model.addAttribute("selectedCategory", cat);
         model.addAttribute("q", query);
-        model.addAttribute("filterFamilyId", filterFamilyId);
+        model.addAttribute("filterFamilyId", effectiveScopeId);
         model.addAttribute("filterFamilyName", filterFamilyName);
+        model.addAttribute("defaultNewsFamilyId", defaultRootId);
+        model.addAttribute("defaultNewsFamilyName", defaultFamilyName);
+        model.addAttribute("newsUrlFamilyId", effectiveScopeForService);
+        model.addAttribute("viewingOtherClanPublic", viewingOtherClanPublic);
+        model.addAttribute("rootFamiliesForNewsFilter", familyRepository.findByParentFamilyIsNullOrderByFamilyNameAsc());
         model.addAttribute("visibilityParam", visibilityParam);
         model.addAttribute("clanDisplayName", clanProperties.getDisplayName());
         model.addAttribute("currentUser", viewer);
@@ -104,8 +139,7 @@ public class PublicNewsController {
                     siteNewsService.incrementViewCount(article.getId());
                     article.setViewCount(article.getViewCount() + 1);
                     model.addAttribute("article", article);
-                    model.addAttribute("relatedArticles", siteNewsService.findRelated(article, 3,
-                            article.getFamily() != null ? article.getFamily().getFamilyId() : null, viewer));
+                    model.addAttribute("relatedArticles", siteNewsService.findRelated(article, 3, viewer));
                     model.addAttribute("categories", NewsCategory.values());
                     model.addAttribute("activeMenu", "news");
                     return "public/news-detail";

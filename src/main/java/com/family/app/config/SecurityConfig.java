@@ -71,6 +71,8 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/auth/me").authenticated()
 
+                        .requestMatchers("/api/families/**").authenticated()
+
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session

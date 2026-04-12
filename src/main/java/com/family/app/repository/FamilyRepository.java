@@ -19,6 +19,9 @@ public interface FamilyRepository extends JpaRepository<Family, String> {
 
     List<Family> findByParentFamily_FamilyId(String parentFamilyId);
 
+    /** Dòng họ gốc (không có parent_family_id) — dùng cho danh sách công khai / chọn dòng họ. */
+    List<Family> findByParentFamilyIsNullOrderByFamilyNameAsc();
+
     long countByParentFamily_FamilyId(String parentFamilyId);
 
     /**

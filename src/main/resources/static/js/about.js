@@ -26,27 +26,37 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // --- 2. HÀM FETCH DỮ LIỆU TRƯỞNG HỌ ---
+    function pickFamilyIdFromStorage() {
+        const my = (localStorage.getItem('my_family_id') || '').trim();
+        const legacy = (localStorage.getItem('family_id') || '').trim();
+        const ok = (v) => v && v !== 'undefined' && v !== 'null';
+        if (ok(my)) return my;
+        if (ok(legacy)) return legacy;
+        return '';
+    }
+
     async function fetchFamilyHeadInfo() {
         const token = localStorage.getItem('token');
-        const familyId = localStorage.getItem('family_id');
-
-        if (!token) {
-            renderEmpty();
-            return;
+        let familyId = pickFamilyIdFromStorage();
+        const scopeFromPage = (document.body.getAttribute('data-about-scope-family-id') || '').trim();
+        if (!familyId && scopeFromPage && scopeFromPage !== 'null' && scopeFromPage !== 'undefined') {
+            familyId = scopeFromPage;
         }
 
         try {
-            // Gọi endpoint mới — chỉ cần đăng nhập, không cần quyền quản trị
+            // Public API: có token thì gửi kèm; không token vẫn gọi được nếu có familyId (SSR hoặc app.clan).
             const url = familyId
-                ? `/api/public/family-head-info?familyId=${familyId}`
+                ? `/api/public/family-head-info?familyId=${encodeURIComponent(familyId)}`
                 : `/api/public/family-head-info`;
+
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
 
             const response = await fetch(url, {
                 method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
+                headers
             });
 
             if (!response.ok) {

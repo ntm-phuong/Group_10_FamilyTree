@@ -17,7 +17,8 @@ public class MemberController {
     /**
      * API lấy dữ liệu cấu trúc cây gia phả theo dòng họ.
      * Dùng chung cho cả Admin (để chỉnh sửa) và Client (để xem).
-     * * @param familyId ID của dòng họ (ví dụ: fam-nguyen-001)
+     *
+     * @param familyId mã chi / gốc trong bảng {@code families}
      * @return DTO chứa danh sách nodes (thành viên) và links (quan hệ)
      */
     @GetMapping("/tree/{familyId}")

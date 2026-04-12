@@ -3,6 +3,7 @@ package com.family.app.repository;
 import com.family.app.model.NewsCategory;
 import com.family.app.model.NewsEvent;
 import com.family.app.model.NewsVisibility;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -60,6 +61,14 @@ public interface NewsEventRepository extends JpaRepository<NewsEvent, String> {
             @Param("cat") NewsCategory publicCategory,
             @Param("id") String id,
             @Param("familyId") String familyId
+    );
+
+    @Query("SELECT n FROM NewsEvent n WHERE n.visibility = :vis AND n.publicCategory = :cat AND n.id <> :id AND n.family.familyId IN :familyIds ORDER BY n.createdAt DESC")
+    List<NewsEvent> findRelatedPublicForFamilies(
+            @Param("vis") NewsVisibility vis,
+            @Param("cat") NewsCategory publicCategory,
+            @Param("id") String id,
+            @Param("familyIds") Collection<String> familyIds
     );
 
     @Query("SELECT DISTINCT n FROM NewsEvent n LEFT JOIN FETCH n.user LEFT JOIN FETCH n.family WHERE " +
@@ -133,4 +142,13 @@ public interface NewsEventRepository extends JpaRepository<NewsEvent, String> {
     @Query("SELECT COUNT(n) FROM NewsEvent n WHERE n.family.familyId IN :familyIds "
             + "AND (n.visibility IS NULL OR n.visibility <> com.family.app.model.NewsVisibility.DRAFT)")
     long countVisibleByFamilyFamilyIdIn(@Param("familyIds") Collection<String> familyIds);
+
+    @Query("SELECT COUNT(n) FROM NewsEvent n WHERE n.family.familyId IN :familyIds "
+            + "AND n.visibility = com.family.app.model.NewsVisibility.DRAFT")
+    long countDraftByFamilyFamilyIdIn(@Param("familyIds") Collection<String> familyIds);
+
+    @Query("SELECT COUNT(n) FROM NewsEvent n WHERE n.family.familyId IN :familyIds")
+    long countByFamilyFamilyIdIn(@Param("familyIds") Collection<String> familyIds);
+
+    List<NewsEvent> findByFamily_FamilyIdInOrderByCreatedAtDesc(Collection<String> familyIds, Pageable pageable);
 }

@@ -113,6 +113,9 @@ async function syncTreeSessionFromMe() {
     if (me.familyName) {
       localStorage.setItem("my_family_name", me.familyName);
     }
+    if (me.familyRootId) {
+      localStorage.setItem("family_root_id", me.familyRootId);
+    }
   } catch (e) {
     /* ignore */
   }
@@ -195,11 +198,10 @@ function ensureTreeMemberModalBindings() {
   async function ensureTreeMemberRolesLoaded() {
     const sel = document.getElementById("tmMemRoleId");
     if (!sel) return;
-    if (sel.dataset.loaded === "1") return;
+    // Luôn gọi lại API: danh sách phụ thuộc role người đăng nhập (chỉ ADMIN mới thấy Trưởng tộc).
     const res = await fetch("/api/family-head/member-roles", { headers: treeAuthHeaders() });
     if (res.status === 403 || !res.ok) {
       sel.innerHTML = '<option value="">— Không tải được danh sách vai trò —</option>';
-      sel.dataset.loaded = "1";
       tmDefaultMemberRoleId = "";
       return;
     }
@@ -219,7 +221,6 @@ function ensureTreeMemberModalBindings() {
       return x.roleName === "MEMBER";
     });
     tmDefaultMemberRoleId = mem ? mem.roleId : (roles && roles[0] && roles[0].roleId) || "";
-    sel.dataset.loaded = "1";
   }
 
   async function loadTreeManagedFamilies(selectEl) {
@@ -866,6 +867,14 @@ async function loadFamilyTree() {
     familyId = familiesList[0].id;
   }
 
+  if (serverClanId && familyId) {
+    try {
+      localStorage.setItem("selectedFamilyId", familyId);
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
   syncTreeCanvasFamilyId(familyId);
   syncTreeToolbarAddMember(familyId);
 
@@ -1041,11 +1050,13 @@ async function loadFamilyTree() {
 
     const childCount = unit.childUnits.length;
     const mid = (childCount - 1) / 2;
+    const childrenRowClass =
+      childCount === 1 ? "tree-children tree-children--single" : "tree-children";
     const childrenHtml = childCount
       ? `
         <div class="tree-children-wrap">
           <div class="tree-children-line"></div>
-          <div class="tree-children">
+          <div class="${childrenRowClass}">
             ${unit.childUnits.map((childUnit, idx) => {
               const hint = idx < mid ? "left" : (idx > mid ? "right" : "center");
               return renderUnit(childUnit, hint);

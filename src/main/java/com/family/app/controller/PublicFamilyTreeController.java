@@ -22,7 +22,7 @@ public class PublicFamilyTreeController {
             @RequestParam(required = false) String familyId) {
         try {
             return ResponseEntity.ok(memberService.getFamilyTreeDataForPublic(familyId));
-        } catch (IllegalStateException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();

@@ -98,6 +98,13 @@ public class PublicMemberProfileService {
                 parents.add(p);
             }
         }
+        if (parents.isEmpty()) {
+            userRepository.findById(userId).ifPresent(self -> {
+                if (self.getParentId() != null && !self.getParentId().isBlank()) {
+                    userRepository.findById(self.getParentId().trim()).ifPresent(parents::add);
+                }
+            });
+        }
         return parents;
     }
 
@@ -108,6 +115,12 @@ public class PublicMemberProfileService {
             User child = materializeUser(relation.getPerson2());
             if (child != null) {
                 unique.put(child.getUserId(), child);
+            }
+        }
+        for (User c : userRepository.findByParentId(userId)) {
+            User child = materializeUser(c);
+            if (child != null) {
+                unique.putIfAbsent(child.getUserId(), child);
             }
         }
         return unique.values().stream()
