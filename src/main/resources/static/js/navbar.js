@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
+  const topNav = document.getElementById('topNav');
   const token = localStorage.getItem('token');
   const fullName = localStorage.getItem('full_name');
   const currentPath = window.location.pathname;
@@ -78,6 +79,9 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   setActiveNavLink();
+
+  // Reveal nav after initialization to avoid flash
+  if (topNav) topNav.style.display = '';
 
   // If logged in
   if (token && fullName) {
