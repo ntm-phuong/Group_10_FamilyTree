@@ -20,5 +20,12 @@ public interface FamilyRepository extends JpaRepository<Family, String> {
     List<Family> findByParentFamily_FamilyId(String parentFamilyId);
 
     long countByParentFamily_FamilyId(String parentFamilyId);
+
+    /**
+     * Trả về danh sách id của family gồm family gốc và tất cả các chi/nhánh con (đệ quy).
+     * Sử dụng Recursive CTE (yêu cầu DB hỗ trợ CTE, ví dụ MySQL8+, PostgreSQL).
+     */
+    @Query(value = "WITH RECURSIVE descendants AS (SELECT family_id FROM families WHERE family_id = :rootId UNION ALL SELECT f.family_id FROM families f JOIN descendants d ON f.parent_family_id = d.family_id) SELECT family_id FROM descendants", nativeQuery = true)
+    List<String> findDescendantFamilyIds(@Param("rootId") String rootId);
 }
 

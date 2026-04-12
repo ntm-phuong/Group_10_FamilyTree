@@ -116,6 +116,17 @@ public interface NewsEventRepository extends JpaRepository<NewsEvent, String> {
     @Query("SELECT n FROM NewsEvent n WHERE n.family.familyId = :familyId AND (n.visibility IS NULL OR n.visibility <> com.family.app.model.NewsVisibility.DRAFT) ORDER BY n.createdAt DESC")
     List<NewsEvent> findTop4ByFamily_FamilyIdOrderByCreatedAtDesc(@Param("familyId") String familyId);
 
+    // --- Phiên bản hỗ trợ nhiều chi (familyIds) ---
+    /** Chỉ lấy các tin công khai (PUBLIC_SITE) trong các familyIds */
+    @Query("SELECT n FROM NewsEvent n WHERE n.family.familyId IN :familyIds AND n.category.categoryId = :categoryId AND n.startAt > :now AND n.visibility = com.family.app.model.NewsVisibility.PUBLIC_SITE ORDER BY n.startAt ASC")
+    List<NewsEvent> findUpcomingEventsByFamilyIdsAndCategory(@Param("familyIds") Collection<String> familyIds,
+                                                               @Param("categoryId") String categoryId,
+                                                               @Param("now") LocalDateTime now);
+
+    /** Chỉ lấy các tin công khai (PUBLIC_SITE) trong các familyIds */
+    @Query("SELECT n FROM NewsEvent n WHERE n.family.familyId IN :familyIds AND n.visibility = com.family.app.model.NewsVisibility.PUBLIC_SITE ORDER BY n.createdAt DESC")
+    List<NewsEvent> findLatestNewsByFamilyIds(@Param("familyIds") Collection<String> familyIds);
+
     long countByFamily_FamilyId(String familyId);
 
     /** Tin theo nhiều chi (dashboard / thống kê phạm vi cây). */
