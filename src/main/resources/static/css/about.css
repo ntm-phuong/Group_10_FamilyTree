@@ -1,46 +1,46 @@
-/* Variables */
+/* =========================================
+   ABOUT.CSS - ANCESTRAL GROVE SYNC
+   ========================================= */
+
+/* Variables kế thừa từ hệ thống màu Home */
 :root {
-    --primary-green: #2d6a4f;
-    --light-green: #d8f3dc;
-    --bg-body: #f8f9fa;
-    --transition-speed: 0.3s;
+    --primary: #154212;
+    --primary-container: #2d5a27;
+    --primary-fixed: #bcf0ae;
+    --secondary: #496800;
+    --surface: #fafaf5;
+    --surface-low: #f4f4ef;
+    --on-surface-variant: #42493e;
+    --outline-variant: rgba(194, 201, 187, 0.3);
+    --transition-smooth: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-body {
-    background-color: var(--bg-body);
-    font-family: 'Segoe UI', Tahoma, sans-serif;
-}
-
-/* Banner Section */
-.about-banner {
-    background: linear-gradient(rgba(45, 106, 79, 0.8), rgba(45, 106, 79, 0.8)),
-                url('https://images.unsplash.com/photo-1599940824399-b87987cb5733?auto=format&fit=crop&q=80&w=1600') center/cover;
-    color: white;
-    padding: 100px 0;
-    text-align: center;
-    margin-bottom: 50px;
-}
-
-/* Content Card */
+/* Card nội dung chính */
 .history-card {
-    background: white;
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    margin-bottom: 40px;
-    transition: transform var(--transition-speed);
+    background: #ffffff;
+    border-radius: 1.5rem; /* Bo góc xl đồng bộ home */
+    padding: 2.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+    border: 1px solid var(--outline-variant);
+    margin-bottom: 2rem;
+    transition: var(--transition-smooth);
 }
 
 .history-card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(21, 66, 18, 0.08);
+    border-color: var(--primary-fixed);
 }
 
+/* Tiêu đề mục */
 .section-title {
-    color: var(--primary-green);
+    font-family: 'Noto Serif', serif;
+    color: var(--primary);
+    font-size: 1.875rem; /* text-3xl */
     font-weight: 700;
     position: relative;
-    padding-bottom: 15px;
-    margin-bottom: 30px;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
 }
 
 .section-title::after {
@@ -48,49 +48,117 @@ body {
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 60px;
+    width: 50px;
     height: 4px;
-    background: var(--primary-green);
+    background: var(--secondary); /* Màu nhấn từ home */
     border-radius: 2px;
 }
 
-/* Timeline Style */
+/* Timeline - Dòng thời gian lịch sử */
 .timeline {
-    border-left: 3px solid var(--light-green);
-    padding-left: 30px;
+    border-left: 2px solid var(--primary-fixed);
+    padding-left: 2.5rem;
     position: relative;
+    margin-top: 1.5rem;
 }
 
 .timeline-item {
     position: relative;
-    margin-bottom: 40px;
-    opacity: 0; /* Cho hiệu ứng scroll */
-    transform: translateX(-20px);
-    transition: all 0.6s ease-out;
+    margin-bottom: 3rem;
 }
 
-.timeline-item.show {
-    opacity: 1;
-    transform: translateX(0);
+.timeline-item:last-child {
+    margin-bottom: 0;
 }
 
+/* Nút chấm trên timeline */
 .timeline-item::before {
     content: '';
     position: absolute;
-    left: -39px;
-    top: 0;
-    width: 15px;
-    height: 15px;
-    background: var(--primary-green);
+    left: calc(-2.5rem - 9px); /* Căn giữa hoàn hảo trên border-left */
+    top: 0.5rem;
+    width: 16px;
+    height: 16px;
+    background: #ffffff;
+    border: 4px solid var(--primary);
     border-radius: 50%;
-    border: 3px solid white;
+    z-index: 2;
+    transition: var(--transition-smooth);
+}
+
+.timeline-item:hover::before {
+    background: var(--primary-fixed);
+    transform: scale(1.2);
 }
 
 .timeline-year {
+    display: block;
+    font-family: 'Noto Serif', serif;
     font-weight: 800;
-    color: var(--primary-green);
-    font-size: 1.2rem;
+    color: var(--primary);
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
 }
 
-/* Custom Utilities */
-.italic { font-style: italic; }
+/* Hiệu ứng Reveal on Scroll (Đồng bộ với JS trong HTML) */
+.reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: var(--transition-smooth);
+}
+
+.reveal-on-scroll.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Responsive tinh chỉnh */
+@media (max-width: 768px) {
+    .history-card {
+        padding: 1.5rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+    }
+
+    .timeline {
+        padding-left: 1.5rem;
+    }
+
+    .timeline-item::before {
+        left: calc(-1.5rem - 9px);
+    }
+}
+
+/* Utility cho text serif nghiêng giống Home */
+.italic-serif {
+    font-family: 'Noto Serif', serif;
+    font-style: italic;
+    color: var(--primary-container);
+}
+
+/* Đảm bảo đồng bộ với trang Profile */
+.avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    font-weight: bold;
+    color: white;
+    background-color: #e5e7eb; /* Màu mặc định */
+}
+
+.avatar-xl {
+    width: 7rem;  /* 112px */
+    height: 7rem;
+    font-size: 2rem;
+}
+
+.avatar-male {
+    background-color: #2d5a27; /* Màu xanh đậm cho Nam */
+}
+
+.avatar-female {
+    background-color: #a855f7; /* Hoặc màu bạn quy định cho Nữ */
+}
