@@ -68,8 +68,28 @@ public abstract class NewsService {
     }
 
     @Transactional(readOnly = true)
+    public List<NewsResponse> getUpcomingEventsForFamilies(java.util.Collection<String> familyIds, String categoryId) {
+        if (familyIds == null || familyIds.isEmpty()) return java.util.Collections.emptyList();
+        return newsRepository.findUpcomingEventsByFamilyIdsAndCategory(familyIds, categoryId, LocalDateTime.now())
+                .stream()
+                .limit(4)
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<NewsResponse> getLatestNewsForHome(String familyId) {
         return newsRepository.findTop4ByFamily_FamilyIdOrderByCreatedAtDesc(familyId)
+                .stream()
+                .limit(4)
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<NewsResponse> getLatestNewsForFamilies(java.util.Collection<String> familyIds) {
+        if (familyIds == null || familyIds.isEmpty()) return java.util.Collections.emptyList();
+        return newsRepository.findLatestNewsByFamilyIds(familyIds)
                 .stream()
                 .limit(4)
                 .map(this::convertToDTO)
