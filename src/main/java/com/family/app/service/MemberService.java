@@ -223,6 +223,12 @@ public class MemberService {
             return twoSpousesLine;
         }
 
+        String bloodToSpouseOfDescendant = patrilineOrMatrilineBloodToSpouseOfDescendantKinship(
+                aId, bId, userById, parentsByChild, fatherByChild, motherByChild, spousesByMember);
+        if (bloodToSpouseOfDescendant != null) {
+            return bloodToSpouseOfDescendant;
+        }
+
         String directInLaw = directInLawLabel(aId, bId, userById, parentsByChild, spousesByMember);
         if (directInLaw != null) {
             return directInLaw;
@@ -706,6 +712,22 @@ public class MemberService {
                 }
             }
         }
+        if (out.isEmpty()
+                && "MALE".equalsIgnoreCase(upper(ua.getGender()))
+                && "FEMALE".equalsIgnoreCase(upper(ub.getGender()))) {
+            String hB = maleSpouseId(bId, spousesByMember, userById);
+            if (hB != null && collectAncestorDistance(hB, parentsByChild, 12).containsKey(aId)) {
+                appendBloodlineBridgeNames(out, aId, hB, userById, parentsByChild, "nhánh máu — dâu (ông & cháu dâu)");
+            }
+        }
+        if (out.isEmpty()
+                && "FEMALE".equalsIgnoreCase(upper(ua.getGender()))
+                && "MALE".equalsIgnoreCase(upper(ub.getGender()))) {
+            String hA = maleSpouseId(aId, spousesByMember, userById);
+            if (hA != null && collectAncestorDistance(hA, parentsByChild, 12).containsKey(bId)) {
+                appendBloodlineBridgeNames(out, bId, hA, userById, parentsByChild, "nhánh máu — dâu (ông & cháu dâu)");
+            }
+        }
         return out;
     }
 
@@ -896,6 +918,72 @@ public class MemberService {
                 if (dViewerUpToOtherWife != null && dViewerUpToOtherWife >= 1) {
                     String side = lineageSide(wOther, wViewer, fatherByChild, motherByChild);
                     return husbandOfElderMatrilineToYoungerHusbandReverse(other, viewer, dViewerUpToOtherWife, side);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Chồng/ông trên dòng máu nam ↔ vợ của hậu duệ (dâu): cùng nhãn với khi so vợ–dâu (cháu dâu, chắt dâu…).
+     * Đối xứng: bà/mẹ dòng máu nữ ↔ chồng của hậu duệ nữ (cháu rể…).
+     */
+    private String patrilineOrMatrilineBloodToSpouseOfDescendantKinship(
+            String viewerId,
+            String otherId,
+            Map<String, User> userById,
+            Map<String, Set<String>> parentsByChild,
+            Map<String, String> fatherByChild,
+            Map<String, String> motherByChild,
+            Map<String, Set<String>> spousesByMember
+    ) {
+        User viewer = userById.get(viewerId);
+        User other = userById.get(otherId);
+        if (viewer == null || other == null) {
+            return null;
+        }
+
+        if ("MALE".equalsIgnoreCase(upper(viewer.getGender()))
+                && "FEMALE".equalsIgnoreCase(upper(other.getGender()))) {
+            String hOther = maleSpouseId(otherId, spousesByMember, userById);
+            if (hOther != null && !hOther.equals(viewerId)) {
+                Integer d = collectAncestorDistance(hOther, parentsByChild, 24).get(viewerId);
+                if (d != null && d >= 1) {
+                    return wifeOfElderPatrilineToYoungerWifeForward(d);
+                }
+            }
+            String wViewer = femaleSpouseId(viewerId, spousesByMember, userById);
+            if (wViewer != null && !wViewer.equals(otherId)) {
+                Integer dMatRev = collectAncestorDistance(wViewer, parentsByChild, 24).get(otherId);
+                if (dMatRev != null && dMatRev >= 1) {
+                    if (dMatRev == 1) {
+                        return "Mẹ vợ";
+                    }
+                    String side = lineageSide(otherId, wViewer, fatherByChild, motherByChild);
+                    return ancestorLabelAffine(other, viewer, dMatRev, side);
+                }
+            }
+        }
+
+        if ("FEMALE".equalsIgnoreCase(upper(viewer.getGender()))
+                && "MALE".equalsIgnoreCase(upper(other.getGender()))) {
+            String hViewer = maleSpouseId(viewerId, spousesByMember, userById);
+            if (hViewer != null && !hViewer.equals(otherId)) {
+                Integer dPat = collectAncestorDistance(hViewer, parentsByChild, 24).get(otherId);
+                if (dPat != null && dPat >= 1) {
+                    if (dPat == 1) {
+                        return "Cha chồng";
+                    }
+                    String side = lineageSide(otherId, hViewer, fatherByChild, motherByChild);
+                    return ancestorLabelAffine(other, viewer, dPat, side);
+                }
+            }
+            String wOther = femaleSpouseId(otherId, spousesByMember, userById);
+            if (wOther != null && !wOther.equals(viewerId)) {
+                Integer dMat = collectAncestorDistance(wOther, parentsByChild, 24).get(viewerId);
+                if (dMat != null && dMat >= 1) {
+                    return husbandOfElderMatrilineToYoungerHusbandForward(dMat);
                 }
             }
         }
