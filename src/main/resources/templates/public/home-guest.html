@@ -1,11 +1,14 @@
 <!DOCTYPE html>
-
-<html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org"><head>
+<html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -87,14 +90,49 @@
         .bamboo-mask {
             mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
         }
+        /* Loader cho nút submit */
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+            pointer-events: none;
+        }
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 1.25rem;
+            height: 1.25rem;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid white;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+        /* CSS cho vòng tròn đỏ khi nhập sai định dạng */
+        .input-error {
+            border-color: #ba1a1a !important;
+            box-shadow: 0 1px 0 0 #ba1a1a !important;
+            color: #ba1a1a !important;
+        }
+        .checkbox-error {
+            border-color: #ba1a1a !important;
+            box-shadow: 0 0 0 1px #ba1a1a !important;
+        }
+        .input-error::placeholder {
+            color: #ffdad6 !important;
+        }
     </style>
 </head>
 <body class="bg-surface text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed">
 <th:block th:replace="~{fragments/navbar :: navbar}"/>
+
 <main>
     <section class="relative min-h-[75vh] flex items-center pt-16 overflow-hidden">
         <div class="absolute inset-0 z-0">
-            <img class="w-full h-full object-cover opacity-90 grayscale-[20%]" data-alt="Bamboo forest by water at sunrise, symbolizing family roots and generational legacy" src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1200&q=80"/>
+            <img class="w-full h-full object-cover opacity-90 grayscale-[20%]" alt="Bamboo forest background" th:src="@{/images/bamboo-bg.png}"/>
             <div class="absolute inset-0 bg-gradient-to-r from-surface/90 via-surface/60 to-transparent"></div>
         </div>
         <div class="relative z-10 max-w-6xl mx-auto px-6 w-full">
@@ -118,6 +156,7 @@
             </div>
         </div>
     </section>
+
     <section class="py-8 bg-surface border-y border-outline-variant/30">
         <div class="max-w-6xl mx-auto px-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
@@ -136,6 +175,7 @@
             </div>
         </div>
     </section>
+
     <section class="py-20 bg-surface-container-low" id="about">
         <div class="max-w-6xl mx-auto px-6">
             <div class="grid md:grid-cols-2 gap-12 items-center">
@@ -165,6 +205,7 @@
             </div>
         </div>
     </section>
+
     <section class="py-20 bg-surface" id="features">
         <div class="max-w-6xl mx-auto px-6">
             <div class="text-center mb-12">
@@ -211,6 +252,7 @@
             </div>
         </div>
     </section>
+
     <section class="py-20 bg-surface-container-lowest" id="register">
         <div class="max-w-6xl mx-auto px-6">
             <div class="bg-primary rounded-2xl overflow-hidden shadow-xl relative">
@@ -278,47 +320,49 @@
                     <span class="material-symbols-outlined text-xl">close</span>
                 </button>
             </div>
-            <form class="space-y-5">
+
+            <form id="registerFamilyForm" class="space-y-5" novalidate>
                 <div class="space-y-4">
                     <div class="space-y-1">
                         <label class="block text-xs font-bold text-on-surface-variant font-label uppercase tracking-wider">Họ và tên</label>
-                        <input class="w-full bg-transparent border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 px-0 py-2 text-base placeholder:text-outline-variant/50 transition-all" placeholder="Nguyễn Văn A" type="text"/>
+                        <input id="regFullName" class="w-full bg-transparent border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 px-0 py-2 text-base placeholder:text-outline-variant/50 transition-all" placeholder="Nguyễn Văn A" type="text" required/>
                     </div>
                     <div class="space-y-1">
                         <label class="block text-xs font-bold text-on-surface-variant font-label uppercase tracking-wider">Email</label>
-                        <input class="w-full bg-transparent border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 px-0 py-2 text-base placeholder:text-outline-variant/50 transition-all" placeholder="example@familycare.vn" type="email"/>
+                        <input id="regEmail" class="w-full bg-transparent border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 px-0 py-2 text-base placeholder:text-outline-variant/50 transition-all" placeholder="example@familycare.vn" type="email" required/>
                     </div>
                 </div>
                 <div class="p-4 md:p-5 bg-surface-container-low rounded-2xl border border-outline-variant/10">
                     <div class="space-y-1">
                         <label class="block text-xs font-bold text-primary font-label uppercase tracking-wider">Tên dòng họ</label>
-                        <input class="w-full bg-transparent border-0 border-b-2 border-primary/20 focus:border-primary focus:ring-0 px-0 py-2 text-lg font-serif font-bold text-primary placeholder:text-primary/30 transition-all" placeholder="Dòng họ Nguyễn" type="text"/>
+                        <input id="regFamilyName" class="w-full bg-transparent border-0 border-b-2 border-primary/20 focus:border-primary focus:ring-0 px-0 py-2 text-lg font-serif font-bold text-primary placeholder:text-primary/30 transition-all" placeholder="Dòng họ Nguyễn" type="text" required/>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div class="space-y-1">
                         <label class="block text-xs font-bold text-on-surface-variant font-label uppercase tracking-wider">Mật khẩu</label>
-                        <input class="w-full bg-transparent border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 px-0 py-2 text-base transition-all" placeholder="••••••••" type="password"/>
+                        <input id="regPassword" class="w-full bg-transparent border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 px-0 py-2 text-base transition-all" placeholder="••••••••" type="password" required/>
+                        <p class="text-[10px] text-outline mt-1 leading-tight">Từ 6 ký tự, gồm chữ hoa, chữ thường, số, ký tự đặc biệt.</p>
                     </div>
                     <div class="space-y-1">
-                        <label class="block text-xs font-bold text-on-surface-variant font-label uppercase tracking-wider">Xác nhận</label>
-                        <input class="w-full bg-transparent border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 px-0 py-2 text-base transition-all" placeholder="••••••••" type="password"/>
+                        <label class="block text-xs font-bold text-on-surface-variant font-label uppercase tracking-wider">Xác nhận mật khẩu</label>
+                        <input id="regConfirmPassword" class="w-full bg-transparent border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 px-0 py-2 text-base transition-all" placeholder="••••••••" type="password" required/>
                     </div>
                 </div>
                 <div class="flex items-start gap-3 pt-1">
-                    <input class="mt-1 rounded border-outline-variant/40 text-primary focus:ring-primary h-4 w-4 transition-all cursor-pointer" id="terms" type="checkbox"/>
-                    <label class="text-xs text-on-surface-variant leading-relaxed cursor-pointer" for="terms">
+                    <input id="regTerms" class="mt-1 rounded border-outline-variant/40 text-primary focus:ring-primary h-4 w-4 transition-all cursor-pointer" type="checkbox" required/>
+                    <label class="text-xs text-on-surface-variant leading-relaxed cursor-pointer" for="regTerms">
                         Tôi đồng ý với <a class="text-primary font-bold hover:underline" href="#">Điều khoản sử dụng</a> và <a class="text-primary font-bold hover:underline" href="#">Chính sách bảo mật</a>
                     </label>
                 </div>
                 <div class="pt-1">
-                    <button class="w-full bg-gradient-to-r from-primary to-primary-container text-white py-3.5 rounded-xl font-bold text-base shadow-lg shadow-primary/20 hover:shadow-xl hover:translate-y-[-2px] transition-all duration-300" type="submit">
+                    <button id="btnSubmitRegister" class="w-full bg-gradient-to-r from-primary to-primary-container text-white py-3.5 rounded-xl font-bold text-base shadow-lg shadow-primary/20 hover:shadow-xl hover:translate-y-[-2px] transition-all duration-300" type="submit">
                         Đăng ký ngay
                     </button>
                 </div>
                 <div class="text-center">
                     <p class="text-sm text-on-surface-variant">
-                        Đã có tài khoản? <a class="text-primary font-bold hover:underline decoration-2 underline-offset-4 cursor-pointer" onclick="openLoginModal()">Đăng nhập</a>
+                        Đã có tài khoản? <a class="text-primary font-bold hover:underline decoration-2 underline-offset-4 cursor-pointer" onclick="closeCreateFamilyModal(); openLoginModal();">Đăng nhập</a>
                     </p>
                 </div>
             </form>
@@ -326,102 +370,296 @@
     </div>
 </div>
 
+<div id="verifyEmailModal" class="hidden fixed inset-0 z-[70] bg-on-surface/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-surface w-full max-w-sm rounded-2xl shadow-2xl p-8 relative">
+        <button onclick="closeVerifyEmailModal()" class="absolute top-4 right-4 text-on-surface-variant hover:text-error transition-colors">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-primary-container/20 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="material-symbols-outlined text-3xl">mark_email_read</span>
+            </div>
+            <h3 class="text-2xl font-serif font-bold text-primary mb-2">Xác Thực Email</h3>
+            <p class="text-sm text-on-surface-variant">
+                Vui lòng nhập mã OTP 6 số vừa được gửi đến email <br/>
+                <strong id="verifyEmailDisplay" class="text-primary"></strong>
+            </p>
+        </div>
+        <form id="verifyEmailForm" class="space-y-6" novalidate>
+            <input type="hidden" id="verifyHiddenEmail">
+            <div>
+                <input id="verifyOtpCode" class="w-full text-center tracking-[0.5em] text-2xl font-bold bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 focus:border-primary focus:ring-1 focus:ring-primary transition-all" type="text" maxlength="6" placeholder="------" required autocomplete="off"/>
+            </div>
+            <button id="btnSubmitVerify" type="submit" class="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-primary-container transition-colors shadow-md">
+                Xác Nhận & Kích Hoạt
+            </button>
+        </form>
+    </div>
+</div>
+
 <th:block th:replace="~{fragments/footer :: footer}"/>
 
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
 <script>
+    // ==========================================
+    // LOGIC ĐIỀU HƯỚNG MẶC ĐỊNH
+    // ==========================================
     document.addEventListener('DOMContentLoaded', function() {
-        // Đợi 150ms để đảm bảo navbar.js đã load xong và kiểm tra trạng thái login
         setTimeout(function() {
             const path = window.location.pathname;
-            // Kiểm tra trạng thái đăng nhập (Thông qua localStorage hoặc class của nút Đăng nhập)
             const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
             const isLogged = token !== null || !document.getElementById('navLoginBtn').offsetParent;
 
             if (path === '/' && !isLogged) {
-                // 1. NẾU CHƯA ĐĂNG NHẬP: Bật Guest Links, Ẩn Standard Links
                 document.querySelectorAll('.guest-link').forEach(l => l.classList.remove('hidden'));
                 document.querySelectorAll('.standard-link').forEach(l => l.classList.add('hidden'));
 
-                // 2. Kích hoạt hiệu ứng cuộn mượt (Smooth Scroll)
                 document.querySelectorAll('.guest-link').forEach(anchor => {
                     anchor.addEventListener('click', function (e) {
                         e.preventDefault();
                         const targetId = this.getAttribute('href');
-
-                        // Đóng menu mobile nếu đang mở
                         const mobileMenu = document.getElementById('navMobileMenu');
-                        if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
-                            mobileMenu.classList.add('hidden');
-                        }
+                        if (mobileMenu && !mobileMenu.classList.contains('hidden')) { mobileMenu.classList.add('hidden'); }
 
-                        if (targetId === '#') {
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                        } else {
+                        if (targetId === '#') { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+                        else {
                             const targetSection = document.querySelector(targetId);
                             if (targetSection) {
-                                // Trừ đi 64px chiều cao của thanh Navbar để không bị che mất tiêu đề
                                 const offsetPosition = targetSection.getBoundingClientRect().top + window.scrollY - 64;
                                 window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
                             }
                         }
                     });
                 });
-
-                // 3. Highlight Navbar khi cuộn (Scrollspy)
-                window.addEventListener('scroll', function() {
-                    const scrollPosition = window.scrollY + 80; // Trừ hao khoảng cách từ trên xuống
-
-                    const sections = [
-                        { id: 'home', element: document.querySelector('section.relative.min-h-\\[75vh\\]') },
-                        { id: 'about', element: document.getElementById('about') },
-                        { id: 'features', element: document.getElementById('features') },
-                        { id: 'register', element: document.getElementById('register') }
-                    ];
-
-                    let currentSection = 'home';
-                    sections.forEach(sec => {
-                        if (sec.element && scrollPosition >= sec.element.offsetTop) {
-                            currentSection = sec.id;
-                        }
-                    });
-
-                    // Cập nhật gạch chân (active class)
-                    document.querySelectorAll('.guest-link').forEach(link => {
-                        link.classList.remove('active');
-                        if (link.getAttribute('data-scroll') === currentSection) {
-                            link.classList.add('active');
-                        }
-                    });
-                });
-
-                // Chạy sự kiện cuộn một lần lúc mới load trang để highlight đúng vị trí hiện tại
-                window.dispatchEvent(new Event('scroll'));
             }
 
-            // Logic mở Modal Đăng nhập qua URL
             const params = new URLSearchParams(window.location.search);
             if (params.get('login') === 'true') {
                 openLoginModal();
                 window.history.replaceState({}, document.title, '/');
             }
-
         }, 150);
     });
 
-    // Các hàm xử lý Modal giữ nguyên
+    // ==========================================
+    // CÁC HÀM UI MODAL VÀ TOAST
+    // ==========================================
     function openCreateFamilyModal() {
         document.getElementById('createFamilyModal').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
+
     function closeCreateFamilyModal() {
         document.getElementById('createFamilyModal').classList.add('hidden');
         document.body.style.overflow = 'auto';
     }
-    document.getElementById('createFamilyModal').addEventListener('click', function(e) {
-        if (e.target === this) closeCreateFamilyModal();
+
+    function openVerifyEmailModal(email) {
+        document.getElementById('verifyHiddenEmail').value = email;
+        document.getElementById('verifyEmailDisplay').innerText = email;
+        document.getElementById('verifyOtpCode').value = '';
+        document.getElementById('verifyEmailModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeVerifyEmailModal() {
+        document.getElementById('verifyEmailModal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
+    function showToast(message, isError = false) {
+        Toastify({
+            text: message,
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            style: {
+                background: isError ? "#ba1a1a" : "#154212",
+                color: "#ffffff",
+                borderRadius: "8px",
+                fontWeight: "600",
+                fontFamily: "Manrope, sans-serif"
+            }
+        }).showToast();
+    }
+
+    // ==========================================
+    // 1. XỬ LÝ VALIDATION THỜI GIAN THỰC
+    // ==========================================
+    // Biểu thức chính quy
+    const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Chữ hoa, chữ thường, số, ký tự đặc biệt, ít nhất 6 ký tự
+    const regexPwd = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
+
+    function toggleError(el, isValid) {
+        if (!isValid) {
+            el.classList.add('input-error');
+        } else {
+            el.classList.remove('input-error');
+        }
+        return isValid;
+    }
+
+    function checkFullName() { return toggleError(document.getElementById('regFullName'), document.getElementById('regFullName').value.trim().length >= 2); }
+    function checkEmail() { return toggleError(document.getElementById('regEmail'), regexEmail.test(document.getElementById('regEmail').value.trim())); }
+    function checkFamilyName() { return toggleError(document.getElementById('regFamilyName'), document.getElementById('regFamilyName').value.trim().length >= 2); }
+    function checkPwd() {
+        const pwd = document.getElementById('regPassword');
+        const isValid = regexPwd.test(pwd.value);
+        toggleError(pwd, isValid);
+        checkConfirmPwd(); // Cập nhật lại ô confirm mỗi khi pwd gốc thay đổi
+        return isValid;
+    }
+    function checkConfirmPwd() {
+        const pwdVal = document.getElementById('regPassword').value;
+        const confirmEl = document.getElementById('regConfirmPassword');
+        return toggleError(confirmEl, confirmEl.value === pwdVal && confirmEl.value.length > 0);
+    }
+    function checkTerms() {
+        const terms = document.getElementById('regTerms');
+        if(!terms.checked) {
+            terms.classList.add('checkbox-error');
+            return false;
+        } else {
+            terms.classList.remove('checkbox-error');
+            return true;
+        }
+    }
+
+    // Gắn sự kiện lắng nghe khi người dùng gõ phím
+    document.getElementById('regFullName').addEventListener('input', checkFullName);
+    document.getElementById('regEmail').addEventListener('input', checkEmail);
+    document.getElementById('regFamilyName').addEventListener('input', checkFamilyName);
+    document.getElementById('regPassword').addEventListener('input', checkPwd);
+    document.getElementById('regConfirmPassword').addEventListener('input', checkConfirmPwd);
+    document.getElementById('regTerms').addEventListener('change', checkTerms);
+
+    // ==========================================
+    // 2. XỬ LÝ SUBMIT FORM ĐĂNG KÝ
+    // ==========================================
+    document.getElementById('registerFamilyForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Chạy kiểm tra toàn bộ 1 lượt khi bấm nút (Trường hợp user chưa gõ gì mà bấm submit luôn)
+        const isNameValid = checkFullName();
+        const isEmailValid = checkEmail();
+        const isFamilyValid = checkFamilyName();
+        const isPwdValid = checkPwd();
+        const isConfirmValid = checkConfirmPwd();
+        const isTermsValid = checkTerms();
+
+        // Nếu có 1 trường sai -> Chặn không cho gọi API
+        if (!isNameValid || !isEmailValid || !isFamilyValid || !isPwdValid || !isConfirmValid || !isTermsValid) {
+            if (!isPwdValid) {
+                showToast("Mật khẩu phải từ 6 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt!", true);
+            } else if (!isConfirmValid) {
+                showToast("Mật khẩu xác nhận không khớp!", true);
+            } else if (!isTermsValid) {
+                showToast("Vui lòng đồng ý với Điều khoản sử dụng!", true);
+            } else {
+                showToast("Vui lòng điền đúng định dạng các trường báo đỏ!", true);
+            }
+            return;
+        }
+
+        const btnSubmit = document.getElementById('btnSubmitRegister');
+        btnSubmit.classList.add('btn-loading');
+
+        const requestData = {
+            fullName: document.getElementById('regFullName').value.trim(),
+            email: document.getElementById('regEmail').value.trim(),
+            familyName: document.getElementById('regFamilyName').value.trim(),
+            password: document.getElementById('regPassword').value
+        };
+
+        fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestData)
+        })
+            .then(async response => {
+                btnSubmit.classList.remove('btn-loading');
+                if (response.ok) {
+                    const data = await response.json();
+                    showToast(data.message);
+                    closeCreateFamilyModal();
+                    openVerifyEmailModal(requestData.email);
+                } else {
+                    const errText = await response.text();
+                    showToast(errText || "Lỗi đăng ký!", true);
+                }
+            })
+            .catch(err => {
+                btnSubmit.classList.remove('btn-loading');
+                console.error(err);
+                showToast("Không thể kết nối đến máy chủ", true);
+            });
     });
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') closeCreateFamilyModal();
+
+    // ==========================================
+    // 3. XỬ LÝ SUBMIT FORM XÁC THỰC OTP
+    // ==========================================
+    document.getElementById('verifyEmailForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const otpCode = document.getElementById('verifyOtpCode');
+        const otpVal = otpCode.value.trim();
+
+        // Kiểm tra OTP phải đúng 6 số
+        const regexOtp = /^\d{6}$/;
+        if (!regexOtp.test(otpVal)) {
+            otpCode.classList.add('input-error');
+            showToast("Mã OTP phải gồm 6 chữ số!", true);
+            return;
+        } else {
+            otpCode.classList.remove('input-error');
+        }
+
+        const btnVerify = document.getElementById('btnSubmitVerify');
+        btnVerify.classList.add('btn-loading');
+
+        const requestData = {
+            email: document.getElementById('verifyHiddenEmail').value,
+            otp: otpVal
+        };
+
+        fetch('/api/auth/verify-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestData)
+        })
+            .then(async response => {
+                btnVerify.classList.remove('btn-loading');
+                if (response.ok) {
+                    const data = await response.json();
+                    showToast(data.message);
+                    closeVerifyEmailModal();
+
+                    setTimeout(() => {
+                        if (typeof openLoginModal === 'function') {
+                            openLoginModal();
+                            const loginEmailInput = document.getElementById('loginEmail');
+                            if(loginEmailInput) loginEmailInput.value = requestData.email;
+                        }
+                    }, 500);
+
+                } else {
+                    const errText = await response.text();
+                    otpCode.classList.add('input-error');
+                    showToast(errText || "Mã OTP không hợp lệ!", true);
+                }
+            })
+            .catch(err => {
+                btnVerify.classList.remove('btn-loading');
+                console.error(err);
+                showToast("Không thể kết nối đến máy chủ", true);
+            });
+    });
+
+    // Tắt viền đỏ OTP khi người dùng bắt đầu gõ lại
+    document.getElementById('verifyOtpCode').addEventListener('input', function() {
+        this.classList.remove('input-error');
     });
 </script>
 </body>
