@@ -42,6 +42,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String userId = tokenProvider.getUserIdFromJWT(jwt);
 
                 userRepository.findByIdWithFamily(userId).ifPresent(user -> {
+                    if (isPendingActivationBlockedRequest(request, user)) {
+                        throw new PendingActivationException();
+                    }
+
                     List<GrantedAuthority> authorities = buildAuthorities(user);
 
                     UsernamePasswordAuthenticationToken authentication =
@@ -52,6 +56,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 });
             }
+        } catch (PendingActivationException ex) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"error\":\"FIRST_LOGIN_PASSWORD_SETUP_REQUIRED\"}");
+            return;
         } catch (Exception ex) {
             logger.error("Could not set user authentication in security context", ex);
         }
@@ -94,5 +103,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
         return null;
+    }
+
+    private boolean isPendingActivationBlockedRequest(HttpServletRequest request, User user) {
+        if (user == null || user.getStatus() == null || user.getStatus() != 1) {
+            return false;
+        }
+        String path = request.getRequestURI();
+        if (path == null || !path.startsWith("/api/")) {
+            return false;
+        }
+        return !(path.equals("/api/auth/me")
+                || path.startsWith("/api/auth/forgot-password/"));
+    }
+
+    private static class PendingActivationException extends RuntimeException {
     }
 }

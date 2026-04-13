@@ -115,6 +115,9 @@ public class PublicFamilyController {
         dto.setGender(head.getGender());
         dto.setBio(head.getBio());
         dto.setAvatar(head.getAvatar());
+        dto.setEmail(head.getEmail());
+        dto.setPhoneNumber(head.getPhoneNumber());
+        dto.setCurrentAddress(head.getCurrentAddress());
         dto.setGeneration(head.getGeneration());
         dto.setOccupation(head.getOccupation());
         if (head.getFamily() != null) {

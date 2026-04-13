@@ -43,6 +43,7 @@ public class AuthController {
         response.put("tokenType", "Bearer");
         response.put("userId", authData.get("userId"));
         response.put("fullName", authData.get("fullName"));
+        response.put("avatar", authData.get("avatar"));
         response.put("role", authData.get("role"));
         response.put("roles", authData.get("roles"));
         response.put("permissions", authData.get("permissions"));
@@ -133,6 +134,7 @@ public class AuthController {
             response.put("message", "Đổi mật khẩu thành công!");
             response.put("accessToken", newToken);
             response.put("fullName", user.getFullName());
+            response.put("avatar", user.getAvatar());
             response.put("userId", user.getUserId());
             response.put("familyId", user.getFamily() != null ? user.getFamily().getFamilyId() : null);
             if (user.getFamily() != null) {

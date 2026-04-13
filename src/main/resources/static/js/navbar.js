@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
   const topNav = document.getElementById('topNav');
   const token = localStorage.getItem('token');
-  const fullName = localStorage.getItem('full_name');
   const currentPath = window.location.pathname;
 
   // Elements
@@ -19,6 +18,83 @@ document.addEventListener("DOMContentLoaded", function() {
   const profileLink = document.getElementById('profileLink');
   const navToggle = document.getElementById('navToggle');
   const navMobileMenu = document.getElementById('navMobileMenu');
+
+  function getInitials(fullName) {
+    const safeName = (fullName || '').trim();
+    if (!safeName) return 'G';
+    const nameParts = safeName.split(' ').filter(Boolean);
+    if (nameParts.length >= 2) {
+      return (nameParts[nameParts.length - 2].charAt(0) + nameParts[nameParts.length - 1].charAt(0)).toUpperCase();
+    }
+    return safeName.charAt(0).toUpperCase();
+  }
+
+  function paintAvatar() {
+    if (!navAvatarInitials) return;
+    const fullName = localStorage.getItem('full_name') || '';
+    const avatarUrl = (localStorage.getItem('avatar_url') || '').trim();
+    const initials = getInitials(fullName);
+
+    if (avatarUrl) {
+      navAvatarInitials.textContent = '';
+      navAvatarInitials.style.backgroundImage = `url('${avatarUrl}')`;
+      navAvatarInitials.style.backgroundSize = 'cover';
+      navAvatarInitials.style.backgroundPosition = 'center';
+    } else {
+      navAvatarInitials.textContent = initials;
+      navAvatarInitials.style.backgroundImage = '';
+      navAvatarInitials.style.backgroundSize = '';
+      navAvatarInitials.style.backgroundPosition = '';
+    }
+  }
+
+  function renderNavbarUserInfo() {
+    const freshToken = localStorage.getItem('token') || localStorage.getItem('accessToken');
+    const fullName = (localStorage.getItem('full_name') || '').trim();
+    if (!freshToken || !fullName) return;
+
+    if (navFullName) navFullName.innerText = fullName;
+    paintAvatar();
+
+    if (profileLink) {
+      const userId = localStorage.getItem('user_id');
+      profileLink.href = (freshToken && userId) ? `/member/${userId}` : '/profile';
+    }
+  }
+
+  function bootstrapNavbarProfileFromApi() {
+    const freshToken = localStorage.getItem('token') || localStorage.getItem('accessToken');
+    if (!freshToken) return Promise.resolve();
+
+    const hasName = (localStorage.getItem('full_name') || '').trim().length > 0;
+    const hasAvatar = (localStorage.getItem('avatar_url') || '').trim().length > 0;
+    if (hasName && hasAvatar) return Promise.resolve();
+
+    return fetch('/api/auth/me', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + freshToken
+      }
+    })
+      .then(function(res) {
+        if (!res.ok) return null;
+        return res.json();
+      })
+      .then(function(me) {
+        if (!me) return;
+        if (typeof me.fullName === 'string' && me.fullName.trim()) {
+          localStorage.setItem('full_name', me.fullName.trim());
+        }
+        if (typeof me.avatar === 'string' && me.avatar.trim()) {
+          localStorage.setItem('avatar_url', me.avatar.trim());
+        }
+        renderNavbarUserInfo();
+      })
+      .catch(function() {
+        /* ignore */
+      });
+  }
 
   // Mobile menu toggle
   if (navToggle && navMobileMenu) {
@@ -133,7 +209,7 @@ document.addEventListener("DOMContentLoaded", function() {
   if (topNav) topNav.style.display = '';
 
   // --- LOGIC PHÂN QUYỀN (KHI ĐÃ ĐĂNG NHẬP) ---
-  if (token && fullName) {
+  if (token && (localStorage.getItem('full_name') || '').trim()) {
     if (navLogo) navLogo.href = '/home';
     if (navHome) navHome.href = '/home';
 
@@ -155,22 +231,19 @@ document.addEventListener("DOMContentLoaded", function() {
     if (navLoginBtn) navLoginBtn.classList.add('hidden');
     if (navUserDropdown) navUserDropdown.classList.remove('hidden');
 
-    if (navFullName) navFullName.innerText = fullName;
-
-    const nameParts = fullName.trim().split(' ');
-    let initials = '';
-    if (nameParts.length >= 2) {
-      initials = nameParts[nameParts.length - 2].charAt(0) + nameParts[nameParts.length - 1].charAt(0);
-    } else {
-      initials = fullName.charAt(0);
-    }
-    if (navAvatarInitials) navAvatarInitials.innerText = initials.toUpperCase();
-
-    if (profileLink) {
-      const userId = localStorage.getItem('user_id');
-      profileLink.href = (token && userId) ? `/member/${userId}` : '/profile';
-    }
+    renderNavbarUserInfo();
   }
+
+  bootstrapNavbarProfileFromApi();
+
+  window.addEventListener('profile-updated', function() {
+    renderNavbarUserInfo();
+  });
+
+  window.addEventListener('storage', function(e) {
+    if (!e || (e.key !== 'full_name' && e.key !== 'avatar_url')) return;
+    renderNavbarUserInfo();
+  });
 });
 
 function logout() {
