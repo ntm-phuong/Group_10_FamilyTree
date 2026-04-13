@@ -40,11 +40,14 @@
 .tree-children-wrap.collapsed{display:none;}
 .tree-children-line{width:2px;height:24px;background:#6B7280;}
 .tree-children{display:inline-flex;gap:2rem;position:relative;justify-content:center;align-items:flex-start;padding-top:14px;width:fit-content;max-width:fit-content;}
+/* Nối ngang giữa các nhánh con (hai con trở lên). Một con: không vẽ — tránh vạch ngang thừa sang phải. */
 .tree-children::before{content:'';position:absolute;top:0;left:64px;right:64px;height:2px;background:#6B7280;}
+.tree-children--single::before{display:none;}
 .tree-children > .tree-unit{position:relative;}
 .tree-children > .tree-unit::before{content:'';position:absolute;top:-14px;left:50%;transform:translateX(-50%);width:2px;height:14px;background:#6B7280;z-index:1;}
 .tree-children > .tree-unit:first-child::after{content:'';position:absolute;top:-14px;left:0;width:50%;height:14px;background:var(--bg-white);}
 .tree-children > .tree-unit:last-child::after{content:'';position:absolute;top:-14px;right:0;width:50%;height:14px;background:var(--bg-white);}
+.tree-children--single > .tree-unit::after{display:none;}
 
 /* Person card (Thẻ thành viên) */
 .pcard{width:128px;background:var(--blue-bg);border:1.5px solid #93C5FD;border-radius:var(--radius-lg);padding:.65rem .6rem;text-align:center;cursor:pointer;transition:all .15s;position:relative;z-index:3;}

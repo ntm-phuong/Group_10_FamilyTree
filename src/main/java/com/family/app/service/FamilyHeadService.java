@@ -42,8 +42,8 @@ public class FamilyHeadService {
     private static final Set<String> ASSIGNABLE_MEMBER_ROLE_NAMES = Set.of(
             "MEMBER", "FAMILY_NEWS_MANAGER", "FAMILY_BRANCH_MANAGER");
 
-    /** Không gán qua màn trưởng họ (quản trị hệ thống). */
-    private static final Set<String> NON_ASSIGNABLE_FAMILY_UI_ROLE_NAMES = Set.of("ADMIN");
+    /** Chỉ tài khoản có role {@code ADMIN} mới thấy và gán được (Trưởng tộc / quản trị dòng họ). */
+    private static final String CLAN_ADMIN_ROLE_NAME = "ADMIN";
 
     @Autowired
     private UserRepository userRepository;
@@ -104,10 +104,20 @@ public class FamilyHeadService {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Không thể xóa dòng họ từ tài khoản trưởng họ.");
     }
 
-    /** Vai trò có thể chọn khi thêm/sửa thành viên (theo nhánh dòng họ). */
+    /**
+     * Vai trò có thể chọn khi thêm/sửa thành viên.
+     * Option {@code ADMIN} (nhãn Trưởng tộc) chỉ có khi người gọi mang role ADMIN.
+     */
     @Transactional(readOnly = true)
-    public List<MemberRoleOptionResponse> listAssignableMemberRoles() {
+    public List<MemberRoleOptionResponse> listAssignableMemberRoles(String managerUserId) {
+        User manager = userRepository.findByIdWithFamily(managerUserId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Không tìm thấy người dùng."));
+        boolean callerIsClanAdmin = UserRoleSupport.hasRoleName(manager, CLAN_ADMIN_ROLE_NAME);
+
         Map<String, String> labels = new LinkedHashMap<>();
+        if (callerIsClanAdmin) {
+            labels.put(CLAN_ADMIN_ROLE_NAME, "Trưởng tộc (ADMIN)");
+        }
         labels.put("MEMBER", "Thành viên");
         labels.put("FAMILY_NEWS_MANAGER", "Phụ trách tin & sự kiện");
         labels.put("FAMILY_BRANCH_MANAGER", "Phụ trách chi (tin + thành viên trong nhánh)");
@@ -288,6 +298,7 @@ public class FamilyHeadService {
         applyMemberRole(user, request, null, managerUserId);
 
         User savedUser = userRepository.save(user);
+        syncParentChildEdgesForChild(savedUser);
         return mapToResponse(savedUser, buildSpousePartnerMap(managedFamilyId));
     }
 
@@ -325,7 +336,69 @@ public class FamilyHeadService {
         applyMemberRole(user, request, id, managerUserId);
 
         User updatedUser = userRepository.save(user);
+        syncParentChildEdgesForChild(updatedUser);
         return mapToResponse(updatedUser, buildSpousePartnerMap(user.getFamily().getFamilyId()));
+    }
+
+    /**
+     * Trang công khai và cây gia phả đọc cha/mẹ qua {@code Relationship} kiểu PARENT_CHILD (person1 = cha/mẹ, person2 = con).
+     * Khi lưu chỉ cập nhật {@code User.parentId} thì phải đồng bộ các cạnh này.
+     */
+    private void syncParentChildEdgesForChild(User child) {
+        String childId = child.getUserId();
+        if (childId == null) {
+            return;
+        }
+        relationshipRepository.deleteParentChildLinksToChild(childId);
+        String pid = child.getParentId();
+        if (pid == null || pid.isBlank()) {
+            return;
+        }
+        pid = pid.trim();
+        LinkedHashSet<String> parentIds = new LinkedHashSet<>();
+        parentIds.add(pid);
+        for (Relationship sr : relationshipRepository.findSpouses(pid)) {
+            String partner = spousePartnerUserId(sr, pid);
+            if (partner != null) {
+                parentIds.add(partner);
+            }
+        }
+        for (String parentUserId : parentIds) {
+            ensureParentChildRelationship(parentUserId, childId);
+        }
+    }
+
+    private static String spousePartnerUserId(Relationship spouseRel, String oneEndUserId) {
+        if (spouseRel.getPerson1() != null && oneEndUserId.equals(spouseRel.getPerson1().getUserId())) {
+            return spouseRel.getPerson2() != null ? spouseRel.getPerson2().getUserId() : null;
+        }
+        if (spouseRel.getPerson2() != null && oneEndUserId.equals(spouseRel.getPerson2().getUserId())) {
+            return spouseRel.getPerson1() != null ? spouseRel.getPerson1().getUserId() : null;
+        }
+        return null;
+    }
+
+    private void ensureParentChildRelationship(String parentUserId, String childUserId) {
+        if (parentUserId == null || childUserId == null) {
+            return;
+        }
+        if (relationshipRepository.existsByRelTypeAndPerson1_UserIdAndPerson2_UserId(
+                "PARENT_CHILD", parentUserId, childUserId)) {
+            return;
+        }
+        User p = userRepository.findById(parentUserId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Không tìm thấy cha/mẹ."));
+        User c = userRepository.findById(childUserId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy con."));
+        if (p.getFamily() == null || c.getFamily() == null
+                || !p.getFamily().getFamilyId().equals(c.getFamily().getFamilyId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cha/mẹ và con phải cùng dòng họ.");
+        }
+        Relationship r = new Relationship();
+        r.setPerson1(p);
+        r.setPerson2(c);
+        r.setRelType("PARENT_CHILD");
+        relationshipRepository.save(r);
     }
 
     /**
@@ -409,15 +482,21 @@ public class FamilyHeadService {
         }
     }
 
-    private void assertAssignableFamilyMemberRole(Role role) {
+    private void assertAssignableFamilyMemberRole(Role role, String managerUserId) {
         if (role == null || role.getRoleName() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vai trò không hợp lệ.");
         }
-        if (NON_ASSIGNABLE_FAMILY_UI_ROLE_NAMES.contains(role.getRoleName())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Vai trò hệ thống (ADMIN) không gán qua màn trưởng họ.");
+        String name = role.getRoleName();
+        if (CLAN_ADMIN_ROLE_NAME.equals(name)) {
+            User mgr = userRepository.findByIdWithFamily(managerUserId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Không tìm thấy người dùng."));
+            if (!UserRoleSupport.hasRoleName(mgr, CLAN_ADMIN_ROLE_NAME)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        "Chỉ tài khoản Trưởng tộc (ADMIN) mới được gán vai trò này.");
+            }
+            return;
         }
-        if (!ASSIGNABLE_MEMBER_ROLE_NAMES.contains(role.getRoleName())) {
+        if (!ASSIGNABLE_MEMBER_ROLE_NAMES.contains(name)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Vai trò này không được phép gán cho thành viên dòng họ.");
         }
@@ -461,17 +540,19 @@ public class FamilyHeadService {
             }
             Role newRole = roleRepository.findById(rid.trim())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Không tìm thấy vai trò."));
-            if ("ADMIN".equals(newRole.getRoleName())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                        "Role ADMIN chỉ do hệ thống cấp — không gán qua quản lý thành viên.");
-            }
-            assertAssignableFamilyMemberRole(newRole);
+            assertAssignableFamilyMemberRole(newRole, managerUserId);
             next.add(newRole);
         }
         if (next.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Chọn ít nhất một vai trò hợp lệ.");
         }
         if (editingUserId != null && editingUserId.equals(managerUserId)) {
+            boolean hadAdmin = UserRoleSupport.hasRoleName(user, CLAN_ADMIN_ROLE_NAME);
+            boolean willAdmin = next.stream().anyMatch(r -> CLAN_ADMIN_ROLE_NAME.equals(r.getRoleName()));
+            if (hadAdmin && !willAdmin) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Không thể tự gỡ vai trò Trưởng tộc (ADMIN). Nhờ tài khoản ADMIN khác thực hiện.");
+            }
             boolean had = UserRoleSupport.hasPermissionViaRoles(user, AppPermissions.MANAGE_FAMILY_MEMBERS);
             boolean will = next.stream().anyMatch(r -> roleHasPermission(r, AppPermissions.MANAGE_FAMILY_MEMBERS));
             if (had && !will) {

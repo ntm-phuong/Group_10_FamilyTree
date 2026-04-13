@@ -235,6 +235,8 @@
                     else localStorage.removeItem('my_family_id');
                     if (data.familyName) localStorage.setItem('my_family_name', data.familyName);
                     else localStorage.removeItem('my_family_name');
+                    if (data.familyRootId) localStorage.setItem('family_root_id', data.familyRootId);
+                    else localStorage.removeItem('family_root_id');
 
                     const userStatus = data.status !== null ? Number(data.status) : 0;
                     if (userStatus === 1) {
@@ -447,6 +449,8 @@
                 else localStorage.removeItem('my_family_id');
                 if (data.familyName) localStorage.setItem('my_family_name', data.familyName);
                 else localStorage.removeItem('my_family_name');
+                if (data.familyRootId) localStorage.setItem('family_root_id', data.familyRootId);
+                else localStorage.removeItem('family_root_id');
             }
 
             setTimeout(() => {

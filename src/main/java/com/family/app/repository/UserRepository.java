@@ -40,11 +40,10 @@ public interface UserRepository extends JpaRepository<User, String> {
     List<User> findByFamily_FamilyIdAndGenerationOrderByOrderInFamilyAsc(String familyId, Integer generation);
     long countByFamily_FamilyId(String familyId);
 
+    long countByFamily_FamilyIdIn(Collection<String> familyIds);
+
     // 2. Đếm Nam (Lưu ý: "Nam" phải khớp với dữ liệu bạn lưu trong DB)
     long countByFamily_FamilyIdAndGender(String familyId, String gender);
-
-    // --- Các phương thức hỗ trợ thống kê theo phạm vi nhiều chi (familyIds) ---
-    long countByFamily_FamilyIdIn(Collection<String> familyIds);
 
     long countByFamily_FamilyIdInAndGender(Collection<String> familyIds, String gender);
 
@@ -53,7 +52,7 @@ public interface UserRepository extends JpaRepository<User, String> {
     Integer findMaxGenerationByFamilyId(@Param("familyId") String familyId);
 
     @Query("SELECT MAX(u.generation) FROM User u WHERE u.family.familyId IN :familyIds")
-    Integer findMaxGenerationByFamilyIds(@Param("familyIds") Collection<String> familyIds);
+    Integer findMaxGenerationByFamilyIdIn(@Param("familyIds") Collection<String> familyIds);
 
     @Query("SELECT COUNT(DISTINCT u) FROM User u JOIN u.roles r WHERE r.roleName = :roleName")
     long countDistinctByRoleName(@Param("roleName") String roleName);
@@ -61,11 +60,16 @@ public interface UserRepository extends JpaRepository<User, String> {
     @Query("SELECT COUNT(DISTINCT u) FROM User u JOIN u.roles r WHERE r.roleName = :roleName AND u.userId <> :userId")
     long countDistinctByRoleNameExcludingUser(@Param("roleName") String roleName, @Param("userId") String userId);
 
+    /**
+     * Trưởng họ hiển thị công khai: ưu tiên {@code ADMIN} (quyền trưởng họ), sau đó {@code FAMILY_BRANCH_MANAGER}.
+     * Phạm vi {@code familyIds} = gốc + mọi chi con (caller truyền từ CTE / cây).
+     */
     @Query(value = "SELECT u.* FROM users u "
-            + "JOIN user_roles ur ON u.user_id = ur.user_id "
-            + "JOIN roles r ON ur.role_id = r.role_id "
-            + "WHERE u.family_id = :familyId AND r.role_name = 'FAMILY_BRANCH_MANAGER' "
+            + "INNER JOIN user_roles ur ON u.user_id = ur.user_id "
+            + "INNER JOIN roles r ON ur.role_id = r.role_id "
+            + "WHERE u.family_id IN (:familyIds) AND r.role_name IN ('ADMIN', 'FAMILY_BRANCH_MANAGER') "
+            + "ORDER BY CASE r.role_name WHEN 'ADMIN' THEN 0 ELSE 1 END, u.user_id "
             + "LIMIT 1",
             nativeQuery = true)
-    Optional<User> findFamilyHeadByFamilyId(@Param("familyId") String familyId);
+    Optional<User> findFamilyHeadByFamilyIds(@Param("familyIds") Collection<String> familyIds);
 }

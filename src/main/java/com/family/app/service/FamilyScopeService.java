@@ -42,12 +42,26 @@ public class FamilyScopeService {
         User u = userRepository.findByIdWithFamily(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Không tìm thấy người dùng."));
         if (UserRoleSupport.hasClanWideAdminAccess(u)) {
-            return clanProperties.getFamilyId();
+            if (u.getFamily() != null) {
+                return climbToRootFamilyId(u.getFamily().getFamilyId());
+            }
+            return configuredClanRootOrThrow();
         }
         if (u.getFamily() == null) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Tài khoản chưa gắn dòng họ — không thể quản trị.");
         }
         return u.getFamily().getFamilyId();
+    }
+
+    /**
+     * Tổ tông (bản ghi không có parent_family_id) của một chi — dùng SSR gia phả / mặc định theo user.
+     */
+    @Transactional(readOnly = true)
+    public String resolveRootFamilyId(String familyId) {
+        if (familyId == null || familyId.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Thiếu familyId.");
+        }
+        return climbToRootFamilyId(familyId.trim());
     }
 
     /**
@@ -57,10 +71,25 @@ public class FamilyScopeService {
     public Set<String> manageableFamilyIdsForMembers(String userId) {
         User u = loadUserForScope(userId);
         if (UserRoleSupport.hasClanWideAdminAccess(u)) {
-            return allFamilyIdsUnderClanRoot();
+            return clanWideManageableSubtreeIds(u);
         }
         String start = u.getFamily().getFamilyId();
         return collectDescendantsFrom(start);
+    }
+
+    /**
+     * Dashboard trưởng họ — thống kê & tin gần đây: toàn bộ chi dưới <strong>tổ tông</strong> của user.
+     * Tin trong DB thường gắn {@code family_id} ở dòng họ gốc; không dùng {@link #manageableFamilyIdsForMembers}
+     * (chỉ nhánh xuống) để tránh đếm 0 khi user thuộc chi con.
+     */
+    @Transactional(readOnly = true)
+    public Set<String> manageableFamilyIdsForHeadDashboardNews(String userId) {
+        User u = loadUserForScope(userId);
+        if (UserRoleSupport.hasClanWideAdminAccess(u)) {
+            return clanWideManageableSubtreeIds(u);
+        }
+        String root = climbToRootFamilyId(u.getFamily().getFamilyId());
+        return collectDescendantsFrom(root);
     }
 
     /**
@@ -70,7 +99,7 @@ public class FamilyScopeService {
     public Set<String> manageableFamilyIdsForNews(String userId) {
         User u = loadUserForScope(userId);
         if (UserRoleSupport.hasClanWideAdminAccess(u)) {
-            return allFamilyIdsUnderClanRoot();
+            return clanWideManageableSubtreeIds(u);
         }
         String start = u.getFamily().getFamilyId();
         String anchor = UserRoleSupport.hasRoleName(u, "FAMILY_NEWS_MANAGER")
@@ -79,12 +108,21 @@ public class FamilyScopeService {
         return collectDescendantsFrom(anchor);
     }
 
-    private Set<String> allFamilyIdsUnderClanRoot() {
+    /** ADMIN / MANAGE_CLAN: cây dưới tổ tông của chính user; nếu chưa gắn dòng họ thì fallback cấu hình app (tài khoản hệ thống). */
+    private Set<String> clanWideManageableSubtreeIds(User u) {
+        if (u.getFamily() != null) {
+            String root = climbToRootFamilyId(u.getFamily().getFamilyId());
+            return collectDescendantsFrom(root);
+        }
+        return collectDescendantsFrom(configuredClanRootOrThrow());
+    }
+
+    private String configuredClanRootOrThrow() {
         String root = clanProperties.getFamilyId();
         if (root == null || root.isBlank()) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Chưa cấu hình app.clan.family-id.");
         }
-        return collectDescendantsFrom(root.trim());
+        return root.trim();
     }
 
     private User loadUserForScope(String userId) {

@@ -78,6 +78,32 @@ public class SiteNewsService {
         return out;
     }
 
+    private Set<String> subtreeFamilyIds(String familyId) {
+        Set<String> ids = new HashSet<>(descendantFamilyIds(familyId));
+        ids.add(familyId.trim());
+        return ids;
+    }
+
+    /** Tổ tông (parent null) của một chi — cùng ý nghĩa với {@code FamilyScopeService#resolveRootFamilyId}. */
+    private String climbToRootFamilyId(String familyId) {
+        if (familyId == null || familyId.isBlank()) {
+            return null;
+        }
+        String cur = familyId.trim();
+        while (true) {
+            Optional<Family> fo = familyRepository.findByIdWithParentFamily(cur);
+            if (fo.isEmpty()) {
+                break;
+            }
+            Family pf = fo.get().getParentFamily();
+            if (pf == null || pf.getFamilyId() == null || pf.getFamilyId().isBlank()) {
+                break;
+            }
+            cur = pf.getFamilyId().trim();
+        }
+        return cur;
+    }
+
     /**
      * Tin nội bộ (FAMILY_ONLY): người xem và chi gắn bài nằm trên cùng một đường tổ tiên–hậu duệ
      * (con/cháu xem tin tổ/ông; cha xem tin chi con). Hai chi cùng cấp không xem tin nội bộ của nhau.
@@ -126,23 +152,24 @@ public class SiteNewsService {
 
     @Transactional(readOnly = true)
     public List<NewsEvent> findPublishedForPublic(String q, NewsCategory category) {
-        return findPublishedForNewsPage(q, category, null, null, null);
+        return findPublishedForNewsPage(q, category, null, null, null, false);
     }
 
     @Transactional(readOnly = true)
     public List<NewsEvent> findPublishedForPublic(String q, NewsCategory category, String familyId) {
-        return findPublishedForNewsPage(q, category, familyId, null, null);
+        return findPublishedForNewsPage(q, category, familyId, null, null, false);
     }
 
     @Transactional(readOnly = true)
     public List<NewsEvent> findPublishedForNewsPage(String q, NewsCategory category, String scopeFamilyId, User viewer) {
-        return findPublishedForNewsPage(q, category, scopeFamilyId, viewer, null);
+        return findPublishedForNewsPage(q, category, scopeFamilyId, viewer, null, false);
     }
 
     /**
-     * @param scopeFamilyId lọc theo một chi (giống ?familyId=); null = không lọc theo chi.
-     * @param viewer         null = khách; chỉ thấy PUBLIC_SITE. Có user = thêm FAMILY_ONLY trong phạm vi nhánh người đó.
+     * @param scopeFamilyId lọc theo tổ tông (hoặc chi — được chuẩn hóa ở controller); null = mọi PUBLIC_SITE toàn hệ thống.
+     * @param viewer         null = khách; chỉ thấy PUBLIC_SITE. Có user = thêm FAMILY_ONLY trong phạm vi nhánh (khi không xem “dòng họ khác”).
      * @param visibilityFilter null = mọi loại; hoặc chỉ PUBLIC_SITE / FAMILY_ONLY.
+     * @param externalScopePublicOnly true = đang xem dòng họ khác: chỉ tin {@link NewsVisibility#PUBLIC_SITE} trong cây {@code scope}, không gộp nội bộ của user.
      */
     @Transactional(readOnly = true)
     public List<NewsEvent> findPublishedForNewsPage(
@@ -152,18 +179,31 @@ public class SiteNewsService {
             User viewer,
             NewsVisibility visibilityFilter
     ) {
+        return findPublishedForNewsPage(q, category, scopeFamilyId, viewer, visibilityFilter, false);
+    }
+
+    @Transactional(readOnly = true)
+    public List<NewsEvent> findPublishedForNewsPage(
+            String q,
+            NewsCategory category,
+            String scopeFamilyId,
+            User viewer,
+            NewsVisibility visibilityFilter,
+            boolean externalScopePublicOnly
+    ) {
         List<NewsEvent> merged = new ArrayList<>();
 
         String scope = scopeFamilyId != null && !scopeFamilyId.isBlank() ? scopeFamilyId.trim() : null;
 
         if (scope != null) {
-            merged.addAll(newsEventRepository.findByVisibilityAndFamilyFamilyIdOrderByCreatedAtDesc(
-                    NewsVisibility.PUBLIC_SITE, scope));
+            Set<String> scopeSubtree = subtreeFamilyIds(scope);
+            merged.addAll(newsEventRepository.findByVisibilityAndFamilyFamilyIdIn(
+                    NewsVisibility.PUBLIC_SITE, scopeSubtree));
         } else {
             merged.addAll(newsEventRepository.findByVisibilityOrderByCreatedAtDesc(NewsVisibility.PUBLIC_SITE));
         }
 
-        if (viewer != null && viewer.getFamily() != null) {
+        if (!externalScopePublicOnly && viewer != null && viewer.getFamily() != null) {
             String vf = viewer.getFamily().getFamilyId();
             if (vf == null || vf.isBlank()) {
                 vf = null;
@@ -233,11 +273,26 @@ public class SiteNewsService {
 
     @Transactional(readOnly = true)
     public List<NewsEvent> findFeaturedPublished(int limit, String familyId) {
-        List<NewsEvent> list = (familyId != null && !familyId.isBlank())
-                ? newsEventRepository.findByVisibilityAndFeaturedTrueAndFamilyFamilyIdOrderByCreatedAtDesc(
-                        NewsVisibility.PUBLIC_SITE, familyId.trim())
-                : newsEventRepository.findByVisibilityAndFeaturedTrueOrderByCreatedAtDesc(NewsVisibility.PUBLIC_SITE);
+        if (familyId != null && !familyId.isBlank()) {
+            return findFeaturedPublishedForScope(limit, familyId.trim());
+        }
+        List<NewsEvent> list = newsEventRepository.findByVisibilityAndFeaturedTrueOrderByCreatedAtDesc(NewsVisibility.PUBLIC_SITE);
         return list.stream().limit(limit).toList();
+    }
+
+    /** Tin nổi bật công khai thuộc cây (gốc + chi con) của {@code scopeRootFamilyId}. */
+    @Transactional(readOnly = true)
+    public List<NewsEvent> findFeaturedPublishedForScope(int limit, String scopeRootFamilyId) {
+        if (limit <= 0 || scopeRootFamilyId == null || scopeRootFamilyId.isBlank()) {
+            return List.of();
+        }
+        Set<String> ids = subtreeFamilyIds(scopeRootFamilyId.trim());
+        List<NewsEvent> pool = newsEventRepository.findByVisibilityAndFamilyFamilyIdIn(NewsVisibility.PUBLIC_SITE, ids);
+        return pool.stream()
+                .filter(NewsEvent::isFeatured)
+                .sorted(Comparator.comparing(NewsEvent::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
+                .limit(limit)
+                .toList();
     }
 
     @Transactional
@@ -250,31 +305,42 @@ public class SiteNewsService {
 
     @Transactional(readOnly = true)
     public List<NewsEvent> findRelated(NewsEvent article, int limit) {
-        return findRelated(article, limit, null, null);
+        return findRelated(article, limit, (User) null);
     }
 
     @Transactional(readOnly = true)
-    public List<NewsEvent> findRelated(NewsEvent article, int limit, String familyId) {
-        return findRelated(article, limit, familyId, null);
-    }
-
-    @Transactional(readOnly = true)
-    public List<NewsEvent> findRelated(NewsEvent article, int limit, String scopeFamilyId, User viewer) {
+    public List<NewsEvent> findRelated(NewsEvent article, int limit, User viewer) {
         if (limit <= 0) {
             return List.of();
         }
-        boolean scoped = scopeFamilyId != null && !scopeFamilyId.isBlank();
-        String fid = scoped ? scopeFamilyId.trim() : null;
+        String articleFid = article.getFamily() != null ? article.getFamily().getFamilyId() : null;
+        String scopeRoot = (articleFid != null && !articleFid.isBlank()) ? climbToRootFamilyId(articleFid.trim()) : null;
+        String viewerRoot = (viewer != null && viewer.getFamily() != null && viewer.getFamily().getFamilyId() != null)
+                ? climbToRootFamilyId(viewer.getFamily().getFamilyId().trim())
+                : null;
+        boolean externalScopePublicOnly = scopeRoot == null
+                || viewerRoot == null
+                || !scopeRoot.equals(viewerRoot);
+
+        Set<String> scopeSubtree = scopeRoot != null ? subtreeFamilyIds(scopeRoot) : null;
         List<NewsEvent> out = new ArrayList<>();
         Set<String> seen = new HashSet<>();
         seen.add(article.getId());
 
-        if (article.getPublicCategory() != null) {
-            List<NewsEvent> sameCat = scoped
-                    ? newsEventRepository.findRelatedPublicForFamily(
-                            NewsVisibility.PUBLIC_SITE, article.getPublicCategory(), article.getId(), fid)
-                    : newsEventRepository.findRelatedPublic(
-                            NewsVisibility.PUBLIC_SITE, article.getPublicCategory(), article.getId());
+        if (article.getPublicCategory() != null && scopeSubtree != null && !scopeSubtree.isEmpty()) {
+            List<NewsEvent> sameCat = newsEventRepository.findRelatedPublicForFamilies(
+                    NewsVisibility.PUBLIC_SITE, article.getPublicCategory(), article.getId(), scopeSubtree);
+            for (NewsEvent n : sameCat) {
+                if (out.size() >= limit) {
+                    break;
+                }
+                if (seen.add(n.getId())) {
+                    out.add(n);
+                }
+            }
+        } else if (article.getPublicCategory() != null) {
+            List<NewsEvent> sameCat = newsEventRepository.findRelatedPublic(
+                    NewsVisibility.PUBLIC_SITE, article.getPublicCategory(), article.getId());
             for (NewsEvent n : sameCat) {
                 if (out.size() >= limit) {
                     break;
@@ -285,7 +351,8 @@ public class SiteNewsService {
             }
         }
         if (out.size() < limit) {
-            List<NewsEvent> pool = findPublishedForNewsPage("", null, scopeFamilyId, viewer, null);
+            List<NewsEvent> pool = findPublishedForNewsPage(
+                    "", null, scopeRoot, viewer, null, externalScopePublicOnly);
             for (NewsEvent n : pool) {
                 if (out.size() >= limit) {
                     break;
@@ -296,6 +363,13 @@ public class SiteNewsService {
             }
         }
         return out;
+    }
+
+    /** @deprecated dùng {@link #findRelated(NewsEvent, int, User)} */
+    @Deprecated
+    @Transactional(readOnly = true)
+    public List<NewsEvent> findRelated(NewsEvent article, int limit, String scopeFamilyId, User viewer) {
+        return findRelated(article, limit, viewer);
     }
 
     public static NewsCategory parseCategory(String raw) {

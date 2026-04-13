@@ -232,14 +232,14 @@ public class DataInitializer implements CommandLineRunner {
             }
             return familyRepository.save(f);
         }).orElseGet(() -> {
-            Family f = new Family();
+                    Family f = new Family();
             f.setFamilyId(familyId);
             f.setFamilyName(name);
             f.setDescription(description);
             f.setPrivacySetting("PUBLIC");
             f.setParentFamily(parent);
-            return familyRepository.saveAndFlush(f);
-        });
+                    return familyRepository.saveAndFlush(f);
+                });
     }
 
     private static Family familyForGenerationIndex(int i, Family root, Family chiPhuKe, Family chiTieu, Family chiDoiTre) {

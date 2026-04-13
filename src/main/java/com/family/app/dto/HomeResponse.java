@@ -18,6 +18,8 @@ public class HomeResponse {
     private long femaleCount;
 
     // Thông tin dòng họ
+    /** {@code family_id} tổ tông (gốc cây) — dùng cho link gia phả / lọc FE. */
+    private String familyId;
     private String familyName;
     private String description;
 

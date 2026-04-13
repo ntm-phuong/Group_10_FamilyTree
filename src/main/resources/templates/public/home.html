@@ -241,22 +241,49 @@
         // Lấy family_id từ LocalStorage (Được set vào lúc Login/Active)
         let familyId = localStorage.getItem('family_id');
 
-        // KIỂM TRA NGẶT NGHÈO: Nếu không có, hoặc bị lưu nhầm thành chữ "undefined" / "null"
-        if (!familyId || familyId === 'undefined' || familyId === 'null') {
-            console.warn("Lỗi LocalStorage: Không tìm thấy ID chuẩn, tự động dùng ID mặc định (fam-nguyen-001)");
-            familyId = 'fam-nguyen-001'; // ID fallback để web không bị sập
+        // Đồng bộ với login: my_family_id (+ /api/auth/me nếu thiếu) — không fallback sang một mã dòng họ cố định.
+        function pickFamilyIdFromStorage() {
+            const my = (localStorage.getItem('my_family_id') || '').trim();
+            const legacy = (localStorage.getItem('family_id') || '').trim();
+            const ok = (v) => v && v !== 'undefined' && v !== 'null';
+            if (ok(my)) return my;
+            if (ok(legacy)) return legacy;
+            return '';
+        }
+
+        function resolveFamilyId() {
+            const fromStore = pickFamilyIdFromStorage();
+            if (fromStore) return Promise.resolve(fromStore);
+            return fetch('/api/auth/me', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                }
+            }).then(r => (r.ok ? r.json() : null)).then(me => {
+                if (!me) return '';
+                const id = (me.familyId || me.familyRootId || '').trim();
+                if (me.familyId) localStorage.setItem('my_family_id', me.familyId);
+                return id;
+            });
         }
 
         // ==================================================
         // 1. GỌI API LẤY DỮ LIỆU HOME CHO DÒNG HỌ TƯƠNG ỨNG
         // ==================================================
-        fetch(`/api/families/${familyId}/home`, {
-            method: 'GET',
-            headers: {
-                'Authorization': 'Bearer ' + token,
-                'Content-Type': 'application/json'
-            }
-        })
+        resolveFamilyId()
+            .then(familyId => {
+                if (!familyId) {
+                    throw new Error('Không xác định được dòng họ (chưa gắn family hoặc token hết hạn).');
+                }
+                return fetch(`/api/families/${familyId}/home`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    }
+                });
+            })
             .then(response => {
                 if (!response.ok) throw new Error("Lỗi tải dữ liệu trang chủ");
                 return response.json();

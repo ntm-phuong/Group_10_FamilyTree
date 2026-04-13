@@ -7,7 +7,12 @@ import java.util.List;
 @Builder
 public class FamilyTreeResponse {
     private String familyName;
+    /** Đồng bộ {@link com.family.app.dto.ClanMemberStatistics#totalGenerations()} — max đời trong DB, 0 nếu không có. */
     private Integer totalGenerations;
+    /** Cùng nguồn với trang /home (đếm theo {@code users.family_id} trong phạm vi cây). */
+    private Long totalMembers;
+    private Long maleCount;
+    private Long femaleCount;
     private List<MemberNode> members;
 
     @Data

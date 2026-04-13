@@ -1,5 +1,6 @@
 package com.family.app.service;
 
+import com.family.app.dto.ClanMemberStatistics;
 import com.family.app.dto.DashboardResponse;
 import com.family.app.dto.NewsEventSummaryDTO;
 import com.family.app.dto.UserSummaryDTO;
@@ -8,12 +9,14 @@ import com.family.app.model.User;
 import com.family.app.repository.NewsEventRepository;
 import com.family.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -27,36 +30,36 @@ public class DashboardService {
     private FamilyScopeService familyScopeService;
     @Autowired
     private NewsEventRepository newsEventRepository;
+    @Autowired
+    private MemberService memberService;
 
     /**
-     * Thống kê theo phạm vi quản lý thành viên ({@link FamilyScopeService#manageableFamilyIdsForMembers}):
-     * trưởng họ = nhánh của {@code user.family}; có {@code MANAGE_CLAN} / ADMIN = toàn bộ chi từ tổ tông xuống.
+     * Thống kê dashboard trưởng họ — <strong>cùng phạm vi cây</strong> với trang {@code /home}
+     * ({@link com.family.app.service.FamilyService#getHomeData}): tổ tông của user + mọi chi con.
+     * Không dùng {@link FamilyScopeService#manageableFamilyIdsForMembers} (chỉ nhánh xuống từ chi hiện tại)
+     * để tránh lệch số với trang chủ.
      */
     @Transactional(readOnly = true)
     public DashboardResponse getFamilyHeadDashboard(User currentUser) {
         if (currentUser == null || currentUser.getUserId() == null) {
             return new DashboardResponse();
         }
-        Set<String> familyIds = familyScopeService.manageableFamilyIdsForMembers(currentUser.getUserId());
-        if (familyIds.isEmpty()) {
+        Set<String> scopeIds = familyScopeService.manageableFamilyIdsForHeadDashboardNews(currentUser.getUserId());
+        if (scopeIds.isEmpty()) {
             return new DashboardResponse();
         }
+        List<String> scopeIdList = new ArrayList<>(scopeIds);
 
-        List<User> users = userRepository.findByFamily_FamilyIdInOrderByGenerationAscOrderInFamilyAsc(familyIds);
+        List<User> users = userRepository.findByFamily_FamilyIdInOrderByGenerationAscOrderInFamilyAsc(scopeIds);
         DashboardResponse dto = new DashboardResponse();
 
-        int total = users.size();
-        dto.setTotalMembers(total);
+        ClanMemberStatistics memberStats = memberService.computeStatisticsForScope(scopeIds);
+        dto.setTotalMembers(memberStats.totalMembers());
         long living = users.stream().filter(User::isAlive).count();
         dto.setLivingMembers(living);
-        dto.setDeceasedMembers(total - living);
+        dto.setDeceasedMembers(memberStats.totalMembers() - living);
 
-        int maxGen = users.stream()
-                .map(User::getGeneration)
-                .filter(Objects::nonNull)
-                .max(Integer::compareTo)
-                .orElse(0);
-        dto.setTotalGenerations(maxGen);
+        dto.setTotalGenerations(memberStats.totalGenerations());
 
         Map<Integer, Long> genDist = users.stream()
                 .filter(u -> u.getGeneration() != null)
@@ -66,7 +69,17 @@ public class DashboardService {
                         Collectors.counting()));
         dto.setGenerationDistribution(genDist);
 
-        dto.setTotalNews(newsEventRepository.countVisibleByFamilyFamilyIdIn(familyIds));
+        long publishedNews = 0;
+        long draftNews = 0;
+        long totalNews = 0;
+        if (!scopeIdList.isEmpty()) {
+            publishedNews = newsEventRepository.countVisibleByFamilyFamilyIdIn(scopeIdList);
+            draftNews = newsEventRepository.countDraftByFamilyFamilyIdIn(scopeIdList);
+            totalNews = newsEventRepository.countByFamilyFamilyIdIn(scopeIdList);
+        }
+        dto.setTotalNews(totalNews);
+        dto.setPublishedNewsCount(publishedNews);
+        dto.setDraftNewsCount(draftNews);
 
         // -- Thành vên mới (5 người mới tạo gần nhất)
         List<UserSummaryDTO> newMembers = users.stream()
@@ -80,10 +93,12 @@ public class DashboardService {
                 .collect(Collectors.toList());
         dto.setNewMembers(newMembers);
 
-        // --- Tin tức mới nhất (5 bài) ---
-        String firstFamilyId = familyIds.iterator().next();
-        List<NewsEvent> newsEvents = newsEventRepository
-                .findTop5ByFamily_FamilyIdOrderByCreatedAtDesc(firstFamilyId);
+        // --- Tin tức mới nhất (5 bài) — mọi chi trong phạm vi tin dashboard ---
+        List<NewsEvent> newsEvents = scopeIdList.isEmpty()
+                ? List.of()
+                : newsEventRepository.findByFamily_FamilyIdInOrderByCreatedAtDesc(
+                        scopeIdList,
+                        PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "createdAt")));
         List<NewsEventSummaryDTO> recentNews = newsEvents.stream()
                 .map(n -> new NewsEventSummaryDTO(
                         n.getTitle(),

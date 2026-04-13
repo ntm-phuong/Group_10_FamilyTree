@@ -49,7 +49,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
 
                         // Trang public (không gồm /family-head — cần quyền FAMILY_HEAD)
-                        .requestMatchers("/login", "/about", "/family-tree", "/site-news-manage", "/news/**", "/member/**").permitAll()
+                        .requestMatchers("/login", "/about", "/family-tree", "/family-tree/", "/site-news-manage", "/news/**", "/member/**").permitAll()
 
                         // Trang dashboard quản trị họ: chỉ FAMILY_HEAD (+ JWT)
                         .requestMatchers("/family-head", "/family-head/**", "/admin", "/admin/**")
@@ -70,6 +70,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/forgot-password/**").permitAll()
 
                         .requestMatchers("/api/auth/me").authenticated()
+
+                        .requestMatchers("/api/families/**").authenticated()
 
                         .anyRequest().permitAll()
                 )

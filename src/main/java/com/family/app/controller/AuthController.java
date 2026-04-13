@@ -5,6 +5,7 @@ import com.family.app.dto.LoginRequest;
 import com.family.app.dto.VerifyEmailRequest;
 import com.family.app.model.User;
 import com.family.app.service.AuthService;
+import com.family.app.service.FamilyScopeService;
 import com.family.app.service.RegistrationService;
 import com.family.app.security.JwtTokenProvider; // Thêm dòng import này để gọi công cụ Token
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class AuthController {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
+    @Autowired
+    private FamilyScopeService familyScopeService;
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         Map<String, Object> authData = authService.authenticate(loginRequest.getEmail(), loginRequest.getPassword());
@@ -44,6 +48,7 @@ public class AuthController {
         response.put("permissions", authData.get("permissions"));
         response.put("familyId", authData.get("familyId"));
         response.put("familyName", authData.get("familyName"));
+        response.put("familyRootId", authData.get("familyRootId"));
 
         return ResponseEntity.ok(response);
     }
@@ -130,6 +135,10 @@ public class AuthController {
             response.put("fullName", user.getFullName());
             response.put("userId", user.getUserId());
             response.put("familyId", user.getFamily() != null ? user.getFamily().getFamilyId() : null);
+            if (user.getFamily() != null) {
+                response.put("familyName", user.getFamily().getFamilyName());
+                response.put("familyRootId", familyScopeService.resolveRootFamilyId(user.getFamily().getFamilyId()));
+            }
 
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
