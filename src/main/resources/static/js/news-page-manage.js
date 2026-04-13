@@ -53,7 +53,19 @@
       const res = await fetch("/api/auth/me", { headers: authHeaders() });
       if (!res.ok) return;
       const me = await res.json();
-      if (me.permissions) localStorage.setItem("permissions", JSON.stringify(me.permissions));
+      // try {
+      //   console.info("[auth/me]", {
+      //     userId: me.userId,
+      //     permissions: me.permissions,
+      //     role: me.role,
+      //     roles: me.roles,
+      //   });
+      // } catch (e) {
+      //   /* ignore */
+      // }
+      if (Array.isArray(me.permissions)) {
+        localStorage.setItem("permissions", JSON.stringify(me.permissions));
+      }
       if (me.role != null) localStorage.setItem("role", String(me.role));
     } catch (e) {
       /* ignore */

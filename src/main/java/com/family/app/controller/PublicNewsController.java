@@ -12,6 +12,7 @@ import com.family.app.security.AppPermissions;
 import com.family.app.service.FamilyScopeService;
 import com.family.app.service.SiteNewsService;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,12 +22,24 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Tin tức /news — mặc định theo tổ tông người đăng nhập; có thể chọn xem tin công khai của dòng họ gốc khác.
  */
 @Controller
 public class PublicNewsController {
+
+    /**
+     * Khớp {@code FamilyNewsController} — ai gọi API quản tin thì SSR phải render được nút tạo/sửa/xóa.
+     */
+    private static final Set<String> FAMILY_NEWS_UI_AUTHORITIES = Set.of(
+            AppPermissions.MANAGE_FAMILY_NEWS,
+            AppPermissions.MANAGE_CLAN,
+            AppPermissions.FAMILY_HEAD,
+            "ROLE_FAMILY_NEWS_MANAGER",
+            "ROLE_FAMILY_BRANCH_MANAGER"
+    );
 
     private final SiteNewsService siteNewsService;
     private final FamilyRepository familyRepository;
@@ -121,7 +134,7 @@ public class PublicNewsController {
         model.addAttribute("visibilityParam", visibilityParam);
         model.addAttribute("clanDisplayName", clanProperties.getDisplayName());
         model.addAttribute("currentUser", viewer);
-        model.addAttribute("isFamilyHead", hasFamilyHeadAuthority(auth));
+        model.addAttribute("canManageFamilyNews", canManageFamilyNews(auth));
         model.addAttribute("activeMenu", "news");
         return "public/news-list";
     }
@@ -157,11 +170,15 @@ public class PublicNewsController {
         return userRepository.findByIdWithFamily(u.getUserId()).orElse(null);
     }
 
-    private boolean hasFamilyHeadAuthority(Authentication auth) {
+    private boolean canManageFamilyNews(Authentication auth) {
         if (auth == null || auth.getAuthorities() == null) {
             return false;
         }
-        return auth.getAuthorities().stream()
-                .anyMatch(a -> AppPermissions.FAMILY_HEAD.equals(a.getAuthority()));
+        for (GrantedAuthority a : auth.getAuthorities()) {
+            if (a != null && FAMILY_NEWS_UI_AUTHORITIES.contains(a.getAuthority())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

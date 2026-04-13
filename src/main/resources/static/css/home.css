@@ -137,3 +137,103 @@
         gap: 40px;
     }
 }
+
+/* =========================================
+   SỰ KIỆN SẮP TỚI — /home (đã đăng nhập, #eventsContainer + renderEvents)
+   Bổ sung đầy đủ so với home-guest.css; ưu tiên khớp theme xanh gia phả
+   ========================================= */
+
+#eventsContainer .event-card {
+    display: flex;
+    align-items: flex-start;
+    background: var(--bg-white, #fff);
+    border: 1px solid var(--border-color, #eaeaea);
+    border-radius: var(--radius-lg, 12px);
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+#eventsContainer .event-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-md, #d1d5db);
+}
+
+#eventsContainer .event-date {
+    flex-shrink: 0;
+    background: var(--green-100, #d8f3dc);
+    color: var(--primary-color, #1c5233);
+    padding: 12px 10px;
+    border-radius: var(--radius, 8px);
+    text-align: center;
+    min-width: 64px;
+    margin-right: 16px;
+}
+
+#eventsContainer .event-date span {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+#eventsContainer .event-date strong {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+#eventsContainer .event-info {
+    min-width: 0;
+    flex: 1;
+}
+
+#eventsContainer .event-info .badge {
+    display: inline-block;
+    margin-bottom: 8px;
+}
+
+#eventsContainer .event-info h4 {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-900, #1a1a1a);
+    line-height: 1.35;
+}
+
+#eventsContainer .event-info p {
+    margin: 4px 0;
+    font-size: 0.85rem;
+    color: var(--text-light, #666);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#eventsContainer .event-info p i {
+    flex-shrink: 0;
+    opacity: 0.88;
+}
+
+#eventsContainer .badge-warning {
+    background: #fff3e0;
+    color: #e65100;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+@media (max-width: 480px) {
+    #eventsContainer .event-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #eventsContainer .event-date {
+        margin-right: 0;
+        margin-bottom: 12px;
+        align-self: flex-start;
+    }
+}

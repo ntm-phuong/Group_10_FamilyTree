@@ -94,6 +94,16 @@ async function syncTreeSessionFromMe() {
     });
     if (!res.ok) return;
     const me = await res.json();
+    // try {
+    //   console.info("[auth/me]", {
+    //     userId: me.userId,
+    //     permissions: me.permissions,
+    //     role: me.role,
+    //     roles: me.roles,
+    //   });
+    // } catch (e) {
+    //   /* ignore */
+    // }
     if (Array.isArray(me.permissions)) {
       localStorage.setItem("permissions", JSON.stringify(me.permissions));
     }

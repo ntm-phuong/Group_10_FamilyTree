@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/home-guest.css}">
-    <link rel="stylesheet" th:href="@{/css/home.css?v=1}">
+    <link rel="stylesheet" th:href="@{/css/home.css?v=2}">
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -197,17 +197,33 @@
         <div class="mx-auto max-w-6xl px-6">
             <div class="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                 <div>
-                    <p class="mb-2 font-label font-bold uppercase tracking-widest text-secondary">Bản Tin</p>
-                    <h2 class="text-4xl font-headline text-primary">Tin Tức Mới Nhất</h2>
+                    <p class="mb-2 font-label font-bold uppercase tracking-widest text-secondary">Lịch Trình</p>
+                    <h2 class="text-4xl font-headline text-primary">Sự kiện sắp tới</h2>
                 </div>
                 <a th:href="@{/news}" class="group flex items-center gap-1 font-label font-bold text-primary">
-                    Xem tất cả
+                    Tất cả sự kiện
                     <span class="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">chevron_right</span>
                 </a>
             </div>
-            <div id="newsContainer" class="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-4">
-                <p style="grid-column: span 4; text-align: center; color: #6B7280;">Đang tải tin tức...</p>
+            <div id="eventsContainer" class="grid grid-cols-1 gap-8 md:grid-cols-2">
+                <p style="grid-column: span 2; text-align: center; color: #6B7280;">Đang tải sự kiện...</p>
             </div>
+        </div>
+    </section>
+
+    <section class="mx-auto max-w-6xl px-6 py-24">
+        <div class="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+                <p class="mb-2 font-label font-bold uppercase tracking-widest text-secondary">Bản Tin</p>
+                <h2 class="text-4xl font-headline text-primary">Tin Tức Mới Nhất</h2>
+            </div>
+            <a th:href="@{/news}" class="group flex items-center gap-1 font-label font-bold text-primary">
+                Xem tất cả
+                <span class="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">chevron_right</span>
+            </a>
+        </div>
+        <div id="newsContainer" class="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-4">
+            <p style="grid-column: span 4; text-align: center; color: #6B7280;">Đang tải tin tức...</p>
         </div>
     </section>
 
@@ -305,16 +321,64 @@
                 document.getElementById('statMaleCount').innerText = data.maleCount || 0;
                 document.getElementById('statFemaleCount').innerText = data.femaleCount || 0;
 
-                // Do đã xóa Sự kiện sắp tới, chỉ render Tin tức
+                renderEvents(data.upcomingEvents || []);
                 renderNews(data.latestNews);
             })
             .catch(error => {
                 console.error(error);
+                document.getElementById('eventsContainer').innerHTML = `<p style="grid-column: span 4; text-align: center; color: red;">Lỗi tải dữ liệu sự kiện.</p>`;
                 document.getElementById('newsContainer').innerHTML = `<p style="grid-column: span 4; text-align: center; color: red;">Lỗi tải dữ liệu tin tức.</p>`;
             });
 
         // ==================================================
-        // 2. HÀM RENDER TIN TỨC MỚI NHẤT (Đã chuẩn hóa layout)
+        // 2. HÀM RENDER SỰ KIỆN SẮP TỚI (data.upcomingEvents — khôi phục layout cũ + home-guest.css .event-card)
+        // ==================================================
+        function renderEvents(events) {
+            const container = document.getElementById('eventsContainer');
+
+            if (!events || events.length === 0) {
+                container.className = "w-full";
+                container.innerHTML = '<p style="text-align: center; color: #6B7280;">Hiện không có sự kiện nào sắp tới.</p>';
+                return;
+            }
+
+            if (events.length === 1) {
+                container.className = "w-fit min-w-[380px] max-w-full";
+            } else if (events.length === 2) {
+                container.className = "grid grid-cols-1 gap-8 md:grid-cols-2";
+            } else {
+                container.className = "grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3";
+            }
+
+            container.innerHTML = events.map(event => {
+                const dateObj = event.startAt ? new Date(event.startAt) : new Date();
+                const monthStr = 'Tháng ' + (dateObj.getMonth() + 1);
+                const dayStr = dateObj.getDate();
+                const timeStr = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+                const diffTime = dateObj - new Date();
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                let daysLeftStr = '';
+                if (diffDays > 0) daysLeftStr = `${diffDays} ngày nữa`;
+                else if (diffDays === 0) daysLeftStr = 'Hôm nay';
+                else daysLeftStr = 'Đã qua';
+
+                return `
+                    <div class="event-card">
+                        <div class="event-date"><span>${monthStr}</span><strong>${dayStr}</strong></div>
+                        <div class="event-info">
+                            <span class="badge badge-warning">${event.categoryName || 'Sự kiện'} - ${daysLeftStr}</span>
+                            <h4 style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${event.title}</h4>
+                            <p><i class="fas fa-map-marker-alt"></i> ${event.location || 'Tại nhà thờ họ'}</p>
+                            <p><i class="far fa-clock"></i> ${timeStr}</p>
+                        </div>
+                    </div>
+                    `;
+            }).join('');
+        }
+
+        // ==================================================
+        // 3. HÀM RENDER TIN TỨC MỚI NHẤT (Đã chuẩn hóa layout)
         // ==================================================
         function renderNews(newsList) {
             const container = document.getElementById('newsContainer');
