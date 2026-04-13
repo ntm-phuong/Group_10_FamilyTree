@@ -13,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.family.app.model.Family;
+import com.family.app.service.kinship.BloodKinshipKind;
+import com.family.app.service.kinship.BloodKinshipLcaAnalyzer;
+import com.family.app.service.kinship.BloodKinshipStructure;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -521,33 +524,111 @@ public class MemberService {
             return siblingInLawLabel(a, b);
         }
 
-        Map<String, Integer> aAnc = collectAncestorDistance(aId, parentsByChild, 8);
-        Map<String, Integer> bAnc = collectAncestorDistance(bId, parentsByChild, 8);
-
-        Integer aToB = aAnc.get(bId); // b la to tien cua a
-        Integer bToA = bAnc.get(aId); // a la to tien cua b
-        if (bToA != null) {
-            return ancestorLabel(a, b, bToA, aId, bId, fatherByChild, motherByChild);
-        }
-        if (aToB != null) {
-            return descendantLabel(a, b, aToB);
-        }
-
-        String uncleAunt = uncleAuntLabel(aId, bId, userById, fatherByChild, motherByChild, parentsByChild);
-        if (uncleAunt != null) {
-            return uncleAunt;
-        }
-
-        String collateralAcrossBranches = collateralKinshipAcrossBranchesByGeneration(
-                aId, bId, a, b, parentsByChild, 6);
-        if (collateralAcrossBranches != null) {
-            return collateralAcrossBranches;
-        }
-
-        if (hasCommonAncestorWithinDepth(aId, bId, parentsByChild, 6)) {
-            return cousinLabel(a, b);
+        String blood = inferBloodKinshipWithLca(
+                aId, bId, a, b, userById, parentsByChild, fatherByChild, motherByChild);
+        if (blood != null) {
+            return blood;
         }
         return "Họ hàng";
+    }
+
+    /**
+     * Quan hệ máu (cha–con): phân lớp {@link BloodKinshipKind} + LCA, rồi ánh xạ nhãn;
+     * chú/cháu hai chiều tách rõ ({@code OTHER_IS_UNCLE_OR_AUNT} vs {@code VIEWER_IS_UNCLE_OR_AUNT_OF_OTHER}).
+     */
+    private String inferBloodKinshipWithLca(
+            String viewerId,
+            String otherId,
+            User viewer,
+            User other,
+            Map<String, User> userById,
+            Map<String, Set<String>> parentsByChild,
+            Map<String, String> fatherByChild,
+            Map<String, String> motherByChild
+    ) {
+        if (viewer == null || other == null) {
+            return null;
+        }
+        final int maxDepth = 16;
+        Map<String, Integer> dViewer = BloodKinshipLcaAnalyzer.collectAncestorDistance(
+                viewerId, parentsByChild, maxDepth);
+        Map<String, Integer> dOther = BloodKinshipLcaAnalyzer.collectAncestorDistance(
+                otherId, parentsByChild, maxDepth);
+
+        BloodKinshipStructure st = classifyBloodKinshipLca(
+                viewerId, otherId, dViewer, dOther, userById, fatherByChild, motherByChild, parentsByChild);
+        return labelBloodKinshipFromStructure(
+                st,
+                viewerId,
+                otherId,
+                viewer,
+                other,
+                userById,
+                parentsByChild,
+                fatherByChild,
+                motherByChild);
+    }
+
+    private BloodKinshipStructure classifyBloodKinshipLca(
+            String viewerId,
+            String otherId,
+            Map<String, Integer> dViewer,
+            Map<String, Integer> dOther,
+            Map<String, User> userById,
+            Map<String, String> fatherByChild,
+            Map<String, String> motherByChild,
+            Map<String, Set<String>> parentsByChild
+    ) {
+        if (dViewer.containsKey(otherId)) {
+            return BloodKinshipStructure.of(BloodKinshipKind.OTHER_IS_ANCESTOR, dViewer.get(otherId), otherId);
+        }
+        if (dOther.containsKey(viewerId)) {
+            return BloodKinshipStructure.of(BloodKinshipKind.OTHER_IS_DESCENDANT, dOther.get(viewerId), viewerId);
+        }
+        if (siblingLabel(viewerId, otherId, userById, fatherByChild, motherByChild) != null) {
+            return BloodKinshipStructure.of(BloodKinshipKind.SIBLING, 1, null);
+        }
+        String lca = BloodKinshipLcaAnalyzer.findLcaId(dViewer, dOther);
+        if (uncleAuntLabel(otherId, viewerId, userById, fatherByChild, motherByChild, parentsByChild) != null) {
+            return BloodKinshipStructure.of(BloodKinshipKind.OTHER_IS_UNCLE_OR_AUNT, 0, lca);
+        }
+        if (uncleAuntLabel(viewerId, otherId, userById, fatherByChild, motherByChild, parentsByChild) != null) {
+            return BloodKinshipStructure.of(BloodKinshipKind.VIEWER_IS_UNCLE_OR_AUNT_OF_OTHER, 2, lca);
+        }
+        return new BloodKinshipStructure(BloodKinshipKind.UNKNOWN, 0, lca);
+    }
+
+    private String labelBloodKinshipFromStructure(
+            BloodKinshipStructure st,
+            String viewerId,
+            String otherId,
+            User viewer,
+            User other,
+            Map<String, User> userById,
+            Map<String, Set<String>> parentsByChild,
+            Map<String, String> fatherByChild,
+            Map<String, String> motherByChild
+    ) {
+        return switch (st.kind()) {
+            case OTHER_IS_ANCESTOR -> descendantLabel(viewer, other, st.distanceOrGenGap());
+            case OTHER_IS_DESCENDANT -> ancestorLabel(
+                    viewer, other, st.distanceOrGenGap(), viewerId, otherId, fatherByChild, motherByChild);
+            case SIBLING -> siblingLabel(viewerId, otherId, userById, fatherByChild, motherByChild);
+            case OTHER_IS_UNCLE_OR_AUNT -> uncleAuntLabel(
+                    otherId, viewerId, userById, fatherByChild, motherByChild, parentsByChild);
+            case VIEWER_IS_UNCLE_OR_AUNT_OF_OTHER -> descendantLabel(viewer, other, 2);
+            case UNKNOWN -> {
+                String collateralAcrossBranches = collateralKinshipAcrossBranchesByGeneration(
+                        viewerId, otherId, viewer, other, parentsByChild, 6);
+                if (collateralAcrossBranches != null) {
+                    yield collateralAcrossBranches;
+                }
+                if (hasCommonAncestorWithinDepth(viewerId, otherId, parentsByChild, 6)) {
+                    yield cousinLabel(viewer, other);
+                }
+                yield null;
+            }
+        };
     }
 
     /**
