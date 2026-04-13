@@ -537,7 +537,7 @@
               <div th:unless="${article.coverImage != null and !article.coverImage.isEmpty()}" class="flex h-full items-center justify-center bg-gradient-to-br from-emerald-100 via-slate-100 to-lime-100 text-4xl text-emerald-700">
                 <i class="fas fa-newspaper"></i>
               </div>
-              <div th:if="${isFamilyHead}" class="news-card-actions absolute right-4 top-4 z-20 flex gap-2">
+              <div th:if="${canManageFamilyNews}" class="news-card-actions absolute right-4 top-4 z-20 flex gap-2">
                 <button type="button" class="btn-edit inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-slate-700 shadow-lg transition hover:bg-white hover:text-emerald-700" th:attr="data-id=${article.id}" aria-label="Sửa bài viết">
                   <i class="fas fa-pen text-sm"></i>
                 </button>
@@ -605,7 +605,7 @@
               <strong class="font-semibold text-slate-900" th:text="${#lists.size(articles)}">0</strong>
               bài viết
             </p>
-            <button th:if="${isFamilyHead}" type="button" id="npCreateNews" class="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800">
+            <button th:if="${canManageFamilyNews}" type="button" id="npCreateNews" class="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800">
               <i class="fas fa-plus text-xs"></i>
               Tạo tin
             </button>
@@ -634,7 +634,7 @@
               <div th:unless="${article.coverImage != null and !article.coverImage.isEmpty()}" class="flex h-full items-center justify-center bg-gradient-to-br from-slate-100 via-emerald-50 to-lime-50 text-4xl text-slate-400">
                 <i class="fas fa-newspaper"></i>
               </div>
-              <div th:if="${isFamilyHead}" class="news-card-actions absolute right-4 top-4 z-20 flex gap-2">
+              <div th:if="${canManageFamilyNews}" class="news-card-actions absolute right-4 top-4 z-20 flex gap-2">
                 <button type="button" class="btn-edit inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-slate-700 shadow-lg transition hover:bg-white hover:text-emerald-700" th:attr="data-id=${article.id}" aria-label="Sửa bài viết">
                   <i class="fas fa-pen text-sm"></i>
                 </button>
