@@ -25,10 +25,10 @@
             <div class="md:col-span-4 flex flex-col gap-4">
                 <h4 class="font-bold text-primary text-sm uppercase tracking-widest font-label">Liên Hệ</h4>
                 <div class="flex flex-col gap-3 text-sm text-on-surface-variant font-body">
-                    <p class="flex items-start gap-3"><i class="fas fa-map-marker-alt text-secondary mt-1 w-4 text-center"></i> <span>Xã Đại Mỗ, Từ Liêm, Hà Nội</span></p>
-                    <p class="flex items-start gap-3"><i class="fas fa-user text-secondary mt-1 w-4 text-center"></i> <span>Trưởng họ: Nguyễn Hồng Sơn</span></p>
-                    <p class="flex items-start gap-3"><i class="fas fa-phone text-secondary mt-1 w-4 text-center"></i> <span>0934 567 890</span></p>
-                    <p class="flex items-start gap-3"><i class="fas fa-envelope text-secondary mt-1 w-4 text-center"></i> <span>contact@giapha.vn</span></p>
+                    <p class="flex items-start gap-3"><i class="fas fa-map-marker-alt text-secondary mt-1 w-4 text-center"></i> <span id="footer-address">Trường đại học Hà Nội, Nam Từ Liêm, Hà Nội.</span></p>
+                    <p class="flex items-start gap-3"><i class="fas fa-user text-secondary mt-1 w-4 text-center"></i> <span id="footer-leader"></span></p>
+                    <p class="flex items-start gap-3"><i class="fas fa-phone text-secondary mt-1 w-4 text-center"></i> <span id="footer-phone">0356585310</span></p>
+                    <p class="flex items-start gap-3"><i class="fas fa-envelope text-secondary mt-1 w-4 text-center"></i> <span id="footer-email">contact@giapha.vn</span></p>
                 </div>
             </div>
 
@@ -46,34 +46,137 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Kiểm tra trạng thái đăng nhập
             const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
+            const isGuestLandingPage = window.location.pathname === '/';
+            // Lấy đúng tên key trong LocalStorage
+            const familyId = localStorage.getItem('my_family_id') || localStorage.getItem('family_id');
             const footerHomeLink = document.getElementById('footerHomeLink');
             const authLinks = document.querySelectorAll('.footer-auth-link');
 
-            if (token) {
-                // NẾU ĐÃ ĐĂNG NHẬP:
-                // 1. Đổi link "Trang Chủ" về /home
-                if (footerHomeLink) {
-                    footerHomeLink.setAttribute('href', '/home');
+            // Helpers to set contact fields
+            const setGuestInfo = () => {
+                const addrEl = document.getElementById('footer-address');
+                const leaderEl = document.getElementById('footer-leader');
+                const phoneEl = document.getElementById('footer-phone');
+                const emailEl = document.getElementById('footer-email');
+
+                if (addrEl) addrEl.textContent = 'Trường đại học Hà Nội, Nam Từ Liêm, Hà Nội.';
+
+                // Ẩn hoàn toàn dòng chứa icon user ở trang khách
+                if (leaderEl) {
+                    leaderEl.textContent = '';
+                    if(leaderEl.parentElement) {
+                        leaderEl.parentElement.style.display = 'none';
+                    }
                 }
-                // (Các link Giới thiệu, Gia phả, Tin tức vẫn giữ nguyên href mặc định để chuyển trang bình thường)
+
+                if (phoneEl) phoneEl.textContent = '0356585310';
+                if (emailEl) emailEl.textContent = 'contact@giapha.vn';
+            };
+
+            const setLeaderInfo = (data) => {
+                const addrEl = document.getElementById('footer-address');
+                const leaderEl = document.getElementById('footer-leader');
+                const phoneEl = document.getElementById('footer-phone');
+                const emailEl = document.getElementById('footer-email');
+
+                // Lấy tên dòng họ từ LocalStorage
+                const familyName = localStorage.getItem('my_family_name') || 'Dòng họ';
+
+                const address = data.currentAddress || data.address;
+                const phone = data.phoneNumber || data.phone;
+                const leaderName = data.fullName || data.name || '—';
+
+                // 1. Địa chỉ
+                if (addrEl) addrEl.textContent = address ? address : 'Đang cập nhật...';
+
+                // 2. Tên dòng họ (kèm tên Trưởng họ)
+                if (leaderEl) {
+                    leaderEl.textContent = `${familyName} (Trưởng họ: ${leaderName})`;
+                    // Hiển thị lại dòng này khi đã có dữ liệu
+                    if(leaderEl.parentElement) {
+                        leaderEl.parentElement.style.display = 'flex';
+                    }
+                }
+
+                // 3. Số điện thoại
+                if (phoneEl) phoneEl.textContent = phone ? phone : 'Đang cập nhật...';
+
+                // 4. Email
+                if (emailEl) emailEl.textContent = data.email ? data.email : 'Đang cập nhật...';
+
+                // Bonus: Tự động đổi tên dòng họ ở dòng Copyright cuối trang
+                const copyrightSpan = document.querySelector('.border-t.border-outline-variant\\/30 span');
+                if (copyrightSpan) {
+                    copyrightSpan.textContent = `© 2026 Family Care - Mọi quyền được bảo lưu.`;
+                }
+            };
+
+            // Trang home-guest luôn hiển thị thông tin liên hệ cố định.
+            if (isGuestLandingPage) {
+                if (!token) {
+                    authLinks.forEach(link => {
+                        link.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            if (typeof openLoginModal === 'function') {
+                                openLoginModal();
+                            } else {
+                                window.location.href = '/?login=true';
+                            }
+                        });
+                    });
+                }
+                setGuestInfo();
+                return;
+            }
+
+            if (token) {
+                if (footerHomeLink) footerHomeLink.setAttribute('href', '/home');
+
+                // Fetch trưởng họ theo familyId
+                const url = familyId
+                    ? `/api/public/family-head-info?familyId=${encodeURIComponent(familyId)}`
+                    : `/api/public/family-head-info`;
+
+                fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(res => {
+                        if (!res.ok) throw new Error('Network response was not ok');
+                        return res.json();
+                    })
+                    .then(data => {
+                        const responseData = data && data.data ? data.data : data;
+
+                        if (responseData && (responseData.userId || responseData.fullName || responseData.name || responseData.id)) {
+                            setLeaderInfo(responseData);
+                        } else {
+                            setGuestInfo();
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error fetching family head for footer:', err);
+                        setGuestInfo();
+                    });
+
             } else {
-                // NẾU LÀ KHÁCH (CHƯA ĐĂNG NHẬP):
-                // Bắt sự kiện click vào Giới thiệu, Gia phả, Tin tức
+                // Guest: prevent navigation on auth-only links and show fixed group info
                 authLinks.forEach(link => {
                     link.addEventListener('click', function(e) {
-                        e.preventDefault(); // Ngăn không cho chuyển trang
-
-                        // Kiểm tra xem trang hiện tại có hàm mở Modal Đăng nhập không
+                        e.preventDefault();
                         if (typeof openLoginModal === 'function') {
                             openLoginModal();
                         } else {
-                            // Nếu không có (lỗi ngoài ý muốn), đẩy về trang chủ kèm biến kích hoạt Modal
                             window.location.href = '/?login=true';
                         }
                     });
                 });
+
+                setGuestInfo();
             }
         });
     </script>

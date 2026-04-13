@@ -74,7 +74,10 @@ public class PublicFamilyController {
         UserResponse dto = new UserResponse();
         dto.setUserId(head.getUserId());
         dto.setFullName(head.getFullName());
+        dto.setEmail(head.getEmail());
         dto.setGender(head.getGender());
+        dto.setPhoneNumber(head.getPhoneNumber());
+        dto.setCurrentAddress(head.getCurrentAddress());
         dto.setBio(head.getBio());
         dto.setAvatar(head.getAvatar());
         dto.setGeneration(head.getGeneration());

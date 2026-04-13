@@ -91,42 +91,44 @@ public class AuthService {
         User user = userRepository.findByEmailWithFamily(email)
                 .orElseThrow(() -> new RuntimeException("Email không tồn tại"));
 
-        if (user.getStatus() == null || user.getStatus() != 2) {
-            throw new RuntimeException("Please verify your email first");
-        }
-
-        if (passwordEncoder.matches(password, user.getPassword())) {
-            String token = tokenProvider.generateToken(user.getUserId());
-
-            Map<String, Object> authData = new HashMap<>();
-            authData.put("token", token);
-            authData.put("userId", user.getUserId());
-            authData.put("fullName", user.getFullName());
-            authData.put("status", user.getStatus());
-            authData.put("familyId", user.getFamily() != null ? user.getFamily().getFamilyId() : null);
-
-            if (user.getFamily() != null) {
-                authData.put("familyId", user.getFamily().getFamilyId());
-                authData.put("familyName", user.getFamily().getFamilyName());
-            }
-
-            List<String> permNames = UserRoleSupport.mergedPermissionNames(user);
-            if (!permNames.isEmpty()) {
-                authData.put("permissions", permNames);
-            }
-            List<String> roleNames = UserRoleSupport.roleNames(user);
-            if (!roleNames.isEmpty()) {
-                authData.put("roles", roleNames);
-            }
-            String primary = UserRoleSupport.primaryRoleNameForFe(user);
-            if (primary != null) {
-                authData.put("role", primary);
-            }
-
-            return authData;
-        } else {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("Mật khẩu không chính xác");
         }
+
+        Integer status = user.getStatus();
+        if (status == null || (status != 1 && status != 2)) {
+            throw new RuntimeException("Tài khoản chưa sẵn sàng để đăng nhập");
+        }
+
+        String token = tokenProvider.generateToken(user.getUserId());
+
+        Map<String, Object> authData = new HashMap<>();
+        authData.put("token", token);
+        authData.put("userId", user.getUserId());
+        authData.put("fullName", user.getFullName());
+        authData.put("avatar", user.getAvatar());
+        authData.put("status", user.getStatus());
+        authData.put("familyId", user.getFamily() != null ? user.getFamily().getFamilyId() : null);
+
+        if (user.getFamily() != null) {
+            authData.put("familyId", user.getFamily().getFamilyId());
+            authData.put("familyName", user.getFamily().getFamilyName());
+        }
+
+        List<String> permNames = UserRoleSupport.mergedPermissionNames(user);
+        if (!permNames.isEmpty()) {
+            authData.put("permissions", permNames);
+        }
+        List<String> roleNames = UserRoleSupport.roleNames(user);
+        if (!roleNames.isEmpty()) {
+            authData.put("roles", roleNames);
+        }
+        String primary = UserRoleSupport.primaryRoleNameForFe(user);
+        if (primary != null) {
+            authData.put("role", primary);
+        }
+
+        return authData;
     }
     public void activateUser(String userId, String newPassword) {
         // Tìm user trong DB
@@ -155,6 +157,7 @@ public class AuthService {
         Map<String, Object> m = new HashMap<>();
         m.put("userId", user.getUserId());
         m.put("fullName", user.getFullName());
+        m.put("avatar", user.getAvatar());
         m.put("email", user.getEmail());
         List<String> permNames = UserRoleSupport.mergedPermissionNames(user);
         if (!permNames.isEmpty()) {

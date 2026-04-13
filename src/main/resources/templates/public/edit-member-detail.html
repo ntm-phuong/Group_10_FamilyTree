@@ -298,6 +298,28 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        function syncNavbarSessionForCurrentUser(targetUserId, profileData) {
+            const currentUserId = localStorage.getItem('user_id');
+            if (!currentUserId || !targetUserId || currentUserId !== targetUserId || !profileData) {
+                return;
+            }
+
+            if (profileData.fullName) {
+                localStorage.setItem('full_name', profileData.fullName);
+            }
+
+            if (profileData.avatar) {
+                localStorage.setItem('avatar_url', profileData.avatar);
+            }
+
+            window.dispatchEvent(new CustomEvent('user:profile-updated', {
+                detail: {
+                    fullName: profileData.fullName || localStorage.getItem('full_name') || '',
+                    avatar: profileData.avatar || localStorage.getItem('avatar_url') || ''
+                }
+            }));
+        }
+
         // -------------------------------------------------------------
         // 1. XỬ LÝ UPLOAD AVATAR
         // -------------------------------------------------------------
@@ -336,6 +358,8 @@
                 })
                 .then(async response => {
                     if (response.ok) {
+                        const updatedProfile = await response.json();
+                        syncNavbarSessionForCurrentUser(userId, updatedProfile);
                         // Tùy chọn: Dùng thư viện Toastr hoặc thông báo mượt mà hơn
                         alert("Tải ảnh đại diện thành công!");
                     } else {
@@ -391,6 +415,8 @@
                 })
                 .then(async response => {
                     if (response.ok) {
+                        const updatedProfile = await response.json();
+                        syncNavbarSessionForCurrentUser(userId, updatedProfile);
                         alert("Cập nhật thông tin thành công!");
                         // Chuyển hướng về trang chi tiết sau khi lưu thành công
                         window.location.href = `/member/${userId}`;

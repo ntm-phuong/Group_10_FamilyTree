@@ -356,6 +356,8 @@
                     setAccessTokenCookie(data.accessToken);
                     localStorage.setItem('full_name', data.fullName);
                     localStorage.setItem('user_id', data.userId);
+                    if (data.avatar) localStorage.setItem('avatar_url', data.avatar);
+                    else localStorage.removeItem('avatar_url');
                     if (data.role) localStorage.setItem('role', data.role);
                     else localStorage.removeItem('role');
                     if (data.roles) localStorage.setItem('roles', JSON.stringify(data.roles));
@@ -539,6 +541,8 @@
                     setAccessTokenCookie(data.accessToken);
                     localStorage.setItem('full_name', data.fullName);
                     localStorage.setItem('user_id', data.userId);
+                    if (data.avatar) localStorage.setItem('avatar_url', data.avatar);
+                    else localStorage.removeItem('avatar_url');
                     if (data.role) localStorage.setItem('role', data.role);
                     else localStorage.removeItem('role');
                     if (data.roles) localStorage.setItem('roles', JSON.stringify(data.roles));

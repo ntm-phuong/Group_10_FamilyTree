@@ -1,7 +1,8 @@
 document.addEventListener("DOMContentLoaded", function() {
   const topNav = document.getElementById('topNav');
   const token = localStorage.getItem('token');
-  const fullName = localStorage.getItem('full_name');
+  let fullName = localStorage.getItem('full_name');
+  let avatarUrl = localStorage.getItem('avatar_url');
   const currentPath = window.location.pathname;
 
   // Elements
@@ -19,6 +20,60 @@ document.addEventListener("DOMContentLoaded", function() {
   const profileLink = document.getElementById('profileLink');
   const navToggle = document.getElementById('navToggle');
   const navMobileMenu = document.getElementById('navMobileMenu');
+
+  function buildInitials(name) {
+    const safeName = (name || '').trim();
+    if (!safeName) return 'G';
+    const parts = safeName.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return (parts[parts.length - 2].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+    }
+    return safeName.charAt(0).toUpperCase();
+  }
+
+  function renderNavbarUser(name, avatar) {
+    if (navFullName) navFullName.innerText = name || 'Guest';
+    if (!navAvatarInitials) return;
+
+    if (avatar) {
+      navAvatarInitials.innerText = '';
+      navAvatarInitials.style.backgroundImage = `url('${avatar}')`;
+      navAvatarInitials.style.backgroundSize = 'cover';
+      navAvatarInitials.style.backgroundPosition = 'center';
+      navAvatarInitials.style.backgroundColor = 'transparent';
+    } else {
+      navAvatarInitials.innerText = buildInitials(name);
+      navAvatarInitials.style.backgroundImage = '';
+      navAvatarInitials.style.backgroundSize = '';
+      navAvatarInitials.style.backgroundPosition = '';
+      navAvatarInitials.style.backgroundColor = '#154212';
+    }
+  }
+
+  function hydrateSessionProfile() {
+    if (!token || avatarUrl) return;
+    fetch('/api/auth/me', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (!data) return;
+        if (data.fullName) {
+          fullName = data.fullName;
+          localStorage.setItem('full_name', data.fullName);
+        }
+        if (data.avatar) {
+          avatarUrl = data.avatar;
+          localStorage.setItem('avatar_url', data.avatar);
+          renderNavbarUser(fullName, avatarUrl);
+        }
+      })
+      .catch(() => { /* ignore */ });
+  }
 
   // Mobile menu toggle
   if (navToggle && navMobileMenu) {
@@ -155,22 +210,24 @@ document.addEventListener("DOMContentLoaded", function() {
     if (navLoginBtn) navLoginBtn.classList.add('hidden');
     if (navUserDropdown) navUserDropdown.classList.remove('hidden');
 
-    if (navFullName) navFullName.innerText = fullName;
-
-    const nameParts = fullName.trim().split(' ');
-    let initials = '';
-    if (nameParts.length >= 2) {
-      initials = nameParts[nameParts.length - 2].charAt(0) + nameParts[nameParts.length - 1].charAt(0);
-    } else {
-      initials = fullName.charAt(0);
-    }
-    if (navAvatarInitials) navAvatarInitials.innerText = initials.toUpperCase();
+    renderNavbarUser(fullName, avatarUrl);
 
     if (profileLink) {
       const userId = localStorage.getItem('user_id');
       profileLink.href = (token && userId) ? `/member/${userId}` : '/profile';
     }
+
+    hydrateSessionProfile();
   }
+
+  window.addEventListener('user:profile-updated', function(event) {
+    const detail = event && event.detail ? event.detail : {};
+    fullName = detail.fullName || localStorage.getItem('full_name') || fullName;
+    avatarUrl = detail.avatar || localStorage.getItem('avatar_url') || '';
+    if (token && navUserDropdown && !navUserDropdown.classList.contains('hidden')) {
+      renderNavbarUser(fullName, avatarUrl);
+    }
+  });
 });
 
 function logout() {

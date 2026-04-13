@@ -216,41 +216,68 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: email, password: password })
             })
-            .then(response => {
-                if (response.ok) return response.json();
-                throw new Error("Tài khoản hoặc mật khẩu không chính xác!");
-            })
-            .then(data => {
-                if (data.accessToken) {
-                    localStorage.setItem('token', data.accessToken);
-                    document.cookie = 'accessToken=' + encodeURIComponent(data.accessToken) + '; path=/; max-age=' + (86400 * 7) + '; SameSite=Lax';
-                    localStorage.setItem('full_name', data.fullName);
-                    localStorage.setItem('user_id', data.userId);
-                    if (data.role) localStorage.setItem('role', data.role);
-                    else localStorage.removeItem('role');
-                    if (data.roles) localStorage.setItem('roles', JSON.stringify(data.roles));
-                    else localStorage.removeItem('roles');
-                    if (data.permissions) localStorage.setItem('permissions', JSON.stringify(data.permissions));
-                    if (data.familyId) localStorage.setItem('my_family_id', data.familyId);
-                    else localStorage.removeItem('my_family_id');
-                    if (data.familyName) localStorage.setItem('my_family_name', data.familyName);
-                    else localStorage.removeItem('my_family_name');
+                .then(response => {
+                    if (response.ok) return response.json();
+                    throw new Error("Tài khoản hoặc mật khẩu không chính xác!");
+                })
+                .then(data => {
+                    // 1. Log dữ liệu để kiểm tra status
+                    console.log("Dữ liệu login trả về:", data);
 
-                    const userStatus = data.status !== null ? Number(data.status) : 0;
-                    if (userStatus === 1) {
-                        sessionStorage.setItem('needsPasswordSetup', '1');
-                        window.location.href = '/';
-                    } else {
-                        window.location.href = '/home';
+                    // Bắt cả 2 trường hợp backend trả về accessToken hoặc token
+                    if (data.accessToken || data.token) {
+                        const tokenToSave = data.accessToken || data.token;
+
+                        // Lưu token và thông tin vào Storage
+                        localStorage.setItem('token', tokenToSave);
+                        document.cookie = 'accessToken=' + encodeURIComponent(tokenToSave) + '; path=/; max-age=' + (86400 * 7) + '; SameSite=Lax';
+                        localStorage.setItem('full_name', data.fullName);
+                        localStorage.setItem('user_id', data.userId);
+
+                        if (data.avatar) localStorage.setItem('avatar_url', data.avatar);
+                        else localStorage.removeItem('avatar_url');
+
+                        if (data.role) localStorage.setItem('role', data.role);
+                        else localStorage.removeItem('role');
+
+                        if (data.roles) localStorage.setItem('roles', JSON.stringify(data.roles));
+                        else localStorage.removeItem('roles');
+
+                        if (data.permissions) localStorage.setItem('permissions', JSON.stringify(data.permissions));
+
+                        if (data.familyId) localStorage.setItem('my_family_id', data.familyId);
+                        else localStorage.removeItem('my_family_id');
+
+                        if (data.familyName) localStorage.setItem('my_family_name', data.familyName);
+                        else localStorage.removeItem('my_family_name');
+
+                        // 2. Lấy status và xử lý điều hướng
+                        // ... các code lưu localStorage ở trên giữ nguyên ...
+
+                        const userStatus = (data.status !== undefined && data.status !== null) ? Number(data.status) : 0;
+
+                        if (userStatus === 1) {
+                            // 1. Hủy trạng thái loading của nút đăng nhập để không bị kẹt
+                            btnSubmit.innerHTML = '<span>Đăng nhập</span><span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>';
+                            btnSubmit.disabled = false;
+
+                            // 2. Đóng modal đăng nhập
+                            closeLoginModal();
+
+                            // 3. Mở thẳng Modal Đổi mật khẩu kích hoạt
+                            openActiveAccountModal();
+                        } else {
+                            // -- TÀI KHOẢN BÌNH THƯỜNG --
+                            window.location.href = '/home';
+                        }
                     }
-                }
-            })
-            .catch(error => {
-                const container = document.getElementById('loginAlertContainer');
-                container.innerHTML = `<div class="mb-6 p-4 rounded-lg bg-error/10 border border-error/30 flex items-center gap-3"><span class="material-symbols-outlined text-error">error</span><span class="text-error font-semibold">${error.message}</span></div>`;
-                btnSubmit.innerHTML = '<span>Đăng nhập</span><span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>';
-                btnSubmit.disabled = false;
-            });
+                })
+                .catch(error => {
+                    const container = document.getElementById('loginAlertContainer');
+                    container.innerHTML = `<div class="mb-6 p-4 rounded-lg bg-error/10 border border-error/30 flex items-center gap-3"><span class="material-symbols-outlined text-error">error</span><span class="text-error font-semibold">${error.message}</span></div>`;
+                    btnSubmit.innerHTML = '<span>Đăng nhập</span><span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>';
+                    btnSubmit.disabled = false;
+                });
         });
     }
 
@@ -438,6 +465,8 @@
                 document.cookie = 'accessToken=' + encodeURIComponent(data.accessToken) + '; path=/; max-age=' + (86400 * 7) + '; SameSite=Lax';
                 localStorage.setItem('full_name', data.fullName);
                 localStorage.setItem('user_id', data.userId);
+                if (data.avatar) localStorage.setItem('avatar_url', data.avatar);
+                else localStorage.removeItem('avatar_url');
                 if (data.role) localStorage.setItem('role', data.role);
                 else localStorage.removeItem('role');
                 if (data.roles) localStorage.setItem('roles', JSON.stringify(data.roles));
@@ -471,5 +500,165 @@
                 closeForgotPasswordModal();
             }
         }
+    });
+</script>
+<div id="activeAccountModal" class="hidden fixed inset-0 z-[80] bg-on-surface/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="relative w-full max-w-[400px] bg-surface rounded-2xl shadow-[0_24px_48px_rgba(0,0,0,0.15)] overflow-hidden border border-outline-variant/20">
+        <div class="p-6">
+            <div class="mb-5 text-left">
+                <h1 class="text-2xl font-headline font-bold text-primary mb-1">Kích hoạt tài khoản</h1>
+                <p class="text-on-surface-variant text-sm">Đây là lần đăng nhập đầu tiên. Vui lòng đặt mật khẩu mới để bảo mật tài khoản.</p>
+            </div>
+
+            <div id="activeAlertContainer"></div>
+
+            <form id="activeAccountForm" class="space-y-4">
+                <div class="space-y-1">
+                    <label class="block text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Mật khẩu mới</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline">
+                            <span class="material-symbols-outlined text-[18px]">lock</span>
+                        </div>
+                        <input class="block w-full pl-10 pr-4 py-2.5 text-sm bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" id="activeNewPw" type="password" placeholder="Mật khẩu mới" required/>
+                    </div>
+                </div>
+                <div class="space-y-1 pt-1">
+                    <label class="block text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Xác nhận mật khẩu</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline">
+                            <span class="material-symbols-outlined text-[18px]">lock</span>
+                        </div>
+                        <input class="block w-full pl-10 pr-4 py-2.5 text-sm bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" id="activeConfirmPw" type="password" placeholder="Nhập lại mật khẩu" required/>
+                    </div>
+                    <span id="activePwMatchMsg" class="text-xs block mt-1"></span>
+                </div>
+
+                <button type="submit" id="btnSubmitActive" class="w-full flex justify-center py-3 px-6 rounded-xl text-sm font-bold text-on-primary bg-primary hover:bg-primary-container transition-all mt-4 disabled:opacity-50" disabled>
+                    Xác nhận & Kích hoạt
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Hàm mở Modal
+    function openActiveAccountModal() {
+        document.getElementById('activeAccountModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Các phần tử DOM
+    const activePwInput = document.getElementById('activeNewPw');
+    const activeConfirmInput = document.getElementById('activeConfirmPw');
+    const activeMsg = document.getElementById('activePwMatchMsg');
+    const activeBtn = document.getElementById('btnSubmitActive');
+
+    // Biểu thức Regex: Ít nhất 8 ký tự, có hoa, thường, số, ký tự đặc biệt
+    const regexActivePwd = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&\W_])[A-Za-z\d@$!%*?&\W_]{8,}$/;
+
+    // Hàm Validate Form Đổi Mật Khẩu
+    function validateActiveForm() {
+        const p1 = activePwInput.value;
+        const p2 = activeConfirmInput.value;
+
+        let isFormatValid = false;
+        let isMatchValid = false;
+
+        // --- 1. Kiểm tra định dạng (Format) Mật khẩu gốc ---
+        if (p1.length === 0) {
+            // Khi chưa nhập gì -> Trở về viền xám mặc định
+            activePwInput.classList.remove('!border-error', '!border-green-600', '!focus:ring-error', '!focus:ring-green-600');
+            activeMsg.textContent = '';
+        } else if (!regexActivePwd.test(p1)) {
+            // Sai định dạng -> ĐỎ
+            activePwInput.classList.add('!border-error', '!focus:ring-error');
+            activePwInput.classList.remove('!border-green-600', '!focus:ring-green-600');
+            activeMsg.textContent = '⚠️ Ít nhất 8 ký tự: gồm chữ Hoa, thường, số & ký tự đặc biệt.';
+            activeMsg.className = 'text-xs text-error block mt-2 font-semibold';
+            isFormatValid = false;
+        } else {
+            // Đúng định dạng -> XANH
+            activePwInput.classList.remove('!border-error', '!focus:ring-error');
+            activePwInput.classList.add('!border-green-600', '!focus:ring-green-600');
+            isFormatValid = true;
+        }
+
+        // --- 2. Kiểm tra độ Khớp (Match) của Xác nhận mật khẩu ---
+        // (Chỉ kiểm tra khi mật khẩu gốc đã đúng định dạng)
+        if (isFormatValid) {
+            if (p2.length === 0) {
+                activeConfirmInput.classList.remove('!border-error', '!border-green-600', '!focus:ring-error', '!focus:ring-green-600');
+                activeMsg.textContent = 'Định dạng mật khẩu hợp lệ. Vui lòng xác nhận mật khẩu!';
+                activeMsg.className = 'text-xs text-secondary block mt-2 font-medium';
+                isMatchValid = false;
+            } else if (p1 !== p2) {
+                // Không khớp -> ĐỎ
+                activeConfirmInput.classList.add('!border-error', '!focus:ring-error');
+                activeConfirmInput.classList.remove('!border-green-600', '!focus:ring-green-600');
+                activeMsg.textContent = '❌ Mật khẩu xác nhận chưa khớp!';
+                activeMsg.className = 'text-xs text-error block mt-2 font-semibold';
+                isMatchValid = false;
+            } else {
+                // Khớp -> XANH CẢ 2
+                activeConfirmInput.classList.remove('!border-error', '!focus:ring-error');
+                activeConfirmInput.classList.add('!border-green-600', '!focus:ring-green-600');
+                activeMsg.textContent = '✅ Mật khẩu hợp lệ và trùng khớp!';
+                activeMsg.className = 'text-xs text-green-600 block mt-2 font-bold';
+                isMatchValid = true;
+            }
+        } else {
+            // Nếu Pass gốc sai, thì reset lại ô Pass xác nhận
+            activeConfirmInput.classList.remove('!border-error', '!border-green-600', '!focus:ring-error', '!focus:ring-green-600');
+        }
+
+        // --- 3. Đóng/Mở Nút Kích Hoạt ---
+        activeBtn.disabled = !(isFormatValid && isMatchValid);
+    }
+
+    // Gắn sự kiện để check mỗi khi gõ phím
+    activePwInput.addEventListener('input', validateActiveForm);
+    activeConfirmInput.addEventListener('input', validateActiveForm);
+
+    // Xử lý gọi API khi gửi Form kích hoạt
+    document.getElementById('activeAccountForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const newPassword = document.getElementById('activeNewPw').value;
+        const userId = localStorage.getItem('user_id');
+        const btn = document.getElementById('btnSubmitActive');
+
+        btn.innerHTML = 'Đang xử lý...';
+        btn.disabled = true;
+
+        fetch('/api/auth/active', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            },
+            body: JSON.stringify({ userId: userId, password: newPassword })
+        })
+            .then(res => {
+                if (res.ok) return res.json();
+                throw new Error("Có lỗi xảy ra khi đổi mật khẩu!");
+            })
+            .then(data => {
+                const container = document.getElementById('activeAlertContainer');
+                container.innerHTML = `<div class="mb-4 p-3 rounded-lg bg-secondary/10 border border-secondary/30 flex items-center gap-2"><span class="material-symbols-outlined text-secondary">check_circle</span><span class="text-secondary text-sm font-bold">Thành công! Đang vào hệ thống...</span></div>`;
+
+                // Lưu token mới
+                if (data.accessToken) {
+                    localStorage.setItem('token', data.accessToken);
+                    document.cookie = 'accessToken=' + encodeURIComponent(data.accessToken) + '; path=/; max-age=' + (86400 * 7) + '; SameSite=Lax';
+                }
+
+                setTimeout(() => window.location.href = '/home', 1500);
+            })
+            .catch(err => {
+                const container = document.getElementById('activeAlertContainer');
+                container.innerHTML = `<div class="mb-4 p-3 rounded-lg bg-error/10 border border-error/30 flex items-center gap-2"><span class="material-symbols-outlined text-error">error</span><span class="text-error text-sm font-bold">${err.message}</span></div>`;
+                btn.innerHTML = 'Xác nhận & Kích hoạt';
+                btn.disabled = false;
+            });
     });
 </script>
