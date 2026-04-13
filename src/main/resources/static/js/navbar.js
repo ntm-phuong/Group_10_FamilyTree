@@ -33,16 +33,27 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
-  // Set active nav link
+  // --- LOGIC HIỂN THỊ MENU GUEST vs STANDARD ---
+  const guestLinks = document.querySelectorAll('.guest-link');
+  const standardLinks = document.querySelectorAll('.standard-link');
+
+  if (currentPath === '/' && !token) {
+    // Nếu đang ở trang chủ và CHƯA đăng nhập -> Hiện menu cuộn trang (Guest), ẩn menu chuẩn
+    guestLinks.forEach(link => link.classList.remove('hidden'));
+    standardLinks.forEach(link => link.classList.add('hidden'));
+  } else {
+    // Ngược lại (Đã đăng nhập hoặc ở trang khác) -> Đảm bảo menu chuẩn hiển thị
+    guestLinks.forEach(link => link.classList.add('hidden'));
+    // (Các menu chuẩn sẽ được kiểm tra phân quyền ở phần dưới)
+  }
+
+  // --- LOGIC HIGHLIGHT DỰA TRÊN URL (CHO CÁC TRANG KHÁC TRANG CHỦ GUEST) ---
   function setActiveNavLink() {
-    // Remove active from all links
-    const allLinks = document.querySelectorAll('.nav-link');
-    allLinks.forEach(link => {
-      link.classList.remove('active');
-    });
+    // Xóa active khỏi tất cả standard links
+    standardLinks.forEach(link => link.classList.remove('active'));
 
     let activeSection = null;
-    if (currentPath === '/' || currentPath === '' || currentPath === '/home') {
+    if (currentPath === '/home' || (currentPath === '/' && token)) {
       activeSection = 'home';
     } else if (currentPath === '/about') {
       activeSection = 'about';
@@ -55,7 +66,6 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     if (activeSection) {
-      // Determine the selector suffix
       let selectorSuffix = '';
       if (activeSection === 'family-tree') {
         selectorSuffix = 'FamilyTree';
@@ -65,36 +75,72 @@ document.addEventListener("DOMContentLoaded", function() {
         selectorSuffix = activeSection.charAt(0).toUpperCase() + activeSection.slice(1);
       }
 
-      // Apply active to desktop and mobile links
       const activeDesktop = document.getElementById(`nav${selectorSuffix}`);
-      if (activeDesktop) {
-        activeDesktop.classList.add('active');
-      }
+      if (activeDesktop) activeDesktop.classList.add('active');
 
       const activeMobile = document.getElementById(`nav${selectorSuffix}Mobile`);
-      if (activeMobile) {
-        activeMobile.classList.add('active');
-      }
+      if (activeMobile) activeMobile.classList.add('active');
     }
   }
 
-  setActiveNavLink();
+  // --- SCROLL SPY LOGIC (TỰ ĐỘNG HIGHLIGHT KHI CUỘN Ở TRANG CHỦ) ---
+  function initScrollSpy() {
+    const sections = document.querySelectorAll('section[id]');
 
-  // Reveal nav after initialization to avoid flash
+    // Chỉ chạy scroll spy nếu ở trang chủ và chưa đăng nhập
+    if (currentPath !== '/' || token) return;
+
+    function onScroll() {
+      // Đặt mặc định là 'home' để bao trọn khu vực background trên cùng
+      let currentSection = 'home';
+      const scrollPosition = window.scrollY;
+
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+
+        // Cập nhật section nếu người dùng cuộn qua nó (trừ hao 100px của navbar)
+        if (scrollPosition >= (sectionTop - 100)) {
+          currentSection = section.getAttribute('id');
+        }
+      });
+
+      // BẢO HIỂM: Nếu cuộn chuột đang ở sát mép trên cùng (nhỏ hơn 50px)
+      // thì chắc chắn là đang ở khu vực banner background -> Ép về 'home'
+      if (scrollPosition < 50) {
+        currentSection = 'home';
+      }
+
+      // Highlight menu tương ứng
+      guestLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('data-scroll') === currentSection) {
+          link.classList.add('active');
+        }
+      });
+    }
+
+    // Lắng nghe sự kiện cuộn
+    window.addEventListener('scroll', onScroll);
+    // Chạy 1 lần ngay khi load trang để bắt đúng vị trí background hiện tại
+    onScroll();
+  }
+
+  // Chạy các hàm khởi tạo
+  setActiveNavLink();
+  initScrollSpy();
+
+  // Reveal nav sau khi xử lý xong để tránh giật giao diện (flash)
   if (topNav) topNav.style.display = '';
 
-  // If logged in
+  // --- LOGIC PHÂN QUYỀN (KHI ĐÃ ĐĂNG NHẬP) ---
   if (token && fullName) {
-    // Change logo and home links to /home
     if (navLogo) navLogo.href = '/home';
     if (navHome) navHome.href = '/home';
 
-    // Show family tree
     if (navFamilyTree) navFamilyTree.classList.remove('hidden');
     const navFamilyTreeMobile = document.getElementById('navFamilyTreeMobile');
     if (navFamilyTreeMobile) navFamilyTreeMobile.classList.remove('hidden');
 
-    // Check permissions for family head
     try {
       const perms = JSON.parse(localStorage.getItem('permissions') || '[]');
       const p = Array.isArray(perms) ? perms : [];
@@ -106,14 +152,11 @@ document.addEventListener("DOMContentLoaded", function() {
       }
     } catch (e) { /* ignore */ }
 
-    // Hide login button, show dropdown
     if (navLoginBtn) navLoginBtn.classList.add('hidden');
     if (navUserDropdown) navUserDropdown.classList.remove('hidden');
 
-    // Set user name
     if (navFullName) navFullName.innerText = fullName;
 
-    // Generate initials
     const nameParts = fullName.trim().split(' ');
     let initials = '';
     if (nameParts.length >= 2) {
@@ -123,7 +166,6 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     if (navAvatarInitials) navAvatarInitials.innerText = initials.toUpperCase();
 
-    // Update profile link
     if (profileLink) {
       const userId = localStorage.getItem('user_id');
       profileLink.href = (token && userId) ? `/member/${userId}` : '/profile';

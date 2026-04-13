@@ -1,19 +1,18 @@
 <!-- Login Modal Fragment -->
 <div id="loginModal" class="hidden fixed inset-0 z-[70] bg-on-surface/40 backdrop-blur-sm flex items-center justify-center p-4" xmlns:th="http://www.thymeleaf.org">
-    <div class="relative w-full max-w-[480px] bg-surface rounded-2xl shadow-[0_24px_48px_rgba(0,0,0,0.15)] overflow-hidden border border-outline-variant/20">
-        <div class="p-8 md:p-12">
-            <!-- Header Section -->
-            <div class="mb-10 text-left">
-                <div class="flex justify-between items-start mb-6">
+    <div class="relative w-full max-w-[400px] bg-surface rounded-2xl shadow-[0_24px_48px_rgba(0,0,0,0.15)] overflow-hidden border border-outline-variant/20">
+        <div class="p-6">
+            <div class="mb-6 text-left">
+                <div class="flex justify-between items-start mb-4">
                     <div>
-                        <h1 class="text-4xl font-headline font-bold text-primary tracking-tight mb-2">Đăng nhập</h1>
-                        <p class="text-on-surface-variant font-medium leading-relaxed">Hệ thống quản lý gia phả họ Nguyễn</p>
+                        <h1 class="text-3xl font-headline font-bold text-primary tracking-tight mb-1">Đăng nhập</h1>
+                        <p class="text-on-surface-variant font-medium leading-relaxed text-sm">Hệ thống quản lý gia phả họ Nguyễn</p>
                     </div>
                     <button onclick="closeLoginModal()" class="p-1.5 hover:bg-surface-container-high rounded-full transition-colors text-outline">
                         <span class="material-symbols-outlined text-xl">close</span>
                     </button>
                 </div>
-                <div class="mt-4 flex gap-1">
+                <div class="mt-2 flex gap-1">
                     <span class="h-1 w-8 bg-primary rounded-full"></span>
                     <span class="h-1 w-2 bg-primary/30 rounded-full"></span>
                 </div>
@@ -21,54 +20,48 @@
 
             <div id="loginAlertContainer"></div>
 
-            <!-- Login Form -->
-            <form id="loginFormModal" class="space-y-6">
-                <!-- Email Field -->
-                <div class="space-y-2">
+            <form id="loginFormModal" class="space-y-4">
+                <div class="space-y-1">
                     <label class="block text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1" for="loginEmail">Email</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline">
-                            <span class="material-symbols-outlined text-[20px]" data-icon="mail">mail</span>
+                            <span class="material-symbols-outlined text-[18px]" data-icon="mail">mail</span>
                         </div>
-                        <input class="block w-full pl-11 pr-4 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 placeholder:text-outline-variant/60 text-on-surface font-body" id="loginEmail" name="email" placeholder="Nhập email của bạn" type="email" required/>
+                        <input class="block w-full pl-10 pr-4 py-2.5 text-sm bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 placeholder:text-outline-variant/60 text-on-surface font-body" id="loginEmail" name="email" placeholder="Nhập email của bạn" type="email" required/>
                     </div>
                 </div>
-                <!-- Password Field -->
-                <div class="space-y-2">
-                    <div class="flex justify-between items-end">
+                <div class="space-y-1">
+                    <div class="flex justify-between items-end mb-1">
                         <label class="block text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1" for="loginPassword">Mật khẩu</label>
                         <a class="text-xs font-bold text-primary hover:text-primary-container transition-colors duration-200 cursor-pointer" onclick="openForgotPasswordModal()">Quên mật khẩu?</a>
                     </div>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline">
-                            <span class="material-symbols-outlined text-[20px]" data-icon="lock">lock</span>
+                            <span class="material-symbols-outlined text-[18px]" data-icon="lock">lock</span>
                         </div>
-                        <input class="block w-full pl-11 pr-12 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 placeholder:text-outline-variant/60 text-on-surface font-body" id="loginPassword" name="password" placeholder="••••••••" type="password" required/>
+                        <input class="block w-full pl-10 pr-12 py-2.5 text-sm bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 placeholder:text-outline-variant/60 text-on-surface font-body" id="loginPassword" name="password" placeholder="••••••••" type="password" required/>
                         <button class="absolute inset-y-0 right-0 pr-4 flex items-center text-outline hover:text-on-surface transition-colors" type="button" onclick="toggleLoginPassword()">
-                            <span class="material-symbols-outlined text-[20px]" id="loginPasswordToggle" data-icon="visibility">visibility</span>
+                            <span class="material-symbols-outlined text-[18px]" id="loginPasswordToggle" data-icon="visibility">visibility</span>
                         </button>
                     </div>
                 </div>
-                <!-- Action Button -->
-                <div class="pt-4">
-                    <button class="group relative w-full flex justify-center py-4 px-6 rounded-xl text-sm font-bold text-on-primary bg-primary hover:bg-primary-container hover:shadow-lg transition-all duration-300 items-center gap-2" type="submit">
+                <div class="pt-2">
+                    <button class="group relative w-full flex justify-center py-3 px-6 rounded-xl text-sm font-bold text-on-primary bg-primary hover:bg-primary-container hover:shadow-lg transition-all duration-300 items-center gap-2" type="submit">
                         <span>Đăng nhập</span>
                         <span class="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1" data-icon="arrow_forward">arrow_forward</span>
                     </button>
                 </div>
             </form>
 
-            <!-- Footer Help Text -->
-            <div class="mt-12 pt-8 border-t border-outline-variant/10 text-center">
+            <div class="mt-6 pt-5 border-t border-outline-variant/10 text-center">
                 <p class="text-sm text-on-surface-variant leading-relaxed">
                     Chưa có tài khoản? <br class="md:hidden"/>
                     <a class="font-bold text-primary hover:underline transition-all" href="#">Liên hệ Ban Quản Trị</a> để được cấp quyền.
                 </p>
-                <!-- Branding Anchor -->
-                <div class="mt-8 flex items-center justify-center gap-2 opacity-30">
-                    <span class="font-headline italic text-lg text-primary tracking-tighter">Family Care</span>
-                    <span class="h-px w-8 bg-outline-variant"></span>
-                    <span class="text-[10px] uppercase font-label tracking-[0.2em]">Heritage Preservation</span>
+                <div class="mt-4 flex items-center justify-center gap-2 opacity-30">
+                    <span class="font-headline italic text-base text-primary tracking-tighter">Family Care</span>
+                    <span class="h-px w-6 bg-outline-variant"></span>
+                    <span class="text-[10px] uppercase font-label tracking-[0.2em]">Heritage</span>
                 </div>
             </div>
         </div>
@@ -76,20 +69,19 @@
 </div>
 
 <div id="forgotPwModalPopup" class="hidden fixed inset-0 z-[71] bg-on-surface/40 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="relative w-full max-w-[480px] bg-surface rounded-2xl shadow-[0_24px_48px_rgba(0,0,0,0.15)] overflow-hidden border border-outline-variant/20">
-        <div class="p-8 md:p-12">
-            <!-- Header Section -->
-            <div class="mb-10 text-left">
-                <div class="flex justify-between items-start mb-6">
+    <div class="relative w-full max-w-[400px] bg-surface rounded-2xl shadow-[0_24px_48px_rgba(0,0,0,0.15)] overflow-hidden border border-outline-variant/20">
+        <div class="p-6">
+            <div class="mb-6 text-left">
+                <div class="flex justify-between items-start mb-4">
                     <div>
-                        <h1 class="text-4xl font-headline font-bold text-primary tracking-tight mb-2">Khôi phục mật khẩu</h1>
+                        <h1 class="text-3xl font-headline font-bold text-primary tracking-tight mb-1">Khôi phục mật khẩu</h1>
                         <p class="text-on-surface-variant font-medium leading-relaxed text-sm">3 bước để đặt lại mật khẩu</p>
                     </div>
                     <button onclick="closeForgotPasswordModal()" class="p-1.5 hover:bg-surface-container-high rounded-full transition-colors text-outline">
                         <span class="material-symbols-outlined text-xl">close</span>
                     </button>
                 </div>
-                <div class="mt-4 flex gap-1">
+                <div class="mt-2 flex gap-1">
                     <span class="h-1 w-8 bg-primary rounded-full"></span>
                     <span class="h-1 w-2 bg-primary/30 rounded-full"></span>
                 </div>
@@ -97,77 +89,74 @@
 
             <div id="forgotAlertContainer"></div>
 
-            <!-- Step 1: Enter Email -->
-            <form id="step1FormPopup" class="space-y-6">
-                <p class="text-on-surface-variant text-sm leading-relaxed">Nhập email tài khoản của bạn. Chúng tôi sẽ gửi mã xác thực (OTP) gồm 6 chữ số.</p>
-                <div class="space-y-2">
+            <form id="step1FormPopup" class="space-y-4">
+                <p class="text-on-surface-variant text-sm leading-relaxed mb-2">Nhập email tài khoản. Chúng tôi sẽ gửi mã OTP 6 số.</p>
+                <div class="space-y-1">
                     <label class="block text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Email</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline">
-                            <span class="material-symbols-outlined text-[20px]" data-icon="mail">mail</span>
+                            <span class="material-symbols-outlined text-[18px]" data-icon="mail">mail</span>
                         </div>
-                        <input class="block w-full pl-11 pr-4 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 placeholder:text-outline-variant/60 text-on-surface font-body" id="forgotEmailPopup" placeholder="Nhập email của bạn..." type="email" required/>
+                        <input class="block w-full pl-10 pr-4 py-2.5 text-sm bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 placeholder:text-outline-variant/60 text-on-surface font-body" id="forgotEmailPopup" placeholder="Nhập email của bạn..." type="email" required/>
                     </div>
                 </div>
-                <button type="submit" class="w-full flex justify-center py-4 px-6 rounded-xl text-sm font-bold text-on-primary bg-primary hover:bg-primary-container hover:shadow-lg transition-all duration-300 items-center gap-2">
+                <button type="submit" class="mt-2 w-full flex justify-center py-3 px-6 rounded-xl text-sm font-bold text-on-primary bg-primary hover:bg-primary-container hover:shadow-lg transition-all duration-300 items-center gap-2">
                     <span>Gửi mã xác thực</span>
                     <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
                 </button>
             </form>
 
-            <!-- Step 2: Verify OTP -->
-            <form id="step2FormPopup" class="space-y-6 hidden">
-                <p class="text-secondary font-semibold text-sm">Mã OTP đã được gửi đến email của bạn!</p>
-                <div class="space-y-2">
+            <form id="step2FormPopup" class="space-y-4 hidden">
+                <p class="text-secondary font-semibold text-sm mb-2">Mã OTP đã được gửi đến email của bạn!</p>
+                <div class="space-y-1">
                     <label class="block text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Mã OTP</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline">
-                            <span class="material-symbols-outlined text-[20px]" data-icon="lock">lock</span>
+                            <span class="material-symbols-outlined text-[18px]" data-icon="lock">lock</span>
                         </div>
-                        <input class="block w-full pl-11 pr-4 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 placeholder:text-outline-variant/60 text-on-surface font-body" id="otpCodePopup" placeholder="Nhập mã OTP 6 số" type="text" maxlength="6" required/>
+                        <input class="block w-full pl-10 pr-4 py-2.5 text-sm bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 placeholder:text-outline-variant/60 text-on-surface font-body" id="otpCodePopup" placeholder="Nhập mã OTP 6 số" type="text" maxlength="6" required/>
                     </div>
                 </div>
-                <button type="submit" class="w-full flex justify-center py-4 px-6 rounded-xl text-sm font-bold text-on-primary bg-primary hover:bg-primary-container hover:shadow-lg transition-all duration-300 items-center gap-2">
+                <button type="submit" class="mt-2 w-full flex justify-center py-3 px-6 rounded-xl text-sm font-bold text-on-primary bg-primary hover:bg-primary-container hover:shadow-lg transition-all duration-300 items-center gap-2">
                     <span>Xác nhận mã OTP</span>
                     <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
                 </button>
-                <button type="button" onclick="backToEmailStep()" class="w-full text-center text-primary font-semibold text-sm hover:underline">
+                <button type="button" onclick="backToEmailStep()" class="w-full text-center text-primary font-semibold text-sm hover:underline mt-2">
                     ← Nhập lại email khác
                 </button>
             </form>
 
-            <!-- Step 3: New Password -->
-            <form id="step3FormPopup" class="space-y-6 hidden">
-                <p class="text-on-surface-variant text-sm">Mã xác thực chính xác. Vui lòng đặt mật khẩu mới.</p>
-                <div class="space-y-2">
+            <form id="step3FormPopup" class="space-y-4 hidden">
+                <p class="text-on-surface-variant text-sm mb-2">Mã xác thực chính xác. Vui lòng đặt mật khẩu mới.</p>
+                <div class="space-y-1">
                     <label class="block text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Mật khẩu mới</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline">
-                            <span class="material-symbols-outlined text-[20px]" data-icon="lock">lock</span>
+                            <span class="material-symbols-outlined text-[18px]" data-icon="lock">lock</span>
                         </div>
-                        <input class="block w-full pl-11 pr-12 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 placeholder:text-outline-variant/60 text-on-surface font-body" id="newForgotPassPopup" placeholder="Nhập mật khẩu mới" type="password" required/>
+                        <input class="block w-full pl-10 pr-12 py-2.5 text-sm bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 placeholder:text-outline-variant/60 text-on-surface font-body" id="newForgotPassPopup" placeholder="Nhập mật khẩu mới" type="password" required/>
                         <button class="absolute inset-y-0 right-0 pr-4 flex items-center text-outline hover:text-on-surface transition-colors" type="button" onclick="toggleNewPassword()">
-                            <span class="material-symbols-outlined text-[20px]" id="newPwToggle" data-icon="visibility">visibility</span>
+                            <span class="material-symbols-outlined text-[18px]" id="newPwToggle" data-icon="visibility">visibility</span>
                         </button>
                     </div>
-                    <span class="text-xs text-on-surface-variant block mt-2">Ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số & ký tự đặc biệt.</span>
+                    <span class="text-[11px] text-on-surface-variant block mt-1">Ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số & ký tự đặc biệt.</span>
                 </div>
 
-                <div class="space-y-2">
+                <div class="space-y-1 pt-2">
                     <label class="block text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant ml-1">Xác nhận mật khẩu</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline">
-                            <span class="material-symbols-outlined text-[20px]" data-icon="lock">lock</span>
+                            <span class="material-symbols-outlined text-[18px]" data-icon="lock">lock</span>
                         </div>
-                        <input class="block w-full pl-11 pr-12 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 placeholder:text-outline-variant/60 text-on-surface font-body" id="confirmForgotPassPopup" placeholder="Nhập lại mật khẩu" type="password" required/>
+                        <input class="block w-full pl-10 pr-12 py-2.5 text-sm bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 placeholder:text-outline-variant/60 text-on-surface font-body" id="confirmForgotPassPopup" placeholder="Nhập lại mật khẩu" type="password" required/>
                         <button class="absolute inset-y-0 right-0 pr-4 flex items-center text-outline hover:text-on-surface transition-colors" type="button" onclick="toggleConfirmPassword()">
-                            <span class="material-symbols-outlined text-[20px]" id="confirmPwToggle" data-icon="visibility">visibility</span>
+                            <span class="material-symbols-outlined text-[18px]" id="confirmPwToggle" data-icon="visibility">visibility</span>
                         </button>
                     </div>
-                    <span id="forgotMatchMessagePopup" class="text-xs block mt-2"></span>
+                    <span id="forgotMatchMessagePopup" class="text-xs block mt-1"></span>
                 </div>
 
-                <button id="btnResetPassPopup" type="submit" class="w-full flex justify-center py-4 px-6 rounded-xl text-sm font-bold text-on-primary bg-primary hover:bg-primary-container hover:shadow-lg transition-all duration-300 items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                <button id="btnResetPassPopup" type="submit" class="mt-2 w-full flex justify-center py-3 px-6 rounded-xl text-sm font-bold text-on-primary bg-primary hover:bg-primary-container hover:shadow-lg transition-all duration-300 items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                     <span>Xác nhận đổi mật khẩu</span>
                     <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
                 </button>
