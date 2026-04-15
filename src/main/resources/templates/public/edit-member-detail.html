@@ -298,6 +298,20 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        function syncNavbarProfileIfCurrentUser(userId, profileData) {
+            const currentUserId = (localStorage.getItem('user_id') || '').trim();
+            if (!currentUserId || currentUserId !== String(userId || '').trim()) {
+                return;
+            }
+            if (profileData && typeof profileData.fullName === 'string' && profileData.fullName.trim()) {
+                localStorage.setItem('full_name', profileData.fullName.trim());
+            }
+            if (profileData && typeof profileData.avatar === 'string' && profileData.avatar.trim()) {
+                localStorage.setItem('avatar_url', profileData.avatar.trim());
+            }
+            window.dispatchEvent(new CustomEvent('profile-updated', { detail: profileData || {} }));
+        }
+
         // -------------------------------------------------------------
         // 1. XỬ LÝ UPLOAD AVATAR
         // -------------------------------------------------------------
@@ -336,6 +350,8 @@
                 })
                 .then(async response => {
                     if (response.ok) {
+                        const updatedProfile = await response.json();
+                        syncNavbarProfileIfCurrentUser(userId, updatedProfile);
                         // Tùy chọn: Dùng thư viện Toastr hoặc thông báo mượt mà hơn
                         alert("Tải ảnh đại diện thành công!");
                     } else {
@@ -391,6 +407,8 @@
                 })
                 .then(async response => {
                     if (response.ok) {
+                        const updatedProfile = await response.json();
+                        syncNavbarProfileIfCurrentUser(userId, updatedProfile);
                         alert("Cập nhật thông tin thành công!");
                         // Chuyển hướng về trang chi tiết sau khi lưu thành công
                         window.location.href = `/member/${userId}`;

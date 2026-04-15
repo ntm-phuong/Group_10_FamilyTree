@@ -25,10 +25,10 @@
             <div class="md:col-span-4 flex flex-col gap-4">
                 <h4 class="font-bold text-primary text-sm uppercase tracking-widest font-label">Liên Hệ</h4>
                 <div class="flex flex-col gap-3 text-sm text-on-surface-variant font-body">
-                    <p class="flex items-start gap-3"><i class="fas fa-map-marker-alt text-secondary mt-1 w-4 text-center"></i> <span>Xã Đại Mỗ, Từ Liêm, Hà Nội</span></p>
-                    <p class="flex items-start gap-3"><i class="fas fa-user text-secondary mt-1 w-4 text-center"></i> <span>Trưởng họ: Nguyễn Hồng Sơn</span></p>
-                    <p class="flex items-start gap-3"><i class="fas fa-phone text-secondary mt-1 w-4 text-center"></i> <span>0934 567 890</span></p>
-                    <p class="flex items-start gap-3"><i class="fas fa-envelope text-secondary mt-1 w-4 text-center"></i> <span>contact@giapha.vn</span></p>
+                    <p class="flex items-start gap-3"><i class="fas fa-map-marker-alt text-secondary mt-1 w-4 text-center"></i> <span id="footerContactAddress">Xã Đại Mỗ, Từ Liêm, Hà Nội</span></p>
+                    <p class="flex items-start gap-3"><i class="fas fa-user text-secondary mt-1 w-4 text-center"></i> <span id="footerContactHeadName">Trưởng họ: Nguyễn Hồng Sơn</span></p>
+                    <p class="flex items-start gap-3"><i class="fas fa-phone text-secondary mt-1 w-4 text-center"></i> <span id="footerContactPhone">0934 567 890</span></p>
+                    <p class="flex items-start gap-3"><i class="fas fa-envelope text-secondary mt-1 w-4 text-center"></i> <span id="footerContactEmail">contact@giapha.vn</span></p>
                 </div>
             </div>
 
@@ -51,12 +51,63 @@
             const footerHomeLink = document.getElementById('footerHomeLink');
             const authLinks = document.querySelectorAll('.footer-auth-link');
 
+            function updateFooterContact(head) {
+                if (!head || typeof head !== 'object' || Object.keys(head).length === 0) {
+                    return;
+                }
+                const nameEl = document.getElementById('footerContactHeadName');
+                const phoneEl = document.getElementById('footerContactPhone');
+                const emailEl = document.getElementById('footerContactEmail');
+                const addressEl = document.getElementById('footerContactAddress');
+
+                if (nameEl && head.fullName) {
+                    nameEl.textContent = 'Trưởng họ: ' + head.fullName;
+                }
+                if (phoneEl && head.phoneNumber) {
+                    phoneEl.textContent = head.phoneNumber;
+                }
+                if (emailEl && head.email) {
+                    emailEl.textContent = head.email;
+                }
+                if (addressEl && head.currentAddress) {
+                    addressEl.textContent = head.currentAddress;
+                }
+            }
+
+            function loadFooterContactForLoggedInUser() {
+                // Trang guest home giữ thông tin cứng theo yêu cầu.
+                if (window.location.pathname === '/') {
+                    return;
+                }
+                const familyId = (localStorage.getItem('my_family_id') || localStorage.getItem('family_root_id') || '').trim();
+                if (!familyId) {
+                    return;
+                }
+                fetch('/api/public/family-head-info?familyId=' + encodeURIComponent(familyId), {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    }
+                })
+                    .then(function(response) {
+                        if (!response.ok) {
+                            throw new Error('Không tải được liên hệ trưởng họ');
+                        }
+                        return response.json();
+                    })
+                    .then(updateFooterContact)
+                    .catch(function() {
+                        // Giữ fallback cứng nếu API lỗi.
+                    });
+            }
+
             if (token) {
                 // NẾU ĐÃ ĐĂNG NHẬP:
                 // 1. Đổi link "Trang Chủ" về /home
                 if (footerHomeLink) {
                     footerHomeLink.setAttribute('href', '/home');
                 }
+                loadFooterContactForLoggedInUser();
                 // (Các link Giới thiệu, Gia phả, Tin tức vẫn giữ nguyên href mặc định để chuyển trang bình thường)
             } else {
                 // NẾU LÀ KHÁCH (CHƯA ĐĂNG NHẬP):

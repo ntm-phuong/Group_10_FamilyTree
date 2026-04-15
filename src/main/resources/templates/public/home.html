@@ -254,6 +254,29 @@
             return; // Dừng thực thi code bên dưới
         }
 
+        function enforceActivatedAccount() {
+            return fetch('/api/auth/me', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                }
+            }).then(r => (r.ok ? r.json() : null)).then(me => {
+                if (!me) {
+                    localStorage.removeItem('token');
+                    window.location.replace('/');
+                    return Promise.reject(new Error('Phiên đăng nhập không hợp lệ'));
+                }
+                if (Number(me.status) === 1) {
+                    sessionStorage.setItem('needsPasswordSetup', '1');
+                    if (me.email) sessionStorage.setItem('pendingResetEmail', me.email);
+                    window.location.replace('/');
+                    return Promise.reject(new Error('Yêu cầu đổi mật khẩu lần đầu'));
+                }
+                return me;
+            });
+        }
+
         // Lấy family_id từ LocalStorage (Được set vào lúc Login/Active)
         let familyId = localStorage.getItem('family_id');
 
@@ -287,7 +310,8 @@
         // ==================================================
         // 1. GỌI API LẤY DỮ LIỆU HOME CHO DÒNG HỌ TƯƠNG ỨNG
         // ==================================================
-        resolveFamilyId()
+        enforceActivatedAccount()
+            .then(() => resolveFamilyId())
             .then(familyId => {
                 if (!familyId) {
                     throw new Error('Không xác định được dòng họ (chưa gắn family hoặc token hết hạn).');
@@ -324,6 +348,9 @@
                 renderNews(data.latestNews);
             })
             .catch(error => {
+                if (error && (error.message === 'Yêu cầu đổi mật khẩu lần đầu' || error.message === 'Phiên đăng nhập không hợp lệ')) {
+                    return;
+                }
                 console.error(error);
                 document.getElementById('eventsContainer').innerHTML = `<p style="grid-column: span 4; text-align: center; color: red;">Lỗi tải dữ liệu sự kiện.</p>`;
                 document.getElementById('newsContainer').innerHTML = `<p style="grid-column: span 4; text-align: center; color: red;">Lỗi tải dữ liệu tin tức.</p>`;

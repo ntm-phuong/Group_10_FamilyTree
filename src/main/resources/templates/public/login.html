@@ -291,6 +291,13 @@
         container.appendChild(div);
     }
 
+    function markFirstLoginPasswordSetup(email) {
+        sessionStorage.setItem('needsPasswordSetup', '1');
+        if (email) {
+            sessionStorage.setItem('pendingResetEmail', email);
+        }
+    }
+
     function toggleNewForgotPw() {
         const input = document.getElementById('newForgotPass');
         const icon = document.getElementById('newPwToggle');
@@ -355,6 +362,8 @@
                     localStorage.setItem('token', data.accessToken);
                     setAccessTokenCookie(data.accessToken);
                     localStorage.setItem('full_name', data.fullName);
+                    if (data.avatar) localStorage.setItem('avatar_url', data.avatar);
+                    else localStorage.removeItem('avatar_url');
                     localStorage.setItem('user_id', data.userId);
                     if (data.role) localStorage.setItem('role', data.role);
                     else localStorage.removeItem('role');
@@ -369,7 +378,7 @@
                     else localStorage.removeItem('family_root_id');
                     const userStatus = data.status !== null ? Number(data.status) : 0;
                     if (userStatus === 1) {
-                        sessionStorage.setItem('needsPasswordSetup', '1');
+                        markFirstLoginPasswordSetup(emailValue);
                         window.location.href = '/';
                     } else {
                         window.location.href = '/home';
@@ -540,6 +549,8 @@
                     localStorage.setItem('token', data.accessToken);
                     setAccessTokenCookie(data.accessToken);
                     localStorage.setItem('full_name', data.fullName);
+                    if (data.avatar) localStorage.setItem('avatar_url', data.avatar);
+                    else localStorage.removeItem('avatar_url');
                     localStorage.setItem('user_id', data.userId);
                     if (data.role) localStorage.setItem('role', data.role);
                     else localStorage.removeItem('role');
@@ -552,6 +563,8 @@
                     else localStorage.removeItem('my_family_name');
                     if (data.familyRootId) localStorage.setItem('family_root_id', data.familyRootId);
                     else localStorage.removeItem('family_root_id');
+                    sessionStorage.removeItem('needsPasswordSetup');
+                    sessionStorage.removeItem('pendingResetEmail');
                 }
 
                 setTimeout(() => {

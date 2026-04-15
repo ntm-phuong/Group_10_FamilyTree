@@ -1,6 +1,10 @@
 <nav id="topNav" style="display:none" class="fixed top-0 w-full z-50 bg-[#fafaf5]/85 dark:bg-stone-900/85 backdrop-blur-md shadow-sm dark:shadow-none" th:fragment="navbar" xmlns:th="http://www.thymeleaf.org">
-  <div class="flex justify-between items-center max-w-6xl mx-auto px-6 h-16">
-    <a href="/" class="text-xl font-serif italic text-[#154212] dark:text-[#f4f4ef] hover:opacity-80 transition-opacity" id="navLogo">Family Care</a>
+  <div class="grid grid-cols-3 items-center max-w-6xl mx-auto px-6 h-16 md:flex md:justify-between">
+    <button class="md:hidden text-stone-700 dark:text-stone-300 col-start-1 justify-self-start" id="navToggle">
+      <span class="material-symbols-outlined text-xl">menu</span>
+    </button>
+
+    <a href="/" class="text-xl font-serif italic text-[#154212] dark:text-[#f4f4ef] hover:opacity-80 transition-opacity col-start-2 justify-self-center md:justify-self-auto" id="navLogo">Family Care</a>
 
     <div class="hidden md:flex items-center space-x-6" id="navLinks">
 
@@ -16,9 +20,13 @@
       <a href="/news" class="nav-link standard-link text-stone-600 dark:text-stone-400 font-medium hover:text-[#2D5A27] transition-colors text-sm" id="navNews" data-section="news">Tin Tức</a>
     </div>
 
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-4 col-start-3 justify-self-end">
       <button onclick="openLoginModal()" class="bamboo-gradient text-on-primary px-5 py-2 rounded-lg font-bold text-sm hover:shadow-lg transition-all active:scale-95 cursor-pointer border-0" id="navLoginBtn">
-        Đăng nhập
+        <img src="/images/profile-circle.svg"
+             th:src="@{/images/profile-circle.svg}"
+             alt="Đăng nhập"
+             class="h-6 w-6 md:hidden filter invert"/>
+        <span class="hidden md:inline">Đăng nhập</span>
       </button>
 
       <div class="relative group hidden" id="navUserDropdown">
@@ -36,9 +44,6 @@
       </div>
     </div>
 
-    <button class="md:hidden text-stone-700 dark:text-stone-300" id="navToggle">
-      <span class="material-symbols-outlined text-xl">menu</span>
-    </button>
   </div>
 
   <nav class="md:hidden hidden bg-white dark:bg-stone-800 border-t border-gray-200 dark:border-stone-700" id="navMobileMenu">

@@ -441,6 +441,17 @@
                 openLoginModal();
                 window.history.replaceState({}, document.title, '/');
             }
+
+            if (sessionStorage.getItem('needsPasswordSetup') === '1') {
+                const pendingEmail = (sessionStorage.getItem('pendingResetEmail') || '').trim();
+                if (typeof openForgotPasswordModal === 'function') {
+                    openForgotPasswordModal();
+                    const forgotEmailInput = document.getElementById('forgotEmailPopup');
+                    if (forgotEmailInput && pendingEmail) {
+                        forgotEmailInput.value = pendingEmail;
+                    }
+                }
+            }
         }, 150);
     });
 

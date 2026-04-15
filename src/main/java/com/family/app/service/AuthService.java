@@ -93,8 +93,9 @@ public class AuthService {
         User user = userRepository.findByEmailWithFamily(email)
                 .orElseThrow(() -> new RuntimeException("Email không tồn tại"));
 
-        if (user.getStatus() == null || user.getStatus() != 2) {
-            throw new RuntimeException("Please verify your email first");
+        Integer status = user.getStatus();
+        if (status == null || (status != 1 && status != 2)) {
+            throw new RuntimeException("Tài khoản chưa sẵn sàng đăng nhập");
         }
 
         if (passwordEncoder.matches(password, user.getPassword())) {
@@ -104,6 +105,7 @@ public class AuthService {
             authData.put("token", token);
             authData.put("userId", user.getUserId());
             authData.put("fullName", user.getFullName());
+            authData.put("avatar", user.getAvatar());
             authData.put("status", user.getStatus());
             authData.put("familyId", user.getFamily() != null ? user.getFamily().getFamilyId() : null);
 
@@ -159,6 +161,8 @@ public class AuthService {
         m.put("userId", user.getUserId());
         m.put("fullName", user.getFullName());
         m.put("email", user.getEmail());
+        m.put("avatar", user.getAvatar());
+        m.put("status", user.getStatus());
         List<String> permNames = UserRoleSupport.mergedPermissionNames(user);
         if (!permNames.isEmpty()) {
             m.put("permissions", permNames);
